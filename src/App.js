@@ -14,13 +14,13 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* 🌈 Vibrant Top Nav */}
+      {/* Vibrant Top Nav */}
       <header className="sticky top-0 z-10 bg-gradient-to-r from-pink-500 to-yellow-400 shadow-md px-6 py-4 flex justify-between items-center">
         <h1 className="text-3xl font-bold text-white tracking-wide">WAffy</h1>
         <UserButton afterSignOutUrl="/" />
       </header>
 
-      {/* 📦 Main Content */}
+      {/* Main Content */}
       <main className="p-6 space-y-4">
         <SignedIn>
           {sortedMessages.map((msg) => (

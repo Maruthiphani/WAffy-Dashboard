@@ -1,0 +1,10 @@
+[
+  {
+    "timestamp": "2025-04-18 11:57:37",
+    "customer_id": "4837",
+    "sender": "4387938403",
+    "message": "i need help",
+    "predicted_category": "general_inquiry",
+    "priority": "moderate"
+  }
+]

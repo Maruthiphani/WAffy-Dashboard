@@ -1,0 +1,3 @@
+timestamp,customer_id,sender,message,predicted_category,priority
+2025-04-16 17:32:21,cust_0123,56485793,Can you confirm if my package has been shipped?,order_status,moderate
+2025-04-16 17:51:46,cust_9483,54958045-,Hello,others,low

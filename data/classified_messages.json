@@ -1,0 +1,18 @@
+[
+  {
+    "timestamp": "2025-04-16 17:32:21",
+    "customer_id": "cust_0123",
+    "sender": "56485793",
+    "message": "Can you confirm if my package has been shipped?",
+    "predicted_category": "order_status",
+    "priority": "moderate"
+  },
+  {
+    "timestamp": "2025-04-16 17:51:46",
+    "customer_id": "cust_9483",
+    "sender": "54958045-",
+    "message": "Hello",
+    "predicted_category": "others",
+    "priority": "low"
+  }
+]

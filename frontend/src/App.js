@@ -1,11 +1,14 @@
-import React, { useState } from "react";
-import { SignedIn, SignedOut, SignIn, SignUp, UserButton } from "@clerk/clerk-react";
+import React, { useState, useEffect } from "react";
+import { SignedIn, SignedOut, SignIn, SignUp, UserButton, useUser } from "@clerk/clerk-react";
 import { messages } from "./data/messages";
 import { MessageTab } from "./components/MessageTab";
+import { createUser, getUserByClerkId } from "./services/userService";
 
 function App() {
   const [activeTab, setActiveTab] = useState("signup");
   const [activeFaq, setActiveFaq] = useState(null);
+  const [waffyUser, setWaffyUser] = useState(null);
+  const { isLoaded, isSignedIn, user } = useUser();
   
   const handleReply = (id) => {
     alert(`Reply to message ID: ${id}`);
@@ -19,21 +22,77 @@ function App() {
     setActiveFaq(activeFaq === index ? null : index);
   };
 
+  // Handle user creation/fetching when Clerk user changes
+  useEffect(() => {
+    const syncUserWithDatabase = async () => {
+      if (isLoaded && isSignedIn && user) {
+        try {
+          // Try to get existing user from our database
+          const existingUser = await getUserByClerkId(user.id);
+          
+          if (existingUser) {
+            // User already exists in our database
+            setWaffyUser(existingUser);
+            console.log("User found in database:", existingUser);
+          } else {
+            // User doesn't exist, create a new one
+            const primaryEmail = user.primaryEmailAddress?.emailAddress;
+            
+            if (primaryEmail) {
+              const userData = {
+                clerk_id: user.id,
+                email: primaryEmail,
+                first_name: user.firstName || "",
+                last_name: user.lastName || ""
+              };
+              
+              const newUser = await createUser(userData);
+              setWaffyUser(newUser);
+              console.log("New user created in database:", newUser);
+            }
+          }
+        } catch (error) {
+          console.error("Error syncing user with database:", error);
+        }
+      }
+    };
+
+    syncUserWithDatabase();
+  }, [isLoaded, isSignedIn, user]);
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Vibrant Top Nav */}
       <header className="sticky top-0 z-10 bg-gradient-to-r from-pink-500 to-yellow-400 shadow-md px-6 py-4 flex justify-between items-center">
         <h1 className="text-3xl font-bold text-white tracking-wide">WAffy</h1>
-        <UserButton afterSignOutUrl="/" />
+        <div className="flex items-center">
+          {isSignedIn && waffyUser && (
+            <span className="text-white mr-4">WAffy ID: {waffyUser.id}</span>
+          )}
+          <UserButton afterSignOutUrl="/" />
+        </div>
       </header>
 
       {/* Main Content */}
       <main className="p-6">
         <SignedIn>
           <div className="space-y-4">
-            {sortedMessages.map((msg) => (
-              <MessageTab key={msg.id} message={msg} onReply={handleReply} />
-            ))}
+            {waffyUser ? (
+              <>
+                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                  <h2 className="text-2xl font-bold mb-4">Welcome, {waffyUser.first_name || "User"}!</h2>
+                  <p className="text-gray-600">Your WAffy ID: {waffyUser.id}</p>
+                  <p className="text-gray-600">Email: {waffyUser.email}</p>
+                </div>
+                {sortedMessages.map((msg) => (
+                  <MessageTab key={msg.id} message={msg} onReply={handleReply} />
+                ))}
+              </>
+            ) : (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+              </div>
+            )}
           </div>
         </SignedIn>
 

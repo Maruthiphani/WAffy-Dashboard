@@ -114,7 +114,7 @@
       "order_status": "high",
       "return_refund": "high",
       "complaint": "high",
-      "general_inquiry": "high",
+      "general_inquiry": "moderate",
       "spam": "low"
     }
   },
@@ -149,9 +149,9 @@
     ],
     "priorities": {
       "new_order": "high",
-      "return_refund": "moderate",
-      "feedback": "moderate",
-      "complaint": "moderate",
+      "return_refund": "high",
+      "feedback": "low",
+      "complaint": "high",
       "bulk_order": "high"
     }
   },

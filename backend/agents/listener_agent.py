@@ -66,6 +66,7 @@ async def receive_message(request: Request):
             business_number=metadata["display_phone_number"],
             phone_number_id=metadata["phone_number_id"]
         )
+        print("🚀 Final output to log:\n", json.dumps(result, indent=2))
 
         append_to_csv(result)
         append_to_json(result)

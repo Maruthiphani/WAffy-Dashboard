@@ -1,2 +1,8 @@
-timestamp,customer_id,sender,message,predicted_category,priority
-2025-04-18 11:57:37,4837,4387938403,i need help,general_inquiry,moderate
+timestamp,raw_timestamp_utc,message_id,message_type,customer_id,sender,customer_name,message,predicted_category,priority,business_phone_number,business_phone_id
+2025-04-20 23:45:12,1745207112,wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E1OThEOUUxODkzRUQ3MTNDRDcA,text,447778596773,447778596773,Akanksha,I want to order 3 bundles of A4 papers,new_order,high,15556454320,574048935800997
+2025-04-20 23:59:28,1745207968,wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FBMzMzOTNDNDVGRjAwRENERUYA,text,447778596773,447778596773,Akanksha,I want to order 3 bundles of A4 papers,new_order,high,15556454320,574048935800997
+2025-04-21 00:01:48,1745208108,wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EzMTM2MjM3NTMyQUFEOTNEMEYA,text,447778596773,447778596773,Akanksha,I want to order 3 bundles of A4 papers,new_order,high,15556454320,574048935800997
+2025-04-21 00:05:18,1745208318,wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0ExOUVBQjZFNTMzRDg5ODI5REUA,text,447778596773,447778596773,Akanksha,I want to order 3 bundles of A4 papers,new_order,high,15556454320,574048935800997
+2025-04-21 00:06:31,1745208391,wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCRkUxMDA1OUI5QkE5NDg1MDkA,text,447778596773,447778596773,Akanksha,I want to order 3 bundles of A4 papers,new_order,high,15556454320,574048935800997
+2025-04-21 00:10:07,1745208607,wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E2MkVFMUZFRDkyMDU5NDFGMkUA,text,447778596773,447778596773,Akanksha,Can you send me the brochure,general_inquiry,moderate,15556454320,574048935800997
+2025-04-21 00:10:40,1745208640,wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E1Njg3Q0M3OTQ2OUVDNzI4MUUA,text,447778596773,447778596773,Akanksha,Can you send me the brochure,general_inquiry,moderate,15556454320,574048935800997

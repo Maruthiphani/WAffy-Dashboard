@@ -7,6 +7,7 @@ from datetime import datetime
 from google import genai
 from google.genai import types
 from info_extractor import extract_info
+from context_helper import get_message_context
 
 # === Setup ===
 load_dotenv()
@@ -132,8 +133,12 @@ def process_message(
     all_categories = config.get("suggested_categories", []) + config.get("custom_categories", [])
     priority_map = config.get("priorities", {})
 
-    category, priority = classify_message_with_gemini(message_text, all_categories, priority_map)
-    extracted_info = extract_info(message_text, category)
+    # Get contextual conversation history (last few messages)
+    context_text = get_message_context(customer_id, phone_number_id, int(timestamp_utc)) or message_text
+    print("🧠 Context used:\n", context_text)
+
+    category, priority = classify_message_with_gemini(context_text, all_categories, priority_map)
+    extracted_info = extract_info(context_text, category)
     timestamp = datetime.fromtimestamp(int(timestamp_utc)).strftime("%Y-%m-%d %H:%M:%S")
 
     return {
@@ -146,7 +151,7 @@ def process_message(
         "sender": sender,
         "customer_name": customer_name,
 
-        "message": message_text,
+        "message": context_text,
         "predicted_category": category,
         "priority": priority,
         "extracted_info": extracted_info,

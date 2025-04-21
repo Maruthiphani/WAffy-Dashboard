@@ -1,0 +1,182 @@
+{
+  "b_101": {
+    "name": "Sweet Treats Bakery",
+    "type": "bakery",
+    "suggested_categories": [
+      "new_order",
+      "order_status",
+      "general_inquiry",
+      "complaint",
+      "return_refund",
+      "follow_up",
+      "feedback",
+      "others"
+    ],
+    "custom_categories": [
+      "pickup_time",
+      "dietary_preference"
+    ],
+    "priorities": {
+      "new_order": "high",
+      "order_status": "moderate",
+      "general_inquiry": "moderate",
+      "complaint": "high",
+      "return_refund": "high",
+      "follow_up": "moderate",
+      "feedback": "low",
+      "others": "low",
+      "pickup_time": "moderate",
+      "dietary_preference": "moderate"
+    }
+  },
+  "b_202": {
+    "name": "CityCare Clinic",
+    "type": "clinic",
+    "suggested_categories": [
+      "appointment_booking",
+      "reschedule_appointment",
+      "symptoms",
+      "insurance_query",
+      "complaint",
+      "follow_up",
+      "feedback",
+      "others"
+    ],
+    "custom_categories": [
+      "doctor_name_request",
+      "lab_test_query"
+    ],
+    "priorities": {
+      "appointment_booking": "high",
+      "reschedule_appointment": "moderate",
+      "symptoms": "moderate",
+      "insurance_query": "low",
+      "complaint": "high",
+      "follow_up": "moderate",
+      "feedback": "low",
+      "others": "low",
+      "doctor_name_request": "moderate",
+      "lab_test_query": "low"
+    }
+  },
+  "b_303": {
+    "name": "BrightFix Electronics",
+    "type": "electronics",
+    "suggested_categories": [
+      "new_order",
+      "order_status",
+      "product_issue",
+      "technical_support",
+      "warranty_claim",
+      "complaint",
+      "feedback",
+      "others"
+    ],
+    "custom_categories": [
+      "model_number_info",
+      "repair_quote_request"
+    ],
+    "priorities": {
+      "new_order": "high",
+      "order_status": "moderate",
+      "product_issue": "moderate",
+      "technical_support": "high",
+      "warranty_claim": "moderate",
+      "complaint": "high",
+      "feedback": "low",
+      "others": "low",
+      "model_number_info": "low",
+      "repair_quote_request": "moderate"
+    }
+  },
+  "b_404": {
+    "name": "Paper & Pencil Hub",
+    "type": "stationery",
+    "phone_number_id": "574048935800997",
+    "suggested_categories": [
+      "product_availability",
+      "bulk_order_request",
+      "feedback",
+      "delivery_time_query",
+      "order_status",
+      "return_refund",
+      "complaint",
+      "general_inquiry"
+    ],
+    "custom_categories": [
+      "spam"
+    ],
+    "priorities": {
+      "product_availability": "high",
+      "bulk_order_request": "high",
+      "feedback": "high",
+      "delivery_time_query": "high",
+      "order_status": "high",
+      "return_refund": "high",
+      "complaint": "high",
+      "general_inquiry": "high",
+      "spam": "low"
+    }
+  },
+  "b_405": {
+    "name": "German Bread",
+    "type": "bakery",
+    "suggested_categories": [
+      "dietary_preference",
+      "complaint",
+      "pickup_time",
+      "general_inquiry"
+    ],
+    "custom_categories": [],
+    "priorities": {
+      "dietary_preference": "moderate",
+      "complaint": "moderate",
+      "pickup_time": "moderate",
+      "general_inquiry": "moderate"
+    }
+  },
+  "b_406": {
+    "name": "Fancy Dress",
+    "type": "Clothing",
+    "suggested_categories": [
+      "new_order",
+      "return_refund",
+      "feedback",
+      "complaint"
+    ],
+    "custom_categories": [
+      "bulk_order"
+    ],
+    "priorities": {
+      "new_order": "high",
+      "return_refund": "moderate",
+      "feedback": "moderate",
+      "complaint": "moderate",
+      "bulk_order": "high"
+    }
+  },
+  "b_407": {
+    "name": "food items",
+    "type": "bakery",
+    "suggested_categories": [
+      "order_status",
+      "dietary_preference",
+      "pickup_time",
+      "general_inquiry",
+      "customization_request",
+      "return_refund"
+    ],
+    "custom_categories": [
+      "test"
+    ],
+    "priorities": {
+      "order_status": "moderate",
+      "dietary_preference": "moderate",
+      "pickup_time": "moderate",
+      "general_inquiry": "moderate",
+      "customization_request": "low",
+      "return_refund": "high",
+      "test": "moderate"
+    }
+  }
+}

@@ -1,94 +1,80 @@
 import os
+import json
 import logging
 from dotenv import load_dotenv
+from datetime import datetime
 from google import genai
 from google.genai import types
-from datetime import datetime
 
 # === Setup ===
 load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=gemini_api_key)
 
-# === Model Config ===
 GEMINI_MODEL = "gemini-2.0-flash"
-gemini_models = ["gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
-# list of gemini models can be found here https://ai.google.dev/gemini-api/docs/models
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "business_config.json")
+DEBUG_LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "classification_debug.log")
 
-# === Logging ===
+# === Logging Setup ===
 logging.basicConfig(level=logging.INFO)
 log = lambda msg: logging.info(f"[Classifier] {msg}")
 
-# === Category & Priority Mapping ===
-CATEGORY_LIST = [
-    "new_order", "order_status", "general_inquiry", "complaint",
-    "return_refund", "follow_up", "feedback", "others"
-]
+# === Load Business Config ===
+def load_business_config(phone_number_id: str) -> dict:
+    if not os.path.exists(CONFIG_PATH):
+        raise FileNotFoundError("Missing business_config.json")
 
-PRIORITY_MAP = {
-    "complaint": "high",
-    "return_refund": "high",
-    "new_order": "high",
-    "order_status": "moderate",
-    "follow_up": "moderate",
-    "general_inquiry": "moderate",
-    "feedback": "low",
-    "others": "low"
-}
+    with open(CONFIG_PATH, "r") as f:
+        all_configs = json.load(f)
 
-# === Gemini Classification ===
+    for business_id, info in all_configs.items():
+        if info.get("phone_number_id") == phone_number_id:
+            return info
+    raise ValueError(f"No config found for phone_number_id: {phone_number_id}")
 
+# === Build Prompt Dynamically ===
+def build_prompt(message: str, category_descriptions: dict) -> str:
+    desc_block = "\n".join([f"{i+1}. {cat} - {desc}" for i, (cat, desc) in enumerate(category_descriptions.items())])
 
-def classify_message_with_gemini(text: str) -> str:
-    prompt = f"""You are an AI assistant that classifies WhatsApp messages into one of the following categories:
+    return f"""You are an AI assistant that classifies WhatsApp messages into one of the following categories:
 
-1. new_order - Customer shows clear intent to purchase something.
-2. order_status - Asks about delivery, tracking, or the progress of an existing order.
-3. general_inquiry - Questions about product details, pricing, store hours, payment options, or company policies.
-4. complaint - Expressions of dissatisfaction or reports of a bad experience.
-5. return_refund - Clear requests for returns, refunds, or exchanges.
-6. follow_up - Refers to a previous conversation or nudges for a reply.
-7. feedback - Reviews, suggestions, compliments, or general opinions.
-8. others - Anything that doesn’t fit above.
+{desc_block}
 
 Classify the following message:
-
-\"{text}\"
+\"{message}\"
 
 Reply with only the category name.
 """
-    
+
+# === Smart Descriptions (optional, could be moved to config)
+CATEGORY_DESCRIPTIONS = {
+    "new_order": "Customer shows clear intent to purchase something.",
+    "order_status": "Asks about delivery, tracking, or the progress of an existing order.",
+    "general_inquiry": "Questions about product details, pricing, store hours, payment options, or company policies.",
+    "complaint": "Expressions of dissatisfaction or reports of a bad experience.",
+    "return_refund": "Clear requests for returns, refunds, or exchanges.",
+    "follow_up": "Refers to a previous conversation or nudges for a reply.",
+    "feedback": "Reviews, suggestions, compliments, or general opinions.",
+    "others": "Anything that doesn’t fit above.",
+}
+
+# === Gemini Classification ===
+def classify_message_with_gemini(text: str, category_list: list) -> str:
+    # Build category description block
+    category_descriptions = {cat: CATEGORY_DESCRIPTIONS.get(cat, f"{cat} category") for cat in category_list}
+    prompt = build_prompt(text, category_descriptions)
+
     generation_config = types.GenerateContentConfig(
         temperature=0.5,
         top_p=0.95,
         max_output_tokens=100,
-    
-
-        safety_settings = [
-            types.SafetySetting(
-                category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-            ),
-            types.SafetySetting(
-                category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
-                threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-            ),
-            types.SafetySetting(
-                category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH,
-            ),
-            types.SafetySetting(
-                category=types.HarmCategory. HARM_CATEGORY_DANGEROUS_CONTENT,
-                threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-            ),
-            types.SafetySetting(
-                category=types.HarmCategory. HARM_CATEGORY_CIVIC_INTEGRITY,
-                threshold=types.HarmBlockThreshold.BLOCK_NONE,
-            ),
+        safety_settings=[
+            types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE),
+            types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE),
+            types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH),
+            types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE),
         ],
-
-        system_instruction="You are an assistant trained to classify customer WhatsApp messages into categories for customer support.",
-
+        system_instruction="You are an assistant trained to classify customer WhatsApp messages into categories for customer support."
     )
 
     response = client.models.generate_content(
@@ -96,8 +82,19 @@ Reply with only the category name.
         contents=prompt,
         config=generation_config,
     )
-    return response.text.strip()
 
+    category = response.text.strip()
+    if category not in category_list:
+        category = "others"
+
+    # Log prompt + response for debugging
+    with open(DEBUG_LOG_PATH, "a") as debug_log:
+        debug_log.write(f"\n\n=== Message: {text}\n")
+        debug_log.write(f"Prompt:\n{prompt}\n")
+        debug_log.write(f"Response:\n{response.text.strip()}\n")
+        debug_log.write(f"Final Category: {category}\n")
+
+    return category
 
 # === Process Message for Logging/Storage ===
 def process_message(
@@ -112,8 +109,12 @@ def process_message(
     phone_number_id: str
 ) -> dict:
 
-    category = classify_message_with_gemini(message_text)
-    priority = PRIORITY_MAP.get(category, "low")
+    config = load_business_config(phone_number_id)
+    all_categories = config.get("suggested_categories", []) + config.get("custom_categories", [])
+    priority_map = config.get("priorities", {})
+
+    category = classify_message_with_gemini(message_text, all_categories)
+    priority = priority_map.get(category, "moderate")
     timestamp = datetime.fromtimestamp(int(timestamp_utc)).strftime("%Y-%m-%d %H:%M:%S")
 
     return {

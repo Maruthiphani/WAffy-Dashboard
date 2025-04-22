@@ -7,7 +7,7 @@ from datetime import datetime
 from google import genai
 from google.genai import types
 from info_extractor import extract_info
-from context_helper import get_message_context
+from context_helper import get_message_context, update_log_entry_by_message_id
 
 # === Setup ===
 load_dotenv()
@@ -140,6 +140,13 @@ def process_message(
     category, priority = classify_message_with_gemini(context_text, all_categories, priority_map)
     extracted_info = extract_info(context_text, category)
     timestamp = datetime.fromtimestamp(int(timestamp_utc)).strftime("%Y-%m-%d %H:%M:%S")
+
+    update_log_entry_by_message_id(message_id, {
+    "timestamp": timestamp,
+    "predicted_category": category,
+    "priority": priority,
+    "extracted_info": extracted_info
+    })
 
     return {
         "timestamp": timestamp,

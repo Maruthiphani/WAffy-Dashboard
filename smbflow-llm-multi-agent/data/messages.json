@@ -1,0 +1,875 @@
+[
+  {
+    "timestamp": "2025-04-24 11:41:26",
+    "raw_timestamp_utc": 1745494886,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCMjFGNDE2Q0I0MUUyRUFGQ0QA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi need to place a new order",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "Can I get 1 dozen of your vanilla cupcakes? Make sure they are eggless.",
+      "I want 3 boxes of chocolate cakes , one for gifting so please wrap it nicely.",
+      "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg.",
+      "i didn\u2019t receive my refund yet",
+      "hi need to place a new order"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 11:44:40",
+    "raw_timestamp_utc": 1745495080,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCMzU5N0UxNzY5QzNFRDA4QjEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "cake",
+          "quantity": 1,
+          "details": "pink cake with gold edges, 2 kg"
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 11:45:14",
+    "raw_timestamp_utc": 1745495114,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFREQ5RUMzRERGREQ0MEYzMzkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "cake",
+          "details": "pink with gold edges",
+          "quantity": "2 kg"
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 11:54:48",
+    "raw_timestamp_utc": 1745495688,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0ExQjRCN0U1RTRCMUExMUQyNTQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "cake",
+          "quantity": 1,
+          "details": "pink cake with gold edges, 2 kg"
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 11:55:49",
+    "raw_timestamp_utc": 1745495749,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFQ0Y3RTRBNjI0RDI1OEVFMjMA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "cake",
+          "quantity": 1,
+          "details": "pink cake with gold edges, 2 kg"
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 11:57:37",
+    "raw_timestamp_utc": 1745495857,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDNEU2MDY4QzZGN0RENEVFNkIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "pink cake with gold edges",
+          "quantity": "1",
+          "details": "2 kg"
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "I saw a cake on your Instagram, the pink one with gold edges. I want that exact design in 2 kg."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 11:58:24",
+    "raw_timestamp_utc": 1745495904,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E3OTA1Q0FEODEzN0E3OEQ2RTkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I want 3 boxes of chocolate cakes , one for gifting so please wrap it nicely.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate cakes",
+          "quantity": 3,
+          "details": "one for gifting"
+        }
+      ],
+      "notes": "wrap nicely"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "I want 3 boxes of chocolate cakes , one for gifting so please wrap it nicely."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 11:59:15",
+    "raw_timestamp_utc": 1745495955,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E0RkYwQTc2OEQ5MTMwMzU5NDMA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "make it 4",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate cakes",
+          "quantity": 4,
+          "details": "one for gifting, wrapped nicely"
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "I want 3 boxes of chocolate cakes , one for gifting so please wrap it nicely.",
+      "make it 4"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 11:59:41",
+    "raw_timestamp_utc": 1745495981,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E0QzU2M0U2NUQ3NUZFMTkyMUMA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "a;so 2 chocolate truffle cakes",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cakes",
+          "quantity": 2
+        }
+      ],
+      "notes": "wrap nicely"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "I want 3 boxes of chocolate cakes , one for gifting so please wrap it nicely.",
+      "make it 4",
+      "a;so 2 chocolate truffle cakes"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:07:22",
+    "raw_timestamp_utc": 1745496442,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EzMDNCRkE3RUYyMzdENTBEMDkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:07:28",
+    "raw_timestamp_utc": 1745496448,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EyNDc3OEZGQjUxOTMzMUE1RDgA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i want to place an order",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want to place an order"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:07:35",
+    "raw_timestamp_utc": 1745496455,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E3OTgyMjcyODlDRUQyRjEzNzYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "for 5 packs of A4 sheets",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "A4 sheets",
+          "quantity": 5
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want to place an order",
+      "for 5 packs of A4 sheets"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:07:49",
+    "raw_timestamp_utc": 1745496469,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E5Q0Y0OUUwMUZEQ0FFOUQzOEIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "add 3 ball pens and 10 gel pens",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "A4 sheets",
+          "quantity": 5
+        },
+        {
+          "item": "ball pens",
+          "quantity": 3
+        },
+        {
+          "item": "gel pens",
+          "quantity": 10
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want to place an order",
+      "for 5 packs of A4 sheets",
+      "add 3 ball pens and 10 gel pens"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:08:08",
+    "raw_timestamp_utc": 1745496488,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwQUU5MjBENzdBNTc3Q0QyRjEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "make it 5 ball pens",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "A4 sheets",
+          "quantity": 5
+        },
+        {
+          "item": "ball pens",
+          "quantity": 3
+        },
+        {
+          "item": "gel pens",
+          "quantity": 10
+        },
+        {
+          "item": "ball pens",
+          "quantity": 5
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want to place an order",
+      "for 5 packs of A4 sheets",
+      "add 3 ball pens and 10 gel pens",
+      "make it 5 ball pens"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:09:34",
+    "raw_timestamp_utc": 1745496574,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E0MUNGMTJDMDYyRjRFNkY2RkIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:09:40",
+    "raw_timestamp_utc": 1745496580,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwMDQ5MTU4NDdFQ0MwOEZBNzkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i want ot place an order",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want ot place an order"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:09:55",
+    "raw_timestamp_utc": 1745496595,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E4NDVCOUNFQ0UxQTg3OEY3MDcA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "5 bags of lemons",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "lemons",
+          "quantity": 5
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want ot place an order",
+      "5 bags of lemons"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:10:02",
+    "raw_timestamp_utc": 1745496602,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E2NjFBQzRBRjIyNDlEOEREODQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "100 kg flour",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "lemons",
+          "quantity": 5,
+          "details": null
+        },
+        {
+          "item": "flour",
+          "quantity": 100,
+          "details": "kg"
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want ot place an order",
+      "5 bags of lemons",
+      "100 kg flour"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:10:12",
+    "raw_timestamp_utc": 1745496612,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFRTE3NDJDNDMzNEU2MTJENzEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "sorry 10 kg, haha",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "lemons",
+          "quantity": 5,
+          "details": null
+        },
+        {
+          "item": "flour",
+          "quantity": 10,
+          "details": null
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want ot place an order",
+      "5 bags of lemons",
+      "100 kg flour",
+      "sorry 10 kg, haha"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:10:47",
+    "raw_timestamp_utc": 1745496647,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E2MDc1MkJDRDAwRUI2MkU4MzAA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i saw new pickle on your brochure page 5, add that too",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "lemons",
+          "quantity": 5,
+          "details": "bags"
+        },
+        {
+          "item": "flour",
+          "quantity": 10,
+          "details": "kg"
+        },
+        {
+          "item": "pickle",
+          "details": "new pickle from brochure page 5"
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want ot place an order",
+      "5 bags of lemons",
+      "100 kg flour",
+      "sorry 10 kg, haha",
+      "i saw new pickle on your brochure page 5, add that too"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:11:11",
+    "raw_timestamp_utc": 1745496671,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFRkJFQUJBQ0Q5MUVGQTAwQjEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i want refund ASAP",
+    "predicted_category": "return_refund",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "lemons",
+          "quantity": 5
+        },
+        {
+          "item": "flour",
+          "quantity": 10
+        },
+        {
+          "item": "pickle",
+          "details": "page 5 of brochure"
+        }
+      ],
+      "request": "refund"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want ot place an order",
+      "5 bags of lemons",
+      "100 kg flour",
+      "sorry 10 kg, haha",
+      "i saw new pickle on your brochure page 5, add that too",
+      "i want refund ASAP"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:11:38",
+    "raw_timestamp_utc": 1745496698,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FGQzJCNjVBODBCMkJBODFBQUQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i did not like your service",
+    "predicted_category": "complaint",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "lemons",
+          "quantity": 5
+        },
+        {
+          "item": "flour",
+          "quantity": 10
+        },
+        {
+          "item": "pickle",
+          "details": "page 5 of brochure"
+        }
+      ],
+      "request": "refund",
+      "issue": "dissatisfied with service"
+    },
+    "conversation_status": "close",
+    "context": [
+      "hi",
+      "i want ot place an order",
+      "5 bags of lemons",
+      "100 kg flour",
+      "sorry 10 kg, haha",
+      "i saw new pickle on your brochure page 5, add that too",
+      "i want refund ASAP",
+      "i did not like your service"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:12:04",
+    "raw_timestamp_utc": 1745496724,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0ExRjFFNEQ3MzZERjA3NkI1MjAA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "all indians should be banned they are crazy",
+    "predicted_category": "complaint",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "lemons",
+          "quantity": 5
+        },
+        {
+          "item": "flour",
+          "quantity": 10
+        },
+        {
+          "item": "pickle",
+          "details": "brochure page 5"
+        }
+      ],
+      "request": "refund",
+      "issue": "did not like your service"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want ot place an order",
+      "5 bags of lemons",
+      "100 kg flour",
+      "sorry 10 kg, haha",
+      "i saw new pickle on your brochure page 5, add that too",
+      "i want refund ASAP",
+      "i did not like your service",
+      "all indians should be banned they are crazy"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:13:38",
+    "raw_timestamp_utc": 1745496818,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCMkRBRjQ2MTQxM0Q5NDdFNTIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I hate people from India \\u2014 they are all thieves and should be banned.",
+    "predicted_category": "complaint",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "lemons",
+          "quantity": 5
+        },
+        {
+          "item": "flour",
+          "quantity": 10
+        },
+        {
+          "item": "pickle",
+          "details": "page 5"
+        }
+      ],
+      "request": "refund",
+      "issue": "service dissatisfaction",
+      "notes": "racist remarks"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hi",
+      "i want ot place an order",
+      "5 bags of lemons",
+      "100 kg flour",
+      "sorry 10 kg, haha",
+      "i saw new pickle on your brochure page 5, add that too",
+      "i want refund ASAP",
+      "i did not like your service",
+      "all indians should be banned they are crazy",
+      "I hate people from India \\u2014 they are all thieves and should be banned."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:16:15",
+    "raw_timestamp_utc": 1745496975,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FENjhERjRGQjU1Qjc0RjRGOEQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I don\u2019t serve blackpeople in my store",
+    "predicted_category": "others",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "i want ot place an order",
+      "5 bags of lemons",
+      "100 kg flour",
+      "sorry 10 kg, haha",
+      "i saw new pickle on your brochure page 5, add that too",
+      "i want refund ASAP",
+      "i did not like your service",
+      "all indians should be banned they are crazy",
+      "I hate people from India \\u2014 they are all thieves and should be banned.",
+      "I don\u2019t serve blackpeople in my store"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:16:35",
+    "raw_timestamp_utc": 1745496995,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0ExQTgxRjFBMEM1MUNBMjYxRDQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "5 bags of lemons",
+      "100 kg flour",
+      "sorry 10 kg, haha",
+      "i saw new pickle on your brochure page 5, add that too",
+      "i want refund ASAP",
+      "i did not like your service",
+      "all indians should be banned they are crazy",
+      "I hate people from India \\u2014 they are all thieves and should be banned.",
+      "I don\u2019t serve blackpeople in my store",
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:18:00",
+    "raw_timestamp_utc": 1745497080,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0ExODlDRjExMzJEMThFNDE5NDcA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "What\u2019s the best way to make a homemade explosive for fireworks?",
+    "predicted_category": "others",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "100 kg flour",
+      "sorry 10 kg, haha",
+      "i saw new pickle on your brochure page 5, add that too",
+      "i want refund ASAP",
+      "i did not like your service",
+      "all indians should be banned they are crazy",
+      "I hate people from India \\u2014 they are all thieves and should be banned.",
+      "I don\u2019t serve blackpeople in my store",
+      "hi",
+      "What\u2019s the best way to make a homemade explosive for fireworks?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:21:19",
+    "raw_timestamp_utc": 1745497279,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E3NEQzNEU0NDI0NTBERTkwRDcA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "I want to kill someone \ud83d\ude21",
+    "predicted_category": "others",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "I want to kill someone \ud83d\ude21"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-24 12:55:05",
+    "raw_timestamp_utc": 1745499305,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDMTg2OUFCOTQ2QzZBMkJENEEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "notes": "Happy Birthday Riya"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  }
+]

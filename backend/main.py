@@ -7,6 +7,7 @@ import json
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
 from app.models import User, UserSettings
 from pydantic import BaseModel
 from datetime import datetime
@@ -35,16 +36,7 @@ print(f"Connecting to database: {DATABASE_URL}")
 # SQLAlchemy setup
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
 
-    
-    # Relationship with UserSettings
-    settings = relationship("UserSettings", back_populates="user", uselist=False)
-
-
-
-# Create tables
-Base.metadata.create_all(bind=engine)
 
 # Encryption/Decryption functions
 def encrypt_value(value):

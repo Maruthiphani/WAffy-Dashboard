@@ -25,10 +25,6 @@ if len(ENCRYPTION_KEY) < 32:
     ENCRYPTION_KEY = ENCRYPTION_KEY.ljust(32)[:32]
 fernet = Fernet(Fernet.generate_key())  # For encryption/decryption
 
-# Database connection
-DEFAULT_DB_URL = "postgresql://avnadmin:{}@pg-waffy-waffy.g.aivencloud.com:26140/waffy_db?sslmode=require".format(
-    urllib.parse.quote_plus("AVNS_8qhqmlqzPGBFt4YTjQA")
-)
 DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DB_URL)
 
 # If the URL starts with 'postgres://', replace it with 'postgresql://' for SQLAlchemy compatibility

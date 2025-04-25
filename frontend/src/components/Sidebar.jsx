@@ -88,6 +88,11 @@ const Sidebar = () => {
           </button>
         )}
         
+        {/* Logo and Title */}
+        <div className="flex flex-col items-center justify-center py-6">
+          <img src="/logo.png" alt="WAffy Logo" className="h-14 w-auto mb-2" />
+          <span className="text-2xl font-bold text-pink-500 tracking-wide">WAffy</span>
+        </div>
         <div className="py-4">
           <ul>
             {menuItems.map((item) => (

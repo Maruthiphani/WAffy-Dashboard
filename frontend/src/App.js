@@ -8,7 +8,7 @@ import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Downloads from "./pages/Downloads";
 import Settings from "./pages/Settings";
-import HeroSliderSection from "./data/heroSliderSection";
+import HeroModernMotion from "./data/HeroModernMotion";
 
 
 function App() {
@@ -70,35 +70,32 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
-        {/* Vibrant Top Nav */}
-        <header className="sticky top-0 z-10 bg-gradient-to-r from-pink-500 to-yellow-400 shadow-md px-6 py-4 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-white tracking-wide">WAffy</h1>
-          <div className="flex items-center">
-            {isSignedIn && waffyUser && (
-              <span className="text-white mr-4">WAffy ID: {waffyUser.id}</span>
-            )}
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        </header>
-
         {/* Main Content */}
         <main>
           <SignedIn>
             {waffyUser ? (
-              <div className="flex">
-                {/* Sidebar */}
-                <Sidebar />
+              <>
+                {/* Full-width Hero only on dashboard route */}
+                {window.location.pathname === "/dashboard" && (
+                  <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] px-0">
+                    <HeroModernMotion activeTab={activeTab} setActiveTab={setActiveTab} />
+                  </div>
+                )}
+                <div className="flex">
+                  {/* Sidebar */}
+                  <Sidebar />
 
-                {/* Main Content Area */}
-                <div className="md:ml-64 w-full p-3 sm:p-6 flex-1 transition-all duration-300">
-                  <Routes>
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/downloads" element={<Downloads />} />
-                    <Route path="/settings" element={<Settings />} />
-                  </Routes>
+                  {/* Main Content Area */}
+                  <div className="md:ml-64 w-full p-3 sm:p-6 flex-1 transition-all duration-300">
+                    <Routes>
+                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/downloads" element={<Downloads />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Routes>
+                  </div>
                 </div>
-              </div>
+              </>
             ) : (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
@@ -109,9 +106,10 @@ function App() {
           <SignedOut>
             <div className="w-full mx-auto">
               {/* Hero Component with Signup/Login - Full Width */}
-              <HeroSliderSection activeTab={activeTab} setActiveTab={setActiveTab} />
+              <HeroModernMotion activeTab={activeTab} setActiveTab={setActiveTab} />
                  {/* You can find the commented old code in heroSliderScetion.js page */}
 
+<div className="mx-[32px]">
               {/* Feature Highlights */}
               <div className="mt-16">
                 <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">Key Features</h2>
@@ -294,6 +292,7 @@ function App() {
                   {new Date().getFullYear()} WAffy. All rights reserved.
                 </div>
               </footer>
+              </div>
             </div>
           </SignedOut>
         </main>

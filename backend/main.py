@@ -25,7 +25,7 @@ if len(ENCRYPTION_KEY) < 32:
     ENCRYPTION_KEY = ENCRYPTION_KEY.ljust(32)[:32]
 fernet = Fernet(Fernet.generate_key())  # For encryption/decryption
 
-DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DB_URL)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # If the URL starts with 'postgres://', replace it with 'postgresql://' for SQLAlchemy compatibility
 if DATABASE_URL.startswith('postgres://'):

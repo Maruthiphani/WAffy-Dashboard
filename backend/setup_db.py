@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 # Database connection
-DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DB_URL)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # If the URL starts with 'postgres://', replace it with 'postgresql://' for SQLAlchemy compatibility
 if DATABASE_URL.startswith('postgres://'):

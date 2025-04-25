@@ -33,15 +33,24 @@ export default function HeroSliderSection({ activeTab, setActiveTab }) {
   // const handlePause = () => setPaused(prev => !prev);
   
   return (
-    <div className="bg-white rounded-xl shadow-xl overflow-hidden py-8">
+    <div className="w-full bg-white overflow-hidden py-16 px-2 sm:px-8">
+
       <div className="flex flex-col lg:flex-row">
         {/* Left side - Hero slider */}
         <div className="lg:w-3/5 px-8 lg:px-12 flex flex-col justify-center">
+          {/* WAffy Logo and Title - left-aligned above headline */}
+          <div className="flex items-center mb-10 relative z-10">
+            <img src="/logo.png" alt="WAffy Logo" className="h-28 w-auto mr-6 drop-shadow-xl" style={{filter: 'drop-shadow(0 0 18px #f472b6)'}} />
+            <div>
+              <h1 className="text-5xl lg:text-6xl font-extrabold text-gray-800 leading-tight mb-3">WAffy</h1>
+              <p className="text-2xl text-pink-500 font-semibold">Organize WhatsApp Messages, Never Miss a Sale</p>
+            </div>
+          </div>
           <div
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
-            className="flex items-center justify-center">
-          <div className="bg-white/60 backdrop-blur-sm rounded-xl px-8 py-6 shadow-md border border-gray-200 text-center w-full max-w-3xl min-h-[220px] flex flex-col justify-center items-center">
+            className="flex items-center justify-center mt-2">
+          <div className="bg-white/80 backdrop-blur rounded-3xl px-12 py-10 shadow-lg border border-gray-100 text-center w-full max-w-3xl min-h-[240px] flex flex-col justify-center items-center transition-all duration-500">
               <div className="text-center">
                 <h2 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-4">
                   {messages[current].title}
@@ -64,16 +73,16 @@ export default function HeroSliderSection({ activeTab, setActiveTab }) {
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-wrap gap-4 mt-8">
+          <div className="flex flex-wrap gap-8 mt-12 relative z-10">
             <button
               onClick={() => setActiveTab('signup')}
-              className="bg-gradient-to-r from-pink-500 to-yellow-400 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+              className="bg-gradient-to-r from-pink-500 to-yellow-400 text-white font-bold py-4 px-14 rounded-2xl shadow-lg hover:scale-105 hover:shadow-2xl transition-transform duration-300 text-2xl"
             >
-              Get Started
+              Start Your Free Trial
             </button>
             <button
               onClick={() => setActiveTab('login')}
-              className="bg-white text-gray-700 border border-gray-300 font-bold py-3 px-8 rounded-lg shadow hover:shadow-md transition duration-300"
+              className="bg-white text-pink-500 border-2 border-pink-300 font-bold py-4 px-14 rounded-2xl shadow hover:scale-105 hover:shadow-xl transition-transform duration-300 text-2xl"
             >
               Login
             </button>

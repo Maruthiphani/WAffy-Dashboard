@@ -1,10 +1,147 @@
-# Getting Started with Create React App
+# WAffy Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+WAffy organizes your WhatsApp messages, tags your customer chats, and keeps your CRM in sync. Never miss a sale again.
+
+## Project Structure
+
+This project consists of:
+- Frontend: React application with Clerk for authentication
+- Backend: FastAPI server with PostgreSQL database
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- Python (v3.8 or higher)
+- PostgreSQL
+
+## Setup Instructions
+
+### Database Setup
+
+1. Install PostgreSQL if you haven't already
+2. Create a new database:
+```sql
+CREATE DATABASE waffy_db;
+```
+
+### Backend Setup
+
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r ../requirements.txt
+```
+
+4. Create a `.env` file based on `.env.example`:
+```bash
+cp .env.example .env
+```
+
+5. Update the `.env` file with your PostgreSQL credentials
+
+6. Start the backend server:
+```bash
+python main.py
+```
+The server will run at http://localhost:8000
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create a `.env` file with your Clerk credentials:
+```
+REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+REACT_APP_API_URL=http://localhost:8000/api
+```
+
+4. Start the frontend development server:
+```bash
+npm start
+```
+The application will run at http://localhost:3000
+
+## User Registration Flow
+
+1. Users sign up using Clerk authentication
+2. Upon successful signup, a new user record is created in the PostgreSQL database
+3. Each user is assigned a unique WAffy ID that is stored and displayed in the dashboard
+4. User-specific data is associated with this WAffy ID
+
+## API Endpoints
+
+### User Management
+- `POST /api/users`: Create a new user in the database
+- `GET /api/users/{clerk_id}`: Get user information by Clerk ID
+
+### User Settings
+- `GET /api/users/{clerk_id}/settings`: Get user settings with decrypted sensitive data
+- `PUT /api/users/{clerk_id}/settings`: Update user settings with encryption for sensitive data
+
+### Webhooks
+- `POST /api/webhook/clerk`: Webhook endpoint for Clerk events
+
+## Features
+
+### User Authentication
+- Secure authentication using Clerk
+- User profile management with first and last name
+
+### Dashboard
+- Overview of WhatsApp message statistics
+- Priority breakdown of messages
+- Message filtering by category and status
+
+### Settings
+- User profile management (first name, last name)
+- Business information (name, description, contact details, etc.)
+- Dynamic category management with predefined options and custom categories
+- WhatsApp Cloud API integration with encrypted API keys
+- CRM integration options (Hubspot, etc.)
+- Visual category reference for better user understanding
+
+### Security
+- Encrypted storage of sensitive API keys
+- Database storage of user settings
+- Secure authentication with Clerk
+
+## Environment Variables
+
+### Backend (.env)
+```
+DATABASE_URL=postgresql://username:password@localhost/waffy_db
+PORT=8000
+HOST=0.0.0.0
+ENCRYPTION_KEY=your_secure_encryption_key
+```
+
+### Frontend (.env)
+```
+REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+REACT_APP_API_URL=http://localhost:8000/api
+```
 
 ## Available Scripts
 
-In the project directory, you can run:
+In the frontend directory, you can run:
 
 ### `npm start`
 
@@ -26,18 +163,6 @@ It correctly bundles React in production mode and optimizes the build for the be
 
 The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
 ## Learn More
 

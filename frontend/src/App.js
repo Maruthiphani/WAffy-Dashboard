@@ -3,6 +3,7 @@ import { SignedIn, SignedOut, SignIn, SignUp, UserButton, useUser } from "@clerk
 import { messages } from "./data/messages";
 import { MessageTab } from "./components/MessageTab";
 import { createUser, getUserByClerkId } from "./services/userService";
+import  HeroSliderSection  from "./data/heroSliderSection";
 
 function App() {
   const [activeTab, setActiveTab] = useState("signup");
@@ -99,70 +100,7 @@ function App() {
         <SignedOut>
           <div className="w-full mx-auto">
             {/* Hero Component with Signup/Login - Full Width */}
-            <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-              <div className="flex flex-col lg:flex-row">
-                {/* Left side - Hero content */}
-                <div className="lg:w-3/5 p-8 lg:p-12 flex flex-col justify-center">
-                  <h1 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-6">
-                    Organize WhatsApp Messages, Never Miss a Sale
-                  </h1>
-                  <p className="text-xl text-gray-600 mb-8">
-                    WAffy tags your customer chats and keeps your CRM in sync, helping small businesses respond faster.
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <button 
-                      onClick={() => setActiveTab("signup")}
-                      className="bg-gradient-to-r from-pink-500 to-yellow-400 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
-                    >
-                      Get Started
-                    </button>
-                    <button 
-                      onClick={() => setActiveTab("login")}
-                      className="bg-white text-gray-700 border border-gray-300 font-bold py-3 px-8 rounded-lg shadow hover:shadow-md transition duration-300"
-                    >
-                      Login
-                    </button>
-                  </div>
-                  
-                  {/* Supported platforms badges */}
-                  <div className="mt-12">
-                    <p className="text-sm text-gray-500 mb-4">Integrates with:</p>
-                    <div className="flex flex-wrap items-center gap-4">
-                      <span className="bg-gray-100 px-4 py-2 rounded-full text-sm font-medium">WhatsApp Cloud API</span>
-                      <span className="bg-gray-100 px-4 py-2 rounded-full text-sm font-medium">HubSpot</span>
-                      <span className="bg-gray-100 px-4 py-2 rounded-full text-sm font-medium">Excel</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Right side - Auth forms with fixed height */}
-                <div className="lg:w-2/5 bg-gray-50 p-8 flex flex-col">
-                  <div className="flex mb-6 justify-center">
-                    <button 
-                      className={`flex-1 py-2 text-center border-b-2 ${activeTab === "login" ? "border-pink-500 text-pink-500" : "border-transparent hover:text-pink-500"} focus:outline-none`}
-                      onClick={() => setActiveTab("login")}
-                    >
-                      Login
-                    </button>
-                    <button 
-                      className={`flex-1 py-2 text-center border-b-2 ${activeTab === "signup" ? "border-pink-500 text-pink-500" : "border-transparent hover:text-pink-500"} focus:outline-none`}
-                      onClick={() => setActiveTab("signup")}
-                    >
-                      Sign Up
-                    </button>
-                  </div>
-                  <div className="min-h-[600px] overflow-y-auto">
-                    <div className="w-full flex justify-center">
-                      {activeTab === "login" ? (
-                        <SignIn routing="hash" />
-                      ) : (
-                        <SignUp routing="hash" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HeroSliderSection activeTab={activeTab} setActiveTab={setActiveTab} />
 
             {/* Feature Highlights */}
             <div className="mt-16">

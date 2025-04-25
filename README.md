@@ -92,8 +92,52 @@ The application will run at http://localhost:3000
 - `POST /api/users`: Create a new user in the database
 - `GET /api/users/{clerk_id}`: Get user information by Clerk ID
 
+### User Settings
+- `GET /api/users/{clerk_id}/settings`: Get user settings with decrypted sensitive data
+- `PUT /api/users/{clerk_id}/settings`: Update user settings with encryption for sensitive data
+
 ### Webhooks
 - `POST /api/webhook/clerk`: Webhook endpoint for Clerk events
+
+## Features
+
+### User Authentication
+- Secure authentication using Clerk
+- User profile management with first and last name
+
+### Dashboard
+- Overview of WhatsApp message statistics
+- Priority breakdown of messages
+- Message filtering by category and status
+
+### Settings
+- User profile management (first name, last name)
+- Business information (name, description, contact details, etc.)
+- Dynamic category management with predefined options and custom categories
+- WhatsApp Cloud API integration with encrypted API keys
+- CRM integration options (Hubspot, etc.)
+- Visual category reference for better user understanding
+
+### Security
+- Encrypted storage of sensitive API keys
+- Database storage of user settings
+- Secure authentication with Clerk
+
+## Environment Variables
+
+### Backend (.env)
+```
+DATABASE_URL=postgresql://username:password@localhost/waffy_db
+PORT=8000
+HOST=0.0.0.0
+ENCRYPTION_KEY=your_secure_encryption_key
+```
+
+### Frontend (.env)
+```
+REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+REACT_APP_API_URL=http://localhost:8000/api
+```
 
 ## Available Scripts
 

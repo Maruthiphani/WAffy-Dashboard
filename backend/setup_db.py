@@ -1,81 +1,94 @@
+"""
+Database setup script for WAffy Dashboard
+"""
 import os
-import sys
-import subprocess
-import psycopg2
-from psycopg2 import sql
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import urllib.parse
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text, JSON
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+from datetime import datetime
+from dotenv import load_dotenv
 
-def create_database():
-    """Create the PostgreSQL database if it doesn't exist"""
-    try:
-        # Connect to PostgreSQL server - connect to the default 'postgres' database first
-        conn = psycopg2.connect(
-            user="nagajyothiprakash",
-            password="Login@123",
-            host="localhost",
-            port="5432",
-            database="postgres"  # Connect to the default postgres database
-        )
-        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        cursor = conn.cursor()
-        
-        # Check if database exists
-        cursor.execute("SELECT 1 FROM pg_database WHERE datname = 'waffy_db'")
-        exists = cursor.fetchone()
-        
-        if not exists:
-            print("Creating database 'waffy_db'...")
-            cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier("waffy_db")))
-            print("Database created successfully!")
-        else:
-            print("Database 'waffy_db' already exists.")
-        
-        cursor.close()
-        conn.close()
-        return True
-    except Exception as e:
-        print(f"Error creating database: {e}")
-        return False
+# Load environment variables
+load_dotenv()
+# Database connection
+# Use a hardcoded default connection string for local development
+DEFAULT_DB_URL = "postgresql://avnadmin:{}@pg-waffy-waffy.g.aivencloud.com:26140/waffy_db?sslmode=require".format(
+    urllib.parse.quote_plus("AVNS_8qhqmlqzPGBFt4YTjQA")
+)
+DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DB_URL)
 
-def create_env_file():
-    """Create .env file if it doesn't exist"""
-    env_path = os.path.join(os.path.dirname(__file__), '.env')
-    
-    # URL encode the password to handle special characters
-    password = urllib.parse.quote_plus("Login@123")
-    
-    if not os.path.exists(env_path):
-        print("Creating .env file...")
-        with open(env_path, 'w') as f:
-            f.write(f"DATABASE_URL=postgresql://nagajyothiprakash:{password}@localhost/waffy_db\n")
-            f.write("PORT=8000\n")
-            f.write("HOST=0.0.0.0\n")
-        print(".env file created successfully!")
-    else:
-        print(".env file already exists.")
-        # Update the existing .env file
-        print("Updating .env file with correct database URL...")
-        with open(env_path, 'w') as f:
-            f.write(f"DATABASE_URL=postgresql://nagajyothiprakash:{password}@localhost/waffy_db\n")
-            f.write("PORT=8000\n")
-            f.write("HOST=0.0.0.0\n")
-        print(".env file updated successfully!")
+# If the URL starts with 'postgres://', replace it with 'postgresql://' for SQLAlchemy compatibility
+if DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
 
-def main():
-    print("Setting up WAffy backend...")
+print(f"Connecting to database: {DATABASE_URL}")
+
+# SQLAlchemy setup
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# User model for database
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    clerk_id = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Create .env file
-    create_env_file()
+    # Relationship with UserSettings
+    settings = relationship("UserSettings", back_populates="user", uselist=False)
+
+# User Settings model for database
+class UserSettings(Base):
+    __tablename__ = "user_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     
-    # Create database
-    if create_database():
-        print("\nSetup completed successfully!")
-        print("\nYou can now start the backend server with:")
-        print("python main.py")
-    else:
-        print("\nSetup failed. Please check your PostgreSQL installation and try again.")
-        sys.exit(1)
+    # Basic user info
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
+    
+    # Business info
+    business_name = Column(String, nullable=True)
+    business_description = Column(Text, nullable=True)
+    contact_phone = Column(String, nullable=True)
+    contact_email = Column(String, nullable=True)
+    business_address = Column(String, nullable=True)
+    business_website = Column(String, nullable=True)
+    business_type = Column(String, nullable=True)
+    founded_year = Column(String, nullable=True)
+    
+    # Categories for message classification
+    categories = Column(String, nullable=True)  # Stored as JSON string
+    
+    # WhatsApp Cloud API settings (encrypted)
+    whatsapp_api_key = Column(String, nullable=True)
+    whatsapp_phone_number_id = Column(String, nullable=True)
+    whatsapp_business_account_id = Column(String, nullable=True)
+    
+    # CRM Integration settings
+    crm_type = Column(String, nullable=True)
+    hubspot_api_key = Column(String, nullable=True)
+    other_crm_details = Column(Text, nullable=True)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship with User model
+    user = relationship("User", back_populates="settings")
+
+def setup_database():
+    """Create all tables in the database"""
+    Base.metadata.create_all(bind=engine)
+    print("Database tables created successfully")
 
 if __name__ == "__main__":
-    main()
+    setup_database()

@@ -52,3 +52,53 @@ export const getUserByClerkId = async (clerkId) => {
     throw error;
   }
 };
+
+/**
+ * Update user settings
+ * @param {string} clerkId - Clerk user ID
+ * @param {Object} settingsData - User settings data
+ * @returns {Promise} - Promise with the updated user data
+ */
+export const updateUserSettings = async (clerkId, settingsData) => {
+  try {
+    const response = await fetch(`${API_URL}/users/${clerkId}/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(settingsData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating user settings:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get user settings
+ * @param {string} clerkId - Clerk user ID
+ * @returns {Promise} - Promise with the user settings data
+ */
+export const getUserSettings = async (clerkId) => {
+  try {
+    const response = await fetch(`${API_URL}/users/${clerkId}/settings`);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // Settings not found
+      }
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching user settings:', error);
+    throw error;
+  }
+};

@@ -1,8 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { messages } from "../data/messages";
 import { MessageTab } from "../components/MessageTab";
+import DashboardHeader from "../components/DashboardHeader";
 
 const Dashboard = () => {
+  // Simulated user data (replace with Clerk or API integration as needed)
+  const [user] = useState({
+    firstName: "Jane",
+    lastName: "Doe",
+    email: "jane.doe@example.com",
+    profileImage: ""
+  });
+
+  const handleLogout = () => {
+    // Clerk logout logic or redirect
+    alert("Logged out!");
+    // window.location.href = '/';
+  };
+
+  const handleUpdateProfile = () => {
+    // Clerk profile update logic or open a modal
+    alert("Update profile clicked!");
+  };
+
   const handleReply = (id) => {
     alert(`Reply to message ID: ${id}`);
   };
@@ -28,7 +48,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <DashboardHeader user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

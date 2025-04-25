@@ -23,6 +23,7 @@ if db_url.startswith("postgres://"):
 engine = create_engine(db_url)
 
 def migrate_database():
+    """Run migration for the new schema as per tables.sql. Remove any old migration logic for customers, orders, messages."""
     """Add new columns to user_settings table for WhatsApp Cloud API"""
     try:
         # Connect to the database

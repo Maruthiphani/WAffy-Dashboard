@@ -30,8 +30,8 @@ load_dotenv()
 from setup_db import engine, Base, SessionLocal
 from main import User, UserSettings
 
-# Define models for message storage
-class Customer(Base):
+from app.models import Customer, Business, BusinessTag, Interaction, Order, Issue, Feedback, Enquiry, Category
+# Removed old Customer model. Will add new model based on tables.sql.
     __tablename__ = "customers"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -45,7 +45,114 @@ class Customer(Base):
     messages = relationship("Message", back_populates="customer")
     orders = relationship("Order", back_populates="customer")
 
-class Message(Base):
+class Customer(Base):
+    __tablename__ = "customers"
+    customer_id = Column(String(20), primary_key=True)
+    customer_name = Column(String(100))
+    email = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Relationships
+    orders = relationship("Order", back_populates="customer")
+    feedbacks = relationship("Feedback", back_populates="customer")
+    enquiries = relationship("Enquiry", back_populates="customer")
+    interactions = relationship("Interaction", back_populates="customer")
+
+class Business(Base):
+    __tablename__ = "businesses"
+    business_phone_number = Column(String(20), primary_key=True)
+    business_phone_id = Column(String(50))
+    business_name = Column(String(100))
+    business_type = Column(String(50))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class BusinessTag(Base):
+    __tablename__ = "business_tags"
+    tag_id = Column(Integer, primary_key=True, autoincrement=True)
+    business_phone_number = Column(String(20), ForeignKey('businesses.business_phone_number'))
+    tag = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Interaction(Base):
+    __tablename__ = "interactions"
+    interaction_id = Column(Integer, primary_key=True, autoincrement=True)
+    whatsapp_message_id = Column(String(100), unique=True)
+    customer_id = Column(String(20), ForeignKey('customers.customer_id'))
+    timestamp = Column(DateTime)
+    message_type = Column(String(20))
+    category = Column(String(20))
+    priority = Column(String(10))
+    status = Column(String(20))
+    sentiment = Column(String(10))
+    message_summary = Column(String(200))
+    response_time = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Relationships
+    customer = relationship("Customer", back_populates="interactions")
+
+class Order(Base):
+    __tablename__ = "orders"
+    order_id = Column(Integer, primary_key=True, autoincrement=True)
+    customer_id = Column(String(20), ForeignKey('customers.customer_id'))
+    order_number = Column(String(50))
+    item = Column(String(100))
+    quantity = Column(Integer)
+    notes = Column(String(200))
+    order_status = Column(String(20))
+    total_amount = Column(String(20))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Relationships
+    customer = relationship("Customer", back_populates="orders")
+    feedbacks = relationship("Feedback", back_populates="order")
+
+class Issue(Base):
+    __tablename__ = "issues"
+    issue_id = Column(Integer, primary_key=True, autoincrement=True)
+    customer_id = Column(String(20), ForeignKey('customers.customer_id'))
+    description = Column(String(200))
+    category = Column(String(20))
+    priority = Column(String(10))
+    resolution_notes = Column(String(200))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Feedback(Base):
+    __tablename__ = "feedback"
+    feedback_id = Column(Integer, primary_key=True, autoincrement=True)
+    customer_id = Column(String(20), ForeignKey('customers.customer_id'))
+    order_id = Column(Integer, ForeignKey('orders.order_id'))
+    rating = Column(Integer)
+    comments = Column(String(200))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Relationships
+    customer = relationship("Customer", back_populates="feedbacks")
+    order = relationship("Order", back_populates="feedbacks")
+
+class Enquiry(Base):
+    __tablename__ = "enquiries"
+    enquiry_id = Column(Integer, primary_key=True, autoincrement=True)
+    customer_id = Column(String(20), ForeignKey('customers.customer_id'))
+    description = Column(String(200))
+    category = Column(String(20))
+    priority = Column(String(10))
+    status = Column(String(20))
+    follow_up_date = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Relationships
+    customer = relationship("Customer", back_populates="enquiries")
+
+class Category(Base):
+    __tablename__ = "categories"
+    category_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(200))
+    created_at = Column(DateTime, default=datetime.utcnow)
+
     __tablename__ = "messages"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -64,7 +171,7 @@ class Message(Base):
     # Relationships
     customer = relationship("Customer", back_populates="messages")
 
-class Order(Base):
+# Removed old Order model. Will add new model based on tables.sql.
     __tablename__ = "orders"
     
     id = Column(Integer, primary_key=True, index=True)

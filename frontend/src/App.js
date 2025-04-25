@@ -284,7 +284,7 @@ function App() {
                     <ul className="space-y-2">
                       <li><a href="#" className="text-gray-600 hover:text-pink-500">About</a></li>
                       <li><a href="#" className="text-gray-600 hover:text-pink-500">Contact</a></li>
-                      <li><a href="#" className="text-gray-600 hover:text-pink-500">Privacy Policy</a></li>
+                      <li><a href="/privacy.html" className="text-gray-600 hover:text-pink-500" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
                     </ul>
                   </div>
                 </div>

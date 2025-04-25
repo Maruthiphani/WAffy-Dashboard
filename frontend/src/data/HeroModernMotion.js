@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { SignedOut, SignIn, SignUp } from '@clerk/clerk-react';
 
+
 // Modern hero with animated background, animated logo/headline, interactive slider, and button micro-interactions
 export default function HeroModernMotion({ activeTab, setActiveTab }) {
+
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState('signup');
   const [logoAnim, setLogoAnim] = useState(false);
@@ -284,6 +286,7 @@ export default function HeroModernMotion({ activeTab, setActiveTab }) {
           `}</style>
         </div>
       )}
+
     </div>
   );
 }

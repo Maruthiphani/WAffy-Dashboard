@@ -6,10 +6,9 @@ import psycopg2
 import time 
 import asyncio  
 from collections import defaultdict  
-from Translator_agent import translate_to_english, detect_language  
 from dotenv import load_dotenv
-from Translator_agent import translate_to_english
 from google.cloud import translate_v2 as translate 
+from Translator_agent import translate_to_english, detect_language, translate_to_language
 
 load_dotenv()  # Load environment variables from .env
 
@@ -140,7 +139,6 @@ async def receive_message(request: Request):
             )
             send_reply(phone_number_id, sender, reply)
         else:
-            #print("Relevant message received:", translated_message)
             # Send thank-you / acknowledgment reply
             reply_en = "Thanks for your message! 🍰 We’ve received your request and will follow up shortly."
             reply = reply_en if detected_lang == "en" else translate_to_language(reply_en, detected_lang)

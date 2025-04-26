@@ -119,7 +119,7 @@ if __name__ == "__main__":
         start_ngrok()
         time.sleep(5)
     else:
-        print("🔁 Ngrok is already running.")
+        print("Ngrok is already running.")
 
     creds = fetch_credentials_by_phone_number(phone_number_id)
     forwarding_url = get_ngrok_url()

@@ -4,11 +4,11 @@ import { getOrders, getCustomers, getEnquiries } from "../services/userService";
 import { Table, Button, Tag } from "antd";
 
 const Dashboard = () => {
-  const [tab, setTab] = useState("orders"); // 'orders', 'customers', 'enquiries'
+  const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [enquiries, setEnquiries] = useState([]);
-  
+
   const [customerFilter, setCustomerFilter] = useState("");
   const [dateFilter, setDateFilter] = useState(new Date().toISOString().split("T")[0]);
 
@@ -26,22 +26,24 @@ const Dashboard = () => {
   const handleUpdateProfile = () => alert("Update profile clicked!");
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      const [ordersData, customersData, enquiriesData] = await Promise.all([
-        getOrders(),
-        getCustomers(),
-        getEnquiries()
-      ]);
-      setOrders(ordersData);
-      setCustomers(customersData);
-      setEnquiries(enquiriesData);
-    };
     fetchAllData();
   }, []);
 
-  const handleFilterSubmit = () => {
+  const fetchAllData = async () => {
+    const [ordersData, customersData, enquiriesData] = await Promise.all([
+      getOrders(),
+      getCustomers(),
+      getEnquiries()
+    ]);
+    setOrders(ordersData);
+    setCustomers(customersData);
+    setEnquiries(enquiriesData);
+  };
+
+  const handleFilterSubmit = async () => {
     setSelectedCustomer(customerFilter);
     setSelectedDate(dateFilter);
+    await fetchAllData();
   };
 
   const filteredOrders = orders.filter(order => {
@@ -135,7 +137,7 @@ const Dashboard = () => {
     <div className="space-y-6">
       <DashboardHeader user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
 
-      {/* 🌟 Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
@@ -151,64 +153,56 @@ const Dashboard = () => {
         </div>
       </div>
 
-   {/* 🌟 Tabs */}
-<div className="flex gap-4 mb-6">
-  {["orders", "customers", "enquiries"].map((tabName) => (
-    <button
-      key={tabName}
-      onClick={() => setTab(tabName)}
-      className={`px-6 py-2 rounded-full font-semibold shadow-md text-white 
-        bg-gradient-to-r from-pink-400 to-orange-400 
-        hover:from-orange-400 hover:to-pink-400 transition duration-300
-        ${tab === tabName ? "border-4 border-yellow-300 scale-105" : "border-none"}
-      `}
-    >
-      {tabName.charAt(0).toUpperCase() + tabName.slice(1)}
-    </button>
-  ))}
-</div>
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6">
+        { ["orders", "customers", "enquiries"].map((tabName) => (
+          <button
+            key={tabName}
+            onClick={() => setTab(tabName)}
+            className={`px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400 transition duration-300 ${tab === tabName ? "border-4 border-yellow-300 scale-105" : "border-none"}`}
+          >
+            {tabName.charAt(0).toUpperCase() + tabName.slice(1)}
+          </button>
+        ))}
+      </div>
 
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 mb-6 items-end">
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold mb-1">Customer ID:</label>
+          <select
+            className="p-2 border rounded w-48"
+            value={customerFilter}
+            onChange={(e) => setCustomerFilter(e.target.value)}
+          >
+            <option value="">All Customers</option>
+            {getCustomerOptions().map((customerId) => (
+              <option key={customerId} value={customerId}>{customerId}</option>
+            ))}
+          </select>
+        </div>
 
-     {/* 🌟 Filters with Submit */}
-<div className="flex flex-wrap gap-4 mb-6 items-end">
-  <div className="flex flex-col">
-    <label className="text-sm font-semibold mb-1">Customer ID:</label>
-    <select
-      className="p-2 border rounded w-48"
-      value={customerFilter}
-      onChange={(e) => setCustomerFilter(e.target.value)}
-    >
-      <option value="">All Customers</option>
-      {getCustomerOptions().map((customerId) => (
-        <option key={customerId} value={customerId}>
-          {customerId}
-        </option>
-      ))}
-    </select>
-  </div>
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold mb-1">Date:</label>
+          <input
+            type="date"
+            className="p-2 border rounded w-48"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          />
+        </div>
 
-  <div className="flex flex-col">
-    <label className="text-sm font-semibold mb-1">Date:</label>
-    <input
-      type="date"
-      className="p-2 border rounded w-48"
-      value={dateFilter}
-      onChange={(e) => setDateFilter(e.target.value)}
-    />
-  </div>
+        <div>
+          <button
+            onClick={handleFilterSubmit}
+            className="px-8 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
 
-  <div>
-    <button
-      onClick={handleFilterSubmit}
-      className="px-8 py-2 rounded-full font-semibold shadow-md 
-        text-white bg-gradient-to-r from-yellow-400 to-yellow-500 
-        hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
-    >
-      Submit
-    </button>
-  </div>
-</div>
-      {/* 🌟 Table */}
+      {/* Table */}
       <Table
         columns={getCurrentColumns()}
         dataSource={getCurrentData()}

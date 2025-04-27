@@ -45,13 +45,21 @@ def encrypt_value(value):
     """Encrypt a sensitive value"""
     if not value:
         return None
-    return fernet.encrypt(value.encode()).decode()
+    try:
+        return fernet.encrypt(value.encode()).decode()
+    except Exception as e:
+        logger.error(f"Encryption error: {e}")
+        return None
 
 def decrypt_value(encrypted_value):
     """Decrypt an encrypted value"""
     if not encrypted_value:
         return None
-    return fernet.decrypt(encrypted_value.encode()).decode()
+    try:
+        return fernet.decrypt(encrypted_value.encode()).decode()
+    except Exception as e:
+        logger.error(f"Decryption error: {e}")
+        return None
 
 # Pydantic models for request/response
 class UserCreate(BaseModel):
@@ -249,38 +257,77 @@ async def get_user_settings(clerk_id: str, db: Session = Depends(get_db)):
         "whatsapp_phone_number_id": settings.whatsapp_phone_number_id,
         "crm_type": settings.crm_type,
         "other_crm_details": settings.other_crm_details,
+        "view_consolidated_data": settings.view_consolidated_data
     }
     
-    # Include decrypted API keys if they exist, with error handling
-    try:
-        if settings.whatsapp_app_id:
-            response_data["whatsapp_app_id"] = decrypt_value(settings.whatsapp_app_id)
-    except Exception as e:
-        logger.error(f"Error decrypting whatsapp_app_id: {e}")
-        response_data["whatsapp_app_id"] = ""
-        
-    try:
-        if settings.whatsapp_app_secret:
-            response_data["whatsapp_app_secret"] = decrypt_value(settings.whatsapp_app_secret)
-    except Exception as e:
-        logger.error(f"Error decrypting whatsapp_app_secret: {e}")
-        response_data["whatsapp_app_secret"] = ""
-        
-    try:
-        if settings.whatsapp_verify_token:
-            response_data["whatsapp_verify_token"] = decrypt_value(settings.whatsapp_verify_token)
-    except Exception as e:
-        logger.error(f"Error decrypting whatsapp_verify_token: {e}")
-        response_data["whatsapp_verify_token"] = ""
+    # Log the encryption key hash for debugging
+    key_hash = hash(fernet_key)
+    logger.info(f"Using encryption key hash: {key_hash}")
     
-    try:
-        if settings.hubspot_access_token:
-            response_data["hubspot_access_token"] = decrypt_value(settings.hubspot_access_token)
-    except Exception as e:
-        logger.error(f"Error decrypting hubspot_access_token: {e}")
-        response_data["hubspot_access_token"] = ""
+    # Include decrypted API keys if they exist, with improved error handling
+    sensitive_fields = [
+        "whatsapp_app_id", 
+        "whatsapp_app_secret", 
+        "whatsapp_verify_token", 
+        "hubspot_access_token"
+    ]
+    
+    for field in sensitive_fields:
+        field_value = getattr(settings, field, None)
+        if field_value:
+            logger.info(f"Attempting to decrypt {field}")
+            try:
+                decrypted_value = decrypt_value(field_value)
+                if decrypted_value:
+                    response_data[field] = decrypted_value
+                    logger.info(f"Successfully decrypted {field}")
+                else:
+                    logger.error(f"Decryption returned None for {field}")
+                    response_data[field] = ""
+            except Exception as e:
+                logger.error(f"Error decrypting {field}: {str(e)}")
+                response_data[field] = ""
+        else:
+            response_data[field] = ""
     
     return response_data
+
+@app.get("/api/test-encryption")
+async def test_encryption():
+    """Test endpoint to verify encryption/decryption functionality"""
+    test_value = "test-value-123"
+    try:
+        # Test encryption
+        encrypted = encrypt_value(test_value)
+        if not encrypted:
+            return {"status": "error", "message": "Encryption failed"}
+        
+        # Test decryption
+        decrypted = decrypt_value(encrypted)
+        if not decrypted:
+            return {"status": "error", "message": "Decryption failed"}
+        
+        # Verify the decrypted value matches the original
+        if decrypted != test_value:
+            return {
+                "status": "error", 
+                "message": f"Value mismatch: expected '{test_value}', got '{decrypted}'"
+            }
+        
+        # Log the encryption key hash for debugging
+        key_hash = hash(fernet_key)
+        
+        return {
+            "status": "success", 
+            "message": "Encryption and decryption working correctly",
+            "original": test_value,
+            "encrypted": encrypted,
+            "decrypted": decrypted,
+            "key_hash": key_hash
+        }
+    except Exception as e:
+        logger.error(f"Error in test-encryption endpoint: {str(e)}")
+        return {"status": "error", "message": f"Exception: {str(e)}"}
 
 @app.post("/api/webhook/clerk")
 async def clerk_webhook(request: Request, db: Session = Depends(get_db)):

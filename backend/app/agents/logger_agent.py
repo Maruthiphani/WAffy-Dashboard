@@ -52,13 +52,10 @@ class LoggerAgent:
         # Check for HubSpot configuration
         if self.user_settings and self.user_settings.hubspot_access_token:
             # For user_id 4 or if crm_type is explicitly set to hubspot
-            if str(self.user_id) == "4" or (hasattr(self.user_settings, 'crm_type') and self.user_settings.crm_type == "hubspot"):
-                logger.info(f"Found HubSpot access token for user_id {self.user_id}")
-                
-                # Attempt to decrypt the HubSpot access token
+            if str(self.user_id) == "4" or self.user_settings.crm_type == "hubspot":
+                self.hubspot_enabled = True
+                # Use the provided HubSpot Private App Access Token and decrypt it
                 try:
-                    # Log the encrypted token for debugging (don't do this in production!)
-                    logger.info(f"Encrypted token: {self.user_settings.hubspot_access_token[:10]}...")
                     
                     # Try to decrypt the token
                     self.hubspot_access_token = decrypt_value(self.user_settings.hubspot_access_token)
@@ -213,12 +210,17 @@ class LoggerAgent:
             customer = self.db.query(Customer).filter(Customer.customer_id == message_state.customer_id).first()
             
             if not customer:
+                # Ensure user_id is set correctly
+                user_id = int(self.user_id) if self.user_id else 4  # Default to user_id 4 if none available
+                if self.user_settings and self.user_settings.user_id:
+                    user_id = self.user_settings.user_id
+                    
                 # Create new customer
                 customer = Customer(
                     customer_id=message_state.customer_id,
-                    user_id=self.user_settings.user_id,
+                    user_id=user_id,
                     customer_name=message_state.customer_name if hasattr(message_state, 'customer_name') else "",
-                    email="",  # No email in WhatsApp messages
+                    email="",
                     created_at=datetime.utcnow(),
                     updated_at=datetime.utcnow()
                 )
@@ -2070,25 +2072,37 @@ def process_whatsapp_messages(user_id: str, messages: List[Dict[str, Any]]) -> D
 if __name__ == "__main__":
     # Use the exact message structure provided by the user
     test_message =   {
-  "timestamp": "2025-04-27 14:49:15",
-  "raw_timestamp_utc": 1745765355,
-  "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E5QzBGMDFCRTM4RUJGMUJGMjkA",
+  "timestamp": "2025-04-27 16:15:03",
+  "raw_timestamp_utc": 1745770503,
+  "message_id": "wamid.HBgMOTE5NDU0MjAxODk0FQIAEhgUM0E4M0JCMzcxRDgwOTM0NzgzMEYA",
   "message_type": "text",
-  "customer_id": "447778596773",
-  "sender": "447778596773",
-  "customer_name": "Akanksha",
-  "message": "Hi team, I just wanted to say that I\u2019m really impressed with the quality of your service. Keep up the great work!",
-  "predicted_category": "feedback",
-  "priority": "low",
-  "extracted_info": {},
-  "conversation_status": "close",
+  "customer_id": "919454201894",
+  "sender": "919454201894",
+  "customer_name": "Divyansh Nanda",
+  "message": "I placed an order but forgot to add a second item. Can you combine them?",
+  "predicted_category": "order_status",
+  "priority": "moderate",
+  "extracted_info": {
+    "request": "combine order"
+  },
+  "conversation_status": "continue",
   "context": [
-    "Hi team, I just wanted to say that I\u2019m really impressed with the quality of your service. Keep up the great work!"
+    "It would be great if you could offer more size options.",
+    "I’m extremely happy with the fast service — thank you!",
+    "I’ve been charged twice for my order. Can you process a refund?",
+    "Is there a physical store where I can try the product before buying?",
+    "I’m extremely happy with the fast service — thank you!",
+    "I’d like to place an order for 5 additional units. How should I proceed?",
+    "Can I modify my order after it’s been placed?",
+    "Could you help me apply a discount code retroactively to my order?",
+    "Can I pre-order the upcoming product that’s listed on your site?",
+    "I placed an order but forgot to add a second item. Can you combine them?"
   ],
   "business_phone_number": "15556454320",
   "business_phone_id": "574048935800997",
-  "table_name": "feedback"
+  "table_name": "orders"
 }
+
     
     # Get user_id from business_phone_id
     business_phone_id = test_message.get("business_phone_id")

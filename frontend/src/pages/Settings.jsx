@@ -381,11 +381,11 @@ const Settings = () => {
         founded_year: updatedFormData.foundedYear,
         categories: updatedFormData.categories.filter(cat => cat.trim() !== ""),
         whatsapp_app_id: updatedFormData.whatsappAppId,
-        whatsapp_api_key: updatedFormData.whatsappAppSecret,
+        whatsapp_app_secret: updatedFormData.whatsappAppSecret,
         whatsapp_phone_number_id: updatedFormData.whatsappPhoneNumberId,
         whatsapp_verify_token: updatedFormData.whatsappVerifyToken,
         crm_type: updatedFormData.crmType,
-        hubspot_api_key: updatedFormData.hubspotAccessToken,
+        hubspot_access_token: updatedFormData.hubspotAccessToken,
         other_crm_details: updatedFormData.otherCrmDetails,
         view_consolidated_data: updatedFormData.viewConsolidatedData
       };

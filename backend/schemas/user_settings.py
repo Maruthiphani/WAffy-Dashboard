@@ -33,6 +33,9 @@ class UserSettingsBase(BaseModel):
     crm_type: Optional[str] = "hubspot"
     hubspot_api_key: Optional[str] = None
     other_crm_details: Optional[str] = None
+    
+    # Dashboard settings
+    view_consolidated_data: Optional[bool] = False
 
     class Config:
         orm_mode = True  # For older Pydantic versions

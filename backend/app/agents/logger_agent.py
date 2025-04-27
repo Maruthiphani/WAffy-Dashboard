@@ -88,8 +88,13 @@ class LoggerAgent:
         if self.user_settings and hasattr(self.user_settings, 'view_consolidated_data'):
             self.view_consolidated_data = self.user_settings.view_consolidated_data
         
-        # Always store in DB if view_consolidated_data is enabled or for user_id 4
+        # Always store in DB if view_consolidated_data is enabled, for Excel integration, or for user_id 4
         self.store_in_db = self.view_consolidated_data
+        
+        # For Excel integration, always enable database storage regardless of view_consolidated_data setting
+        if self.user_settings and self.user_settings.crm_type == 'excel':
+            self.store_in_db = True
+            self.view_consolidated_data = True
         
         # For user_id 4, always enable database storage
         if str(self.user_id) == "4":
@@ -98,7 +103,7 @@ class LoggerAgent:
             if not self.hubspot_enabled:
                 self.hubspot_enabled = True
                 # Use the provided HubSpot Private App Access Token
-                self.hubspot_access_token = "ajkdhal"
+                self.hubspot_access_token = "nak"
                 logger.info("Enabled HubSpot integration for user_id 4 with provided token")
 
     def __del__(self):
@@ -168,6 +173,8 @@ class LoggerAgent:
     def process_message_state(self, message_state: MessageState) -> Dict[str, Any]:
         """Process a single message in MessageState format"""
         try:
+            # Store the message_state in the instance for use by other methods
+            self.message_state = message_state
             interaction = None
             
             # Always store in the database if view_consolidated_data is enabled or if HubSpot is enabled
@@ -267,9 +274,19 @@ class LoggerAgent:
                     logger.info(f"Updated interaction: {existing_interaction.interaction_id}")
                     return existing_interaction
             
+            # Ensure user_id is set correctly
+            user_id = int(self.user_id) if self.user_id else None
+            if self.user_settings and self.user_settings.user_id:
+                user_id = self.user_settings.user_id
+                
+            # If user_id is still None, use a default value (4)
+            if user_id is None:
+                user_id = 4
+                logger.warning(f"Using default user_id {user_id} for interaction")
+            
             # Create new interaction record if no existing one found
             interaction = Interaction(
-                user_id=self.user_settings.user_id,
+                user_id=user_id,
                 whatsapp_message_id=whatsapp_message_id,
                 customer_id=message_state.customer_id,
                 timestamp=datetime.fromisoformat(message_state.timestamp) if hasattr(message_state, 'timestamp') and message_state.timestamp else datetime.utcnow(),
@@ -298,6 +315,15 @@ class LoggerAgent:
             self.db.rollback()
             return None
             
+    def _get_interaction_by_message_id(self, message_id: str) -> Optional[Interaction]:
+        """Get an interaction by WhatsApp message ID"""
+        try:
+            interaction = self.db.query(Interaction).filter(Interaction.whatsapp_message_id == message_id).first()
+            return interaction
+        except Exception as e:
+            logger.error(f"Error getting interaction by message ID: {str(e)}")
+            return None
+            
     def _store_in_specific_table(self, message_state: MessageState) -> None:
         """Store data in specific table based on table_name"""
         try:
@@ -309,12 +335,9 @@ class LoggerAgent:
                 "customer_id": message_state.customer_id,
                 "message": message_state.message,
                 "category": message_state.predicted_category,
-                "priority": message_state.priority
+                "priority": message_state.priority,
+                "extracted_info": message_state.extracted_info  # Pass extracted_info as a separate field
             }
-            
-            # Add extracted info to data
-            if message_state.extracted_info:
-                data.update(message_state.extracted_info)
             
             # Store in table
             if table_name == "orders":
@@ -1402,9 +1425,19 @@ class LoggerAgent:
             if order_status not in valid_statuses:
                 order_status = "pending"  # Default to pending if invalid status
                 
+            # Get interaction_id from the message_state if available
+            interaction_id = None
+            if hasattr(self, 'message_state') and self.message_state:
+                # If we have a stored interaction for this message, use its ID
+                interaction = self._get_interaction_by_message_id(self.message_state.message_id)
+                if interaction:
+                    interaction_id = interaction.interaction_id
+                    logger.info(f"Linking order to interaction_id: {interaction_id}")
+            
             order = Order(
                 user_id=user_id,
                 customer_id=data.get("customer_id"),
+                interaction_id=interaction_id,
                 order_number=order_number,
                 item=item,  # This will now contain the product item from extracted_info
                 quantity=quantity,
@@ -1431,15 +1464,48 @@ class LoggerAgent:
     def _store_issue(self, data: Dict[str, Any]) -> Optional[Issue]:
         """Store issue data in the issues table"""
         try:
-            user_id = None
-            if self.user_settings:
+            # Ensure user_id is set correctly
+            user_id = int(self.user_id) if self.user_id else None
+            if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
                 
+            # If user_id is still None, use a default value (4)
+            if user_id is None:
+                user_id = 4
+                logger.warning(f"Using default user_id {user_id} for issue")
+            
+            # Extract issue and request from extracted_info if available
+            description = data.get("description", "")
+            extracted_info = data.get("extracted_info", {})
+            
+            if isinstance(extracted_info, dict):
+                issue_text = extracted_info.get("issue", "")
+                request_text = extracted_info.get("request", "")
+                
+                if issue_text or request_text:
+                    description = f"Issue: {issue_text}\nRequest: {request_text}"
+                    logger.info(f"Using extracted issue and request for description: {description}")
+            
+            # Try to get order_id from interaction if available
+            order_id = data.get("order_id")
+            if not order_id and hasattr(self, 'message_state') and self.message_state:
+                # Get interaction for this message
+                interaction = self._get_interaction_by_message_id(self.message_state.message_id)
+                if interaction:
+                    # Check if there's an order linked to this interaction
+                    order = self.db.query(Order).filter(Order.interaction_id == interaction.interaction_id).first()
+                    if order:
+                        order_id = order.order_id
+                        logger.info(f"Found order_id {order_id} from interaction_id {interaction.interaction_id}")
+            
+            # Try different status values that might be valid based on common patterns
             issue = Issue(
                 user_id=user_id,
                 customer_id=data.get("customer_id"),
-                description=data.get("description", ""),
-                category=data.get("category", "other"),
+                order_id=order_id,
+                description=description,
+                issue_type=data.get("category", "other"),
+                status="open",  # Use 'open' as a valid status
                 priority=data.get("priority", "moderate"),
                 resolution_notes=data.get("resolution_notes", "")
             )
@@ -1461,17 +1527,42 @@ class LoggerAgent:
     def _store_enquiry(self, data: Dict[str, Any]) -> Optional[Enquiry]:
         """Store enquiry data in the enquiries table"""
         try:
-            user_id = None
-            if self.user_settings:
+            # Ensure user_id is set correctly
+            user_id = int(self.user_id) if self.user_id else None
+            if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
+                
+            # If user_id is still None, use a default value (4)
+            if user_id is None:
+                user_id = 4
+                logger.warning(f"Using default user_id {user_id} for enquiry")
+            
+            # Extract message from data to use as description if description is not provided
+            description = data.get("description", "")
+            if not description and data.get("message"):
+                description = data.get("message")
+            
+            # Map priority values to valid ones (high, medium, low)
+            priority = data.get("priority", "medium")
+            if priority == "moderate":
+                priority = "medium"
+            elif priority not in ["high", "medium", "low"]:
+                priority = "medium"  # Default to medium if not valid
+                
+            logger.info(f"Using priority '{priority}' for enquiry")
+            
+            # Use a valid status value based on the check constraint
+            # Valid values are: 'open', 'responded', 'converted', 'closed'
+            status = "open"  # Default to 'open' as the initial status
+            logger.info(f"Using status '{status}' for enquiry")
                 
             enquiry = Enquiry(
                 user_id=user_id,
                 customer_id=data.get("customer_id"),
-                description=data.get("description", ""),
+                description=description,
                 category=data.get("category", "other"),
-                priority=data.get("priority", "moderate"),
-                status=data.get("status", "new"),
+                priority=priority,
+                status=status,
                 follow_up_date=datetime.fromisoformat(data.get("follow_up_date")) if data.get("follow_up_date") else None
             )
             
@@ -1492,16 +1583,39 @@ class LoggerAgent:
     def _store_feedback(self, data: Dict[str, Any]) -> Optional[Feedback]:
         """Store feedback data in the feedback table"""
         try:
-            user_id = None
-            if self.user_settings:
+            # Ensure user_id is set correctly
+            user_id = int(self.user_id) if self.user_id else None
+            if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
+                
+            # If user_id is still None, use a default value (4)
+            if user_id is None:
+                user_id = 4
+                logger.warning(f"Using default user_id {user_id} for feedback")
+            
+            # Extract message from data to use as comments if comments is not provided
+            comments = data.get("comments", "")
+            if not comments and data.get("message"):
+                comments = data.get("message")
+            
+            # Try to get order_id from interaction if available
+            order_id = data.get("order_id")
+            if not order_id and hasattr(self, 'message_state') and self.message_state:
+                # Get interaction for this message
+                interaction = self._get_interaction_by_message_id(self.message_state.message_id)
+                if interaction:
+                    # Check if there's an order linked to this interaction
+                    order = self.db.query(Order).filter(Order.interaction_id == interaction.interaction_id).first()
+                    if order:
+                        order_id = order.order_id
+                        logger.info(f"Found order_id {order_id} from interaction_id {interaction.interaction_id}")
                 
             feedback = Feedback(
                 user_id=user_id,
                 customer_id=data.get("customer_id"),
-                order_id=data.get("order_id"),
-                rating=data.get("rating", 0),
-                comments=data.get("comments", "")
+                order_id=order_id,
+                rating=data.get("rating", 5),  # Default to 5 stars if not provided
+                comments=comments
             )
             
             self.db.add(feedback)
@@ -1955,35 +2069,26 @@ def process_whatsapp_messages(user_id: str, messages: List[Dict[str, Any]]) -> D
 # Example usage (for testing)
 if __name__ == "__main__":
     # Use the exact message structure provided by the user
-    test_message = {
-        "timestamp": "2025-04-24 12:55:05",
-        "raw_timestamp_utc": 1745499305,
-        "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDMTg2OUFCOTQ2QzZBMkJENEEA",
-        "message_type": "text",
-        "customer_id": "447778596773",
-        "sender": "447778596773",
-        "customer_name": "Akanksha",
-        "message": "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
-        "predicted_category": "new_order",
-        "priority": "high",
-        "extracted_info": {
-            "products": [
-                {
-                    "item": "chocolate truffle cake",
-                    "quantity": 2,
-                    "notes": "Happy Birthday Riya"
-                }
-            ],
-            "delivery_time": "tomorrow evening"
-        },
-        "conversation_status": "continue",
-        "context": [
-            "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them."
-        ],
-        "business_phone_number": "15556454320",
-        "business_phone_id": "574048935800997",
-        "table_name": "orders"
-    }
+    test_message =   {
+  "timestamp": "2025-04-27 14:49:15",
+  "raw_timestamp_utc": 1745765355,
+  "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E5QzBGMDFCRTM4RUJGMUJGMjkA",
+  "message_type": "text",
+  "customer_id": "447778596773",
+  "sender": "447778596773",
+  "customer_name": "Akanksha",
+  "message": "Hi team, I just wanted to say that I\u2019m really impressed with the quality of your service. Keep up the great work!",
+  "predicted_category": "feedback",
+  "priority": "low",
+  "extracted_info": {},
+  "conversation_status": "close",
+  "context": [
+    "Hi team, I just wanted to say that I\u2019m really impressed with the quality of your service. Keep up the great work!"
+  ],
+  "business_phone_number": "15556454320",
+  "business_phone_id": "574048935800997",
+  "table_name": "feedback"
+}
     
     # Get user_id from business_phone_id
     business_phone_id = test_message.get("business_phone_id")

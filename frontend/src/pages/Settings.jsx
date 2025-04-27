@@ -67,7 +67,10 @@ const Settings = () => {
     // CRM Integration
     crmType: "hubspot", // hubspot, excel, other
     hubspotAccessToken: "",
-    otherCrmDetails: ""
+    otherCrmDetails: "",
+    
+    // Dashboard Settings
+    viewConsolidatedData: false
   });
 
   // Fetch business types and tags
@@ -154,10 +157,9 @@ const Settings = () => {
               console.log("Error loading settings:", userSettings.message);
             } else {
               // Map backend settings to form data
-              setFormData(prevData => ({
-                ...prevData,
-                firstName: userSettings.first_name || user.firstName || "",
-                lastName: userSettings.last_name || user.lastName || "",
+              setFormData({
+                firstName: userSettings.first_name || "",
+                lastName: userSettings.last_name || "",
                 businessName: userSettings.business_name || "",
                 businessDescription: userSettings.business_description || "",
                 contactPhone: userSettings.contact_phone || "",
@@ -165,20 +167,18 @@ const Settings = () => {
                 businessAddress: userSettings.business_address || "",
                 businessWebsite: userSettings.business_website || "",
                 businessType: userSettings.business_type || "",
-                businessTags: userSettings.business_tags || [],
                 foundedYear: userSettings.founded_year || "",
-                categories: userSettings.categories?.length ? 
-                  [...userSettings.categories] : 
-                  [""],
+                categories: userSettings.categories?.length ? userSettings.categories : [""],
                 whatsappAppId: userSettings.whatsapp_app_id || "",
-                whatsappAppSecret: userSettings.whatsapp_app_secret || "",
+                whatsappAppSecret: userSettings.whatsapp_api_key || "", // Note: API key is stored as app secret
                 whatsappPhoneNumberId: userSettings.whatsapp_phone_number_id || "",
                 whatsappVerifyToken: userSettings.whatsapp_verify_token || "",
                 crmType: userSettings.crm_type || "hubspot",
-                hubspotAccessToken: userSettings.hubspot_access_token || "",
-                otherCrmDetails: userSettings.other_crm_details || ""
-              }));
-              
+                hubspotAccessToken: userSettings.hubspot_api_key || "", // Note: API key is stored as access token
+                otherCrmDetails: userSettings.other_crm_details || "",
+                businessTags: userBusinessTags.map(tag => tag.id) || [],
+                viewConsolidatedData: userSettings.view_consolidated_data || false
+              });
               console.log("Loaded settings from database");
             }
           } else {
@@ -361,37 +361,39 @@ const Settings = () => {
     setError(null);
     
     try {
-      // Filter out empty categories
-      const filteredCategories = formData.categories.filter(cat => cat.trim() !== "");
+      // For Excel integration, always set viewConsolidatedData to true
+      let updatedFormData = {...formData};
+      if (formData.crmType === 'excel') {
+        updatedFormData.viewConsolidatedData = true;
+      }
       
-      // Prepare data for backend
-      const settingsData = {
-        // Map frontend field names to backend field names
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        business_name: formData.businessName,
-        business_description: formData.businessDescription,
-        contact_phone: formData.contactPhone,
-        contact_email: formData.contactEmail,
-        business_address: formData.businessAddress,
-        business_website: formData.businessWebsite,
-        business_type: formData.businessType,
-        business_tags: formData.businessTags,
-        founded_year: formData.foundedYear,
-        categories: filteredCategories,
-        whatsapp_app_id: formData.whatsappAppId,
-        whatsapp_app_secret: formData.whatsappAppSecret,
-        whatsapp_phone_number_id: formData.whatsappPhoneNumberId,
-        whatsapp_verify_token: formData.whatsappVerifyToken,
-        crm_type: formData.crmType,
-        hubspot_access_token: formData.hubspotAccessToken,
-        other_crm_details: formData.otherCrmDetails
+      // Prepare data for API
+      const userData = {
+        first_name: updatedFormData.firstName,
+        last_name: updatedFormData.lastName,
+        business_name: updatedFormData.businessName,
+        business_description: updatedFormData.businessDescription,
+        contact_phone: updatedFormData.contactPhone,
+        contact_email: updatedFormData.contactEmail,
+        business_address: updatedFormData.businessAddress,
+        business_website: updatedFormData.businessWebsite,
+        business_type: updatedFormData.businessType,
+        founded_year: updatedFormData.foundedYear,
+        categories: updatedFormData.categories.filter(cat => cat.trim() !== ""),
+        whatsapp_app_id: updatedFormData.whatsappAppId,
+        whatsapp_api_key: updatedFormData.whatsappAppSecret,
+        whatsapp_phone_number_id: updatedFormData.whatsappPhoneNumberId,
+        whatsapp_verify_token: updatedFormData.whatsappVerifyToken,
+        crm_type: updatedFormData.crmType,
+        hubspot_api_key: updatedFormData.hubspotAccessToken,
+        other_crm_details: updatedFormData.otherCrmDetails,
+        view_consolidated_data: updatedFormData.viewConsolidatedData
       };
       
       // Save settings and update business tags using Promise.allSettled to handle partial failures
       const [settingsResult, tagsResult] = await Promise.allSettled([
-        updateUserSettings(user.id, settingsData),
-        updateUserBusinessTags(user.id, formData.businessTags)
+        updateUserSettings(user.id, userData),
+        updateUserBusinessTags(user.id, updatedFormData.businessTags)
       ]);
       
       // Check for errors in the results
@@ -414,6 +416,11 @@ const Settings = () => {
         setError(errorMessage + "Please try again.");
       } else {
         setSuccess(true);
+        
+        // If we forced viewConsolidatedData to true for Excel, update the form state to match
+        if (formData.crmType === 'excel' && !formData.viewConsolidatedData) {
+          setFormData(updatedFormData);
+        }
         
         // Scroll to top to show success message
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -938,7 +945,7 @@ const Settings = () => {
                 Connect your HubSpot CRM to automatically sync customer data and conversations.
               </p>
               
-              <div className="mb-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Private App Access Token
                 </label>
@@ -950,10 +957,25 @@ const Settings = () => {
                   className="w-full p-2 border border-gray-300 rounded"
                   placeholder="Enter your HubSpot Private App Access Token"
                 />
-                <p className="text-xs text-gray-500 mt-1">Your access token is stored securely</p>
               </div>
               
-              <div className="text-xs sm:text-sm bg-blue-50 p-2 sm:p-3 rounded">
+              <div className="mt-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="viewConsolidatedData"
+                    checked={formData.viewConsolidatedData}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-pink-500 focus:ring-pink-400 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">View Consolidated Data on Dashboard</span>
+                </label>
+                <p className="text-xs text-gray-500 mt-1 ml-6">
+                When enabled, the enquiries, orders, issues, and feedback will be stored in the database and displayed on the dashboard.
+                </p>
+              </div>
+              
+              <div className="text-xs sm:text-sm bg-blue-50 p-2 sm:p-3 rounded mt-4">
                 <p className="font-medium text-blue-800">How to get your HubSpot Private App Access Token:</p>
                 <ol className="list-decimal pl-5 mt-1 text-blue-800">
                   <li>Go to your HubSpot account</li>
@@ -975,7 +997,22 @@ const Settings = () => {
                 Export your WhatsApp messages and customer data to Excel spreadsheets.
               </p>
               
-              <div className="text-xs sm:text-sm bg-blue-50 p-2 sm:p-3 rounded">
+              <div className="mt-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    disabled={true}
+                    className="h-4 w-4 text-pink-500 focus:ring-pink-400 border-gray-300 rounded cursor-not-allowed bg-gray-200"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">View Consolidated Data on Dashboard</span>
+                </label>
+                <p className="text-xs text-gray-500 mt-1 ml-6">
+                  Excel integration requires all messages to be stored in the database and displayed on the dashboard.
+                </p>
+              </div>
+              
+              <div className="text-xs sm:text-sm bg-blue-50 p-2 sm:p-3 rounded mt-4">
                 <p>Excel integration allows you to export your data in various formats:</p>
                 <ul className="list-disc pl-5 mt-1">
                   <li>Customer contact information</li>
@@ -1007,6 +1044,22 @@ const Settings = () => {
                   className="w-full p-2 border border-gray-300 rounded"
                   placeholder="Provide details about your CRM system (name, API endpoints, etc.)"
                 ></textarea>
+              </div>
+              
+              <div className="mt-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="viewConsolidatedData"
+                    checked={formData.viewConsolidatedData}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-pink-500 focus:ring-pink-400 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">View Consolidated Data on Dashboard</span>
+                </label>
+                <p className="text-xs text-gray-500 mt-1 ml-6">
+                  When enabled, the enquiries, orders, issues, and feedback will be stored in the database and displayed on the dashboard.
+                </p>
               </div>
             </div>
           )}

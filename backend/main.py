@@ -105,6 +105,7 @@ class UserSettingsBase(BaseModel):
     whatsapp_app_secret: Optional[str] = None
     whatsapp_phone_number_id: Optional[str] = None
     whatsapp_verify_token: Optional[str] = None
+    whatsapp_api_key: Optional[str] = None
     
     # CRM Integration settings
     crm_type: Optional[str] = "hubspot"
@@ -200,7 +201,7 @@ async def update_user_settings(clerk_id: str, settings_data: dict, db: Session =
     # Update settings with encrypted sensitive data
     for key, value in settings_data.items():
         try:
-            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key" "hubspot_access_token"] and value:
+            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key", "hubspot_access_token"] and value:
                 # Encrypt sensitive values
                 encrypted_value = encrypt_value(value)
                 setattr(user_settings, key, encrypted_value)
@@ -219,7 +220,7 @@ async def update_user_settings(clerk_id: str, settings_data: dict, db: Session =
     db.refresh(user_settings)
     
     # Prepare response (exclude sensitive data)
-    response_data = {k: v for k, v in settings_data.items() if k not in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "hubspot_access_token"]}
+    response_data = {k: v for k, v in settings_data.items() if k not in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key", "hubspot_access_token"]}
     response_data["id"] = user_settings.id
     response_data["user_id"] = user.id
     
@@ -268,7 +269,6 @@ async def get_user_settings(clerk_id: str, db: Session = Depends(get_db)):
     sensitive_fields = [
         "whatsapp_app_id", 
         "whatsapp_app_secret", 
-        "whatsapp_verify_token", 
         "whatsapp_api_key",
         "hubspot_access_token"
     ]

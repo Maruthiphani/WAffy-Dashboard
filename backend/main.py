@@ -4,38 +4,40 @@ WAffy Dashboard Backend API
 import os
 import urllib.parse
 import json
+import logging
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session
 from app.models import User, UserSettings
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
+from database import get_db
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
 
 # Get encryption key from environment or use a default for development
 ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "waffy_encryption_key_for_development_only")
-# Ensure the key is properly formatted for Fernet (must be 32 url-safe base64-encoded bytes)
-if len(ENCRYPTION_KEY) < 32:
-    ENCRYPTION_KEY = ENCRYPTION_KEY.ljust(32)[:32]
-fernet = Fernet(Fernet.generate_key())  # For encryption/decryption
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Properly format the key for Fernet (must be 32 url-safe base64-encoded bytes)
+import base64
+from cryptography.hazmat.primitives import hashes
 
-# If the URL starts with 'postgres://', replace it with 'postgresql://' for SQLAlchemy compatibility
-if DATABASE_URL.startswith('postgres://'):
-    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+# Generate a consistent key using SHA-256 hash (which produces 32 bytes)
+digest = hashes.Hash(hashes.SHA256())
+digest.update(ENCRYPTION_KEY.encode())
+key_bytes = digest.finalize()
 
-print(f"Connecting to database: {DATABASE_URL}")
-
-# SQLAlchemy setup
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Convert to URL-safe base64-encoded format as required by Fernet
+fernet_key = base64.urlsafe_b64encode(key_bytes)
+fernet = Fernet(fernet_key)  # Use consistent key for encryption/decryption
 
 
 # Encryption/Decryption functions
@@ -84,6 +86,7 @@ class UserSettingsBase(BaseModel):
     business_address: Optional[str] = None
     business_website: Optional[str] = None
     business_type: Optional[str] = None
+    business_tags: Optional[List[int]] = []
     founded_year: Optional[str] = None
     
     # Categories for message classification
@@ -94,8 +97,6 @@ class UserSettingsBase(BaseModel):
     whatsapp_app_secret: Optional[str] = None
     whatsapp_phone_number_id: Optional[str] = None
     whatsapp_verify_token: Optional[str] = None
-    whatsapp_api_key: Optional[str] = None
-    whatsapp_business_account_id: Optional[str] = None
     
     # CRM Integration settings
     crm_type: Optional[str] = "hubspot"
@@ -113,13 +114,9 @@ class UserSettingsResponse(UserSettingsBase):
     class Config:
         orm_mode = True
 
-# Dependency to get DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Helper function to get user by clerk_id
+def get_user_by_clerk_id(db: Session, clerk_id: str):
+    return db.query(User).filter(User.clerk_id == clerk_id).first()
 
 # Initialize FastAPI app
 app = FastAPI(title="WAffy API")
@@ -127,11 +124,15 @@ app = FastAPI(title="WAffy API")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Adjust based on your frontend URL
+    allow_origins=["*"],  # Allow all origins during development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Import and include business routes
+from routes.business_routes import router as business_router
+app.include_router(business_router)
 
 # Helper function to get user by clerk_id
 def get_user_by_clerk_id(db: Session, clerk_id: str):
@@ -146,6 +147,7 @@ async def root():
 @app.post("/api/users", response_model=UserResponse)
 async def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     """Create a new user in the database after Clerk signup"""
+    print("inside")
     db_user = User(
         clerk_id=user_data.clerk_id,
         email=user_data.email,
@@ -189,21 +191,27 @@ async def update_user_settings(clerk_id: str, settings_data: dict, db: Session =
     
     # Update settings with encrypted sensitive data
     for key, value in settings_data.items():
-        if key in ["whatsapp_api_key", "whatsapp_app_secret", "hubspot_access_token"] and value:
-            # Encrypt sensitive values
-            setattr(user_settings, key, encrypt_value(value))
-        elif key == "categories" and isinstance(value, list):
-            # Store categories as JSON string
-            setattr(user_settings, key, json.dumps(value))
-        else:
-            # Store other values as is
-            setattr(user_settings, key, value)
+        try:
+            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "hubspot_access_token"] and value:
+                # Encrypt sensitive values
+                encrypted_value = encrypt_value(value)
+                setattr(user_settings, key, encrypted_value)
+                logger.info(f"Successfully encrypted {key}")
+            elif key in ["categories", "business_tags"] and isinstance(value, list):
+                # Store categories and business_tags as JSON string
+                setattr(user_settings, key, json.dumps(value))
+            else:
+                # Store other values as is
+                setattr(user_settings, key, value)
+        except Exception as e:
+            logger.error(f"Error processing field {key}: {e}")
+            # Continue with other fields even if one fails
     
     db.commit()
     db.refresh(user_settings)
     
     # Prepare response (exclude sensitive data)
-    response_data = {k: v for k, v in settings_data.items() if k not in ["whatsapp_api_key", "whatsapp_app_secret", "hubspot_access_token"]}
+    response_data = {k: v for k, v in settings_data.items() if k not in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "hubspot_access_token"]}
     response_data["id"] = user_settings.id
     response_data["user_id"] = user.id
     
@@ -235,25 +243,42 @@ async def get_user_settings(clerk_id: str, db: Session = Depends(get_db)):
         "business_address": settings.business_address,
         "business_website": settings.business_website,
         "business_type": settings.business_type,
+        "business_tags": json.loads(settings.business_tags) if settings.business_tags else [],
         "founded_year": settings.founded_year,
         "categories": json.loads(settings.categories) if settings.categories else [],
         "whatsapp_phone_number_id": settings.whatsapp_phone_number_id,
-        "whatsapp_business_account_id": settings.whatsapp_business_account_id,
-        "whatsapp_app_id": settings.whatsapp_app_id,
-        "whatsapp_verify_token": settings.whatsapp_verify_token,
         "crm_type": settings.crm_type,
         "other_crm_details": settings.other_crm_details,
     }
     
-    # Include decrypted API keys if they exist
-    if settings.whatsapp_api_key:
-        response_data["whatsapp_api_key"] = decrypt_value(settings.whatsapp_api_key)
+    # Include decrypted API keys if they exist, with error handling
+    try:
+        if settings.whatsapp_app_id:
+            response_data["whatsapp_app_id"] = decrypt_value(settings.whatsapp_app_id)
+    except Exception as e:
+        logger.error(f"Error decrypting whatsapp_app_id: {e}")
+        response_data["whatsapp_app_id"] = ""
+        
+    try:
+        if settings.whatsapp_app_secret:
+            response_data["whatsapp_app_secret"] = decrypt_value(settings.whatsapp_app_secret)
+    except Exception as e:
+        logger.error(f"Error decrypting whatsapp_app_secret: {e}")
+        response_data["whatsapp_app_secret"] = ""
+        
+    try:
+        if settings.whatsapp_verify_token:
+            response_data["whatsapp_verify_token"] = decrypt_value(settings.whatsapp_verify_token)
+    except Exception as e:
+        logger.error(f"Error decrypting whatsapp_verify_token: {e}")
+        response_data["whatsapp_verify_token"] = ""
     
-    if settings.whatsapp_app_secret:
-        response_data["whatsapp_app_secret"] = decrypt_value(settings.whatsapp_app_secret)
-    
-    if settings.hubspot_access_token:
-        response_data["hubspot_access_token"] = decrypt_value(settings.hubspot_access_token)
+    try:
+        if settings.hubspot_access_token:
+            response_data["hubspot_access_token"] = decrypt_value(settings.hubspot_access_token)
+    except Exception as e:
+        logger.error(f"Error decrypting hubspot_access_token: {e}")
+        response_data["hubspot_access_token"] = ""
     
     return response_data
 

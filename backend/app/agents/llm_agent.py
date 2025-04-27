@@ -11,7 +11,6 @@ from google import genai
 from google.genai import types
 from app.utils.category_map import DEFAULT_CATEGORIES, DEFAULT_PRIORITY_MAP, STANDARD_KEYS
 
-
 categories_str = ", ".join(DEFAULT_CATEGORIES)
 priority_map_str = "\n".join(f"- {k}: {v}" for k, v in DEFAULT_PRIORITY_MAP.items())
 schema_str = "\n".join(f"- {k}: {v}" for k, v in STANDARD_KEYS.items())

@@ -871,5 +871,435 @@
     ],
     "business_phone_number": "15556454320",
     "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 20:57:19",
+    "raw_timestamp_utc": 1745614639,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E5MjNFM0U3OUFBQ0U4NTkwMzIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 20:57:49",
+    "raw_timestamp_utc": 1745614669,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E2NEIyNjY4MTRENjk0QTdCNzIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "details": "Happy Birthday Riya on one of them"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 20:58:08",
+    "raw_timestamp_utc": 1745614688,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E0RkYwQkJGQjE1RkE0OUUzNjkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "make it 3",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 3,
+          "details": "Happy Birthday Riya on one"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "make it 3"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:25:47",
+    "raw_timestamp_utc": 1745616347,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E5Rjc5RjlBOEU4Q0UzRjczRkUA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:26:09",
+    "raw_timestamp_utc": 1745616369,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCODgyNTc1RTdDNUU0QkQ3MTIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "details": "Happy Birthday Riya on one of them"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:26:34",
+    "raw_timestamp_utc": 1745616394,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwNTY4NkEyQjlFNzY4QTYyOEQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "make it 3",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 3,
+          "details": "Happy Birthday Riya on one of them"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "make it 3"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:27:30",
+    "raw_timestamp_utc": 1745616450,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwRTlBQTY4MDVBMTk0QjA4M0MA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i want to kill someone",
+    "predicted_category": "others",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "make it 3",
+      "i want to kill someone"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:48:18",
+    "raw_timestamp_utc": 1745617698,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E3M0M1MjgzNjU4NEFDNjMxRTYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "details": "Happy Birthday Riya on one of them"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders"
+  },
+  {
+    "timestamp": "2025-04-25 21:52:55",
+    "raw_timestamp_utc": 1745617975,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E0MDY2MDY3MkFBRUEwQjI5REIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "notes": "Happy Birthday Riya"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 21:53:14",
+    "raw_timestamp_utc": 1745617994,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EzNUQyMDE3RUUwN0FDQzg1MjYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "hi",
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:05:58",
+    "raw_timestamp_utc": 1745618758,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwODlDQzZGNkQ5MTIxMjdBNjgA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:06:33",
+    "raw_timestamp_utc": 1745618793,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCMjkyQTRGQTE1QTVDN0Q2QzgA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:06:52",
+    "raw_timestamp_utc": 1745618812,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDQkQxMEY0MUYyQ0U0ODAxQ0UA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i want to place an order for a cake",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "cake",
+          "quantity": 1
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "i want to place an order for a cake"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders"
+  },
+  {
+    "timestamp": "2025-04-25 22:07:29",
+    "raw_timestamp_utc": 1745618849,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFMzU2ODkxNDRCRDI1QzE4RTkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:14:22",
+    "raw_timestamp_utc": 1745619262,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFN0NCREE1NzNEREQ4RkYzQTUA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null
+  },
+  {
+    "timestamp": "2025-04-25 22:28:38",
+    "raw_timestamp_utc": 1745620118,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E1MUExM0VEMzVBM0YwNzRBNkMA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "thanks",
+    "predicted_category": "feedback",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "close",
+    "context": [
+      "thanks"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "feedback"
+  },
+  {
+    "timestamp": "2025-04-25 22:28:52",
+    "raw_timestamp_utc": 1745620132,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EzQkM1MDE2MUQxODE0MjU2QTAA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "fine",
+    "predicted_category": "others",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "thanks",
+      "fine"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:29:37",
+    "raw_timestamp_utc": 1745620177,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDOUIzRTNBNTk3NTQ2QzhDRUEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "how are you",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "thanks",
+      "fine",
+      "how are you"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null
   }
 ]

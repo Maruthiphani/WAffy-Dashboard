@@ -8,8 +8,12 @@ const Dashboard = () => {
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [enquiries, setEnquiries] = useState([]);
+  
+  const [customerFilter, setCustomerFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState(new Date().toISOString().split("T")[0]);
+
   const [selectedCustomer, setSelectedCustomer] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+  const [selectedDate, setSelectedDate] = useState("");
 
   const [user] = useState({
     firstName: "Jane",
@@ -35,7 +39,10 @@ const Dashboard = () => {
     fetchAllData();
   }, []);
 
-
+  const handleFilterSubmit = () => {
+    setSelectedCustomer(customerFilter);
+    setSelectedDate(dateFilter);
+  };
 
   const filteredOrders = orders.filter(order => {
     const matchCustomer = selectedCustomer ? order.customer_id === selectedCustomer : true;
@@ -118,57 +125,18 @@ const Dashboard = () => {
     return [];
   };
 
-  const columns = [
-    { title: 'Customer Name', dataIndex: 'CustomerName', key: 'CustomerName' },
-    { title: 'Order Number', dataIndex: 'OrderNumber', key: 'OrderNumber' },
-    { title: 'Item', dataIndex: 'Item', key: 'Item' },
-    { title: 'Quantity', dataIndex: 'Quantity', key: 'Quantity' },
-    { title: 'Notes', dataIndex: 'Notes', key: 'Notes' },
-    { 
-      title: 'Status', 
-      dataIndex: 'Status', 
-      key: 'Status',
-      render: (status) => (
-        <Tag color={status === 'Pending' ? 'volcano' : 'green'}>
-          {status?.toUpperCase()}
-        </Tag>
-      ),
-    },
-    { 
-      title: 'Amount ($)', 
-      dataIndex: 'Amount', 
-      key: 'Amount',
-      render: (amount) => `$${amount?.toFixed(2)}`,
-    },
-    { 
-      title: 'Delivery Date', 
-      dataIndex: 'DeliveryDate', 
-      key: 'DeliveryDate',
-      render: (date) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Button type="primary" size="small">
-          Done
-        </Button>
-      ),
-    },
-  ];
-
   const stats = {
     total: orders.length,
-    responseRate: "87%", // Placeholder
-    avgResponseTime: "28 min" // Placeholder
+    responseRate: "87%",
+    avgResponseTime: "28 min"
   };
 
   return (
     <div className="space-y-6">
       <DashboardHeader user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
 
-       {/* 🌟 Stats Cards */}
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* 🌟 Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
           <p className="text-2xl font-bold">{stats.total}</p>
@@ -183,51 +151,64 @@ const Dashboard = () => {
         </div>
       </div>
 
+   {/* 🌟 Tabs */}
+<div className="flex gap-4 mb-6">
+  {["orders", "customers", "enquiries"].map((tabName) => (
+    <button
+      key={tabName}
+      onClick={() => setTab(tabName)}
+      className={`px-6 py-2 rounded-full font-semibold shadow-md text-white 
+        bg-gradient-to-r from-pink-400 to-orange-400 
+        hover:from-orange-400 hover:to-pink-400 transition duration-300
+        ${tab === tabName ? "border-4 border-yellow-300 scale-105" : "border-none"}
+      `}
+    >
+      {tabName.charAt(0).toUpperCase() + tabName.slice(1)}
+    </button>
+  ))}
+</div>
 
-      {/* Tabs */}
-      <div className="flex gap-4 mb-6">
-        <button
-          onClick={() => setTab("orders")}
-          className={`px-4 py-2 rounded ${tab === "orders" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-800"}`}
-        >
-          Orders
-        </button>
-        <button
-          onClick={() => setTab("customers")}
-          className={`px-4 py-2 rounded ${tab === "customers" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-800"}`}
-        >
-          Customers
-        </button>
-        <button
-          onClick={() => setTab("enquiries")}
-          className={`px-4 py-2 rounded ${tab === "enquiries" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-800"}`}
-        >
-          Enquiries
-        </button>
-      </div>
 
-      {/* Filters */}
-      <div className="flex gap-4 mb-6">
-        <select
-          className="p-2 border rounded"
-          value={selectedCustomer}
-          onChange={(e) => setSelectedCustomer(e.target.value)}
-        >
-          <option value="">All Customers</option>
-          {getCustomerOptions().map((customerId) => (
-            <option key={customerId} value={customerId}>{customerId}</option>
-          ))}
-        </select>
+     {/* 🌟 Filters with Submit */}
+<div className="flex flex-wrap gap-4 mb-6 items-end">
+  <div className="flex flex-col">
+    <label className="text-sm font-semibold mb-1">Customer ID:</label>
+    <select
+      className="p-2 border rounded w-48"
+      value={customerFilter}
+      onChange={(e) => setCustomerFilter(e.target.value)}
+    >
+      <option value="">All Customers</option>
+      {getCustomerOptions().map((customerId) => (
+        <option key={customerId} value={customerId}>
+          {customerId}
+        </option>
+      ))}
+    </select>
+  </div>
 
-        <input
-          type="date"
-          className="p-2 border rounded"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-        />
-      </div>
+  <div className="flex flex-col">
+    <label className="text-sm font-semibold mb-1">Date:</label>
+    <input
+      type="date"
+      className="p-2 border rounded w-48"
+      value={dateFilter}
+      onChange={(e) => setDateFilter(e.target.value)}
+    />
+  </div>
 
-      {/* Table */}
+  <div>
+    <button
+      onClick={handleFilterSubmit}
+      className="px-8 py-2 rounded-full font-semibold shadow-md 
+        text-white bg-gradient-to-r from-yellow-400 to-yellow-500 
+        hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
+    >
+      Submit
+    </button>
+  </div>
+</div>
+      {/* 🌟 Table */}
       <Table
         columns={getCurrentColumns()}
         dataSource={getCurrentData()}

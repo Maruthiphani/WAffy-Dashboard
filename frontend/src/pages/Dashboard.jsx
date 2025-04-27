@@ -1,10 +1,16 @@
-import React, { useState } from "react";
-import { messages } from "../data/messages";
-import { MessageTab } from "../components/MessageTab";
+import React, { useState, useEffect } from "react";
 import DashboardHeader from "../components/DashboardHeader";
+import { getOrders, getCustomers, getEnquiries } from "../services/userService";
+import { Table, Button, Tag } from "antd";
 
 const Dashboard = () => {
-  // Simulated user data (replace with Clerk or API integration as needed)
+  const [tab, setTab] = useState("orders"); // 'orders', 'customers', 'enquiries'
+  const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [enquiries, setEnquiries] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+
   const [user] = useState({
     firstName: "Jane",
     lastName: "Doe",
@@ -12,48 +18,159 @@ const Dashboard = () => {
     profileImage: ""
   });
 
-  const handleLogout = () => {
-    // Clerk logout logic or redirect
-    alert("Logged out!");
-    // window.location.href = '/';
+  const handleLogout = () => alert("Logged out!");
+  const handleUpdateProfile = () => alert("Update profile clicked!");
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      const [ordersData, customersData, enquiriesData] = await Promise.all([
+        getOrders(),
+        getCustomers(),
+        getEnquiries()
+      ]);
+      setOrders(ordersData);
+      setCustomers(customersData);
+      setEnquiries(enquiriesData);
+    };
+    fetchAllData();
+  }, []);
+
+
+
+  const filteredOrders = orders.filter(order => {
+    const matchCustomer = selectedCustomer ? order.customer_id === selectedCustomer : true;
+    const matchDate = selectedDate ? order.DeliveryDate?.split("T")[0] === selectedDate : true;
+    return matchCustomer && matchDate;
+  });
+
+  const filteredCustomers = customers.filter(customer => {
+    const matchCustomer = selectedCustomer ? customer.CustomerId === selectedCustomer : true;
+    const matchDate = selectedDate ? customer.DeliveryDate?.split("T")[0] === selectedDate : true;
+    return matchCustomer && matchDate;
+  });
+
+  const filteredEnquiries = enquiries.filter(enquiry => {
+    const matchCustomer = selectedCustomer ? enquiry.CustomerId === selectedCustomer : true;
+    const matchDate = selectedDate ? enquiry.DeliveryDate?.split("T")[0] === selectedDate : true;
+    return matchCustomer && matchDate;
+  });
+
+  const orderColumns = [
+    { title: "Customer Name", dataIndex: "CustomerName", key: "CustomerName" },
+    { title: "Order Number", dataIndex: "OrderNumber", key: "OrderNumber" },
+    { title: "Item", dataIndex: "Item", key: "Item" },
+    { title: "Quantity", dataIndex: "Quantity", key: "Quantity" },
+    { title: "Notes", dataIndex: "Notes", key: "Notes" },
+    { title: "Status", dataIndex: "Status", key: "Status", render: (text) => <Tag color="green">{text}</Tag> },
+    { title: "Amount ($)", dataIndex: "Amount", key: "Amount" },
+    { title: "Delivery Date", dataIndex: "DeliveryDate", key: "DeliveryDate" },
+    { title: "Action", key: "action", render: () => <Button size="small" type="primary">Done</Button> }
+  ];
+
+  const customerColumns = [
+    { title: "Customer ID", dataIndex: "CustomerId", key: "CustomerId" },
+    { title: "Customer Name", dataIndex: "CustomerName", key: "CustomerName" },
+    { title: "Email", dataIndex: "Email", key: "Email" },
+    { title: "Delivery Date", dataIndex: "DeliveryDate", key: "DeliveryDate" },
+    { title: "Updated Date", dataIndex: "UpdatedDate", key: "UpdatedDate" }
+  ];
+
+  const enquiryColumns = [
+    { title: "Enquiry ID", dataIndex: "EnquiryId", key: "EnquiryId" },
+    { title: "Customer ID", dataIndex: "CustomerId", key: "CustomerId" },
+    { title: "Description", dataIndex: "Description", key: "Description" },
+    { title: "Category", dataIndex: "Category", key: "Category" },
+    { 
+      title: "Priority", 
+      dataIndex: "Priority", 
+      key: "Priority",
+      render: (priority) => {
+        if (!priority) return null;
+        let color = "blue";
+        if (priority.toLowerCase() === "high") color = "red";
+        else if (priority.toLowerCase() === "medium") color = "orange";
+        else if (priority.toLowerCase() === "low") color = "green";
+        return <Tag color={color}>{priority.toUpperCase()}</Tag>;
+      }
+    },
+    { title: "Status", dataIndex: "Status", key: "Status" },
+    { title: "Follow Up Date", dataIndex: "FollowUpDate", key: "FollowUpDate", render: (date) => date ? new Date(date).toLocaleDateString() : "" },
+    { title: "Delivery Date", dataIndex: "DeliveryDate", key: "DeliveryDate", render: (date) => date ? new Date(date).toLocaleDateString() : "" },
+    { title: "Updated Date", dataIndex: "UpdatedDate", key: "UpdatedDate", render: (date) => date ? new Date(date).toLocaleDateString() : "" },
+  ];
+
+  const getCurrentData = () => {
+    if (tab === "orders") return filteredOrders.map((item, index) => ({ ...item, key: index }));
+    if (tab === "customers") return filteredCustomers.map((item, index) => ({ ...item, key: index }));
+    if (tab === "enquiries") return filteredEnquiries.map((item, index) => ({ ...item, key: index }));
   };
 
-  const handleUpdateProfile = () => {
-    // Clerk profile update logic or open a modal
-    alert("Update profile clicked!");
+  const getCurrentColumns = () => {
+    if (tab === "orders") return orderColumns;
+    if (tab === "customers") return customerColumns;
+    if (tab === "enquiries") return enquiryColumns;
   };
 
-  const handleReply = (id) => {
-    alert(`Reply to message ID: ${id}`);
+  const getCustomerOptions = () => {
+    if (tab === "orders") return [...new Set(orders.map(order => order.customer_id))];
+    if (tab === "customers") return [...new Set(customers.map(customer => customer.CustomerId))];
+    if (tab === "enquiries") return [...new Set(enquiries.map(enquiry => enquiry.CustomerId))];
+    return [];
   };
 
-  const sortedMessages = ["Emergency", "Important", "Routine"].flatMap(priority =>
-    messages.filter(msg => msg.priority === priority)
-  );
+  const columns = [
+    { title: 'Customer Name', dataIndex: 'CustomerName', key: 'CustomerName' },
+    { title: 'Order Number', dataIndex: 'OrderNumber', key: 'OrderNumber' },
+    { title: 'Item', dataIndex: 'Item', key: 'Item' },
+    { title: 'Quantity', dataIndex: 'Quantity', key: 'Quantity' },
+    { title: 'Notes', dataIndex: 'Notes', key: 'Notes' },
+    { 
+      title: 'Status', 
+      dataIndex: 'Status', 
+      key: 'Status',
+      render: (status) => (
+        <Tag color={status === 'Pending' ? 'volcano' : 'green'}>
+          {status?.toUpperCase()}
+        </Tag>
+      ),
+    },
+    { 
+      title: 'Amount ($)', 
+      dataIndex: 'Amount', 
+      key: 'Amount',
+      render: (amount) => `$${amount?.toFixed(2)}`,
+    },
+    { 
+      title: 'Delivery Date', 
+      dataIndex: 'DeliveryDate', 
+      key: 'DeliveryDate',
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Button type="primary" size="small">
+          Done
+        </Button>
+      ),
+    },
+  ];
 
-  // Calculate statistics
   const stats = {
-    total: messages.length,
-    emergency: messages.filter(msg => msg.priority === "Emergency").length,
-    important: messages.filter(msg => msg.priority === "Important").length,
-    routine: messages.filter(msg => msg.priority === "Routine").length,
+    total: orders.length,
     responseRate: "87%", // Placeholder
     avgResponseTime: "28 min" // Placeholder
   };
 
-  // Priority breakdown percentages
-  const emergencyPercent = Math.round((stats.emergency / stats.total) * 100);
-  const importantPercent = Math.round((stats.important / stats.total) * 100);
-  const routinePercent = Math.round((stats.routine / stats.total) * 100);
-
   return (
     <div className="space-y-6">
       <DashboardHeader user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
-      
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+       {/* 🌟 Stats Cards */}
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-sm font-medium text-gray-500">Total Messages</h3>
+          <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
           <p className="text-2xl font-bold">{stats.total}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md">
@@ -65,48 +182,57 @@ const Dashboard = () => {
           <p className="text-2xl font-bold">{stats.avgResponseTime}</p>
         </div>
       </div>
-      
-      {/* Priority Breakdown */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-lg font-semibold mb-4">Priority Breakdown</h2>
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="text-sm font-medium text-red-600">Emergency</span>
-              <span className="text-sm font-medium text-gray-700">{emergencyPercent}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-red-500 h-2 rounded-full" style={{ width: `${emergencyPercent}%` }}></div>
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="text-sm font-medium text-orange-600">Important</span>
-              <span className="text-sm font-medium text-gray-700">{importantPercent}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${importantPercent}%` }}></div>
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className="text-sm font-medium text-green-600">Routine</span>
-              <span className="text-sm font-medium text-gray-700">{routinePercent}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: `${routinePercent}%` }}></div>
-            </div>
-          </div>
-        </div>
+
+
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6">
+        <button
+          onClick={() => setTab("orders")}
+          className={`px-4 py-2 rounded ${tab === "orders" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-800"}`}
+        >
+          Orders
+        </button>
+        <button
+          onClick={() => setTab("customers")}
+          className={`px-4 py-2 rounded ${tab === "customers" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-800"}`}
+        >
+          Customers
+        </button>
+        <button
+          onClick={() => setTab("enquiries")}
+          className={`px-4 py-2 rounded ${tab === "enquiries" ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-800"}`}
+        >
+          Enquiries
+        </button>
       </div>
-      
-      {/* Messages */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Recent Messages</h2>
-        {sortedMessages.map((msg) => (
-          <MessageTab key={msg.id} message={msg} onReply={handleReply} />
-        ))}
+
+      {/* Filters */}
+      <div className="flex gap-4 mb-6">
+        <select
+          className="p-2 border rounded"
+          value={selectedCustomer}
+          onChange={(e) => setSelectedCustomer(e.target.value)}
+        >
+          <option value="">All Customers</option>
+          {getCustomerOptions().map((customerId) => (
+            <option key={customerId} value={customerId}>{customerId}</option>
+          ))}
+        </select>
+
+        <input
+          type="date"
+          className="p-2 border rounded"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+        />
       </div>
+
+      {/* Table */}
+      <Table
+        columns={getCurrentColumns()}
+        dataSource={getCurrentData()}
+        pagination={{ pageSize: 10 }}
+      />
     </div>
   );
 };

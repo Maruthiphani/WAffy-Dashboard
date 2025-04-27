@@ -8,12 +8,15 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from app.models import User, UserSettings, Order
+from app.models import User, UserSettings, Order, Customer, Enquiry, Issue
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -320,6 +323,7 @@ class OrderResponse(BaseModel):
     """Order response model"""
     order_id: int
     customer_id: str
+    customer_name: Optional[str] = None
     order_number: str
     item: str
     quantity: int
@@ -332,17 +336,238 @@ class OrderResponse(BaseModel):
     class Config:
         orm_mode = True
 
-@app.get("/api/orders", response_model=List[OrderResponse])
+##@app.get("/api/orders", response_model=List[OrderResponse])
+##async def get_orders(db: Session = Depends(get_db)):
+  ##  """Fetch all orders"""
+    ##orders = db.query(Order).all()
+    ##return orders
+
+@app.get("/api/orders", response_model=List[dict])
 async def get_orders(db: Session = Depends(get_db)):
-    """Fetch all orders"""
     orders = db.query(Order).all()
-    return orders
+    
+    enriched_orders = []
+    for order in orders:
+        enriched_orders.append({
+            "customer_id": order.customer_id,
+            "CustomerName": order.customer.customer_name if order.customer else None,
+            "OrderNumber": order.order_number,
+            "Item": order.item,
+            "Quantity": order.quantity,
+            "Notes": order.notes,
+            "Status": order.order_status,
+            "Amount": float(order.total_amount) if order.total_amount else 0.0,
+            "DeliveryDate": order.created_at.isoformat() if order.created_at else None,
+        })
+    
+    return enriched_orders
+
+
 
 @app.get("/api/orders/{customer_id}", response_model=List[OrderResponse])
 async def get_orders_by_customer(customer_id: str, db: Session = Depends(get_db)):
     """Fetch orders for a specific customer"""
     orders = db.query(Order).filter(Order.customer_id == customer_id).all()
     return orders
+
+
+
+class CustomerResponse(BaseModel):
+    customer_id: str
+    customer_name: Optional[str] = None
+    email: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    user_id: Optional[int] = None 
+
+
+    class Config:
+        orm_mode = True
+
+
+@app.get("/api/customers", response_model=List[dict])
+async def get_customers(db: Session = Depends(get_db)):
+    customers = db.query(Customer).all()
+
+    enriched_customers = []
+    for customer in customers:
+        enriched_customers.append({
+            "CustomerId": customer.customer_id,
+            "CustomerName": customer.customer_name,
+            "Email": customer.email,
+            "DeliveryDate": customer.created_at.isoformat() if customer.created_at else None,
+            "UpdatedDate": customer.updated_at.isoformat() if customer.updated_at else None,
+        })
+    
+    return enriched_customers
+
+
+# @app.get("/api/customers", response_model=List[CustomerResponse])
+# async def get_customers(db: Session = Depends(get_db)):
+#     """Fetch all customers"""
+#     customers = db.query(Customer).all()
+#     return customers
+
+# class IssueResponse(BaseModel):
+#     """Issue response model"""
+#     issue_id: int
+#     customer_id: str
+#     order_id: int
+#     issue_type: str
+#     description: str
+#     status: str
+#     priority: str
+#     resolution_notes: str
+#     created_at: datetime
+#     updated_at: datetime
+#     user_id: int
+
+#     class Config:
+#         orm_mode = True
+
+# @app.get("/api/issues", response_model=List[IssueResponse])
+# async def get_issues(db: Session = Depends(get_db)):
+#     """Fetch all issues"""
+#     issues = db.query(Issue).all()
+#     return issues
+
+# from pydantic import BaseModel
+# from typing import List
+
+# class IssueResponse(BaseModel):
+#     issue_id: int
+#     customer_id: str
+#     order_id: int
+#     issue_type: str
+#     description: str
+#     status: str
+#     priority: str
+#     resolution_notes: str
+#     created_at: datetime
+#     updated_at: datetime
+#     user_id: int
+
+#     class Config:
+#         orm_mode = True
+
+# @app.get("/api/issues", response_model=List[IssueResponse])
+# async def get_issues(db: Session = Depends(get_db)):
+#     """Fetch all issues"""
+#     issues = db.query(Issue).all()
+#     return issues
+
+# from typing import List
+# from pydantic import BaseModel
+# from datetime import datetime
+
+class IssueResponse(BaseModel):
+    issue_id: int
+    customer_id: str
+    order_id: int
+    issue_type: str
+    description: str
+    status: str
+    priority: str
+    resolution_notes: str
+    created_at: datetime
+    updated_at: datetime
+    user_id: int
+
+    class Config:
+        orm_mode = True
+
+@app.get("/api/issues", response_model=List[dict])
+async def get_issues(db: Session = Depends(get_db)):
+    """Fetch all issues"""
+    issues = db.query(Issue).all()
+    
+    enriched_issues = []
+    for issue in issues:
+        enriched_issues.append({
+            "IssueId": issue.issue_id,
+            "CustomerId": issue.customer_id,
+            "OrderId": issue.order_id,
+            "IssueType": issue.issue_type,
+            "Description": issue.description,
+            "Status": issue.status,
+            "Priority": issue.priority,
+            "ResolutionNotes": issue.resolution_notes,
+            "DeliveryDate": issue.created_at.isoformat() if issue.created_at else None,
+            "UpdatedDate": issue.updated_at.isoformat() if issue.updated_at else None,
+            "UserId": issue.user_id,
+        })
+    
+    return enriched_issues
+
+
+
+
+
+# from pydantic import BaseModel
+
+# class EnquiryResponse(BaseModel):
+#     enquiry_id: int
+#     customer_id: str
+#     description: str
+#     category: str
+#     priority: str
+#     status: str
+#     follow_up_date: datetime
+#     created_at: datetime
+#     updated_at: datetime
+#     user_id: int
+
+#     class Config:
+#         orm_mode = True
+
+# @app.get("/api/enquiries", response_model=List[EnquiryResponse])
+# async def get_enquiries(db: Session = Depends(get_db)):
+#     """Fetch all enquiries"""
+#     enquiries = db.query(Enquiry).all()
+#     return enquiries
+
+
+
+
+class EnquiryResponse(BaseModel):
+    enquiry_id: int
+    customer_id: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    priority: Optional[str] = None
+    status: Optional[str] = None
+    follow_up_date: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True  # previously called orm_mode = True
+
+
+
+@app.get("/api/enquiries", response_model=List[dict])
+async def get_enquiries(db: Session = Depends(get_db)):
+    """Fetch all enquiries with updated column names"""
+    enquiries = db.query(Enquiry).all()
+
+    enriched_enquiries = []
+    for enquiry in enquiries:
+        enriched_enquiries.append({
+            "EnquiryId": enquiry.enquiry_id,
+            "CustomerId": enquiry.customer_id,
+            "Description": enquiry.description,
+            "Category": enquiry.category,
+            "Priority": enquiry.priority,
+            "Status": enquiry.status,
+            "FollowUpDate": enquiry.follow_up_date.isoformat() if enquiry.follow_up_date else None,
+            "DeliveryDate": enquiry.created_at.isoformat() if enquiry.created_at else None,
+            "UpdatedDate": enquiry.updated_at.isoformat() if enquiry.updated_at else None,
+            
+        })
+
+    return enriched_enquiries
+
+
 
 
 if __name__ == "__main__":

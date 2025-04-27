@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import App from "./App";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
+import 'antd/dist/reset.css';
 
 // 🛠 Paste your actual publishableKey here:
 const publishableKey = "pk_test_ZGVjZW50LWtpdC0wLmNsZXJrLmFjY291bnRzLmRldiQ";

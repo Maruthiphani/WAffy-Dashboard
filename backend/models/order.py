@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Numeric, Text, TIMESTAMP
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -18,3 +19,14 @@ class Order(Base):
     total_amount = Column(Numeric(10, 2), nullable=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    order_id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(String(20), nullable=False)
+    # other columns...
+
+    customer = relationship("Customer", primaryjoin="Order.customer_id == Customer.customer_id", lazy="joined")

@@ -880,3 +880,17 @@
   "phone_number_id": "599137786621519"
 }
 --------------------------------------------------
+{
+  "customer_id": "447778596773",
+  "customer_name": "Akanksha",
+  "Whatsapp_Number": "447778596773",
+  "Detected_Language": "en",
+  "Original_Text_Message": "hi",
+  "Translated_Text_Message": "hi",
+  "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EyODlFNUQzNkE1N0VCOTAwODIA",
+  "timestamp_utc": "1745697527",
+  "message_type": "text",
+  "business_number": "15556440914",
+  "phone_number_id": "599137786621519"
+}
+--------------------------------------------------

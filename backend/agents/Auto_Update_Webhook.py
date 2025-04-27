@@ -5,6 +5,7 @@ import os
 import psycopg2
 import sys
 from dotenv import load_dotenv
+from Util import decrypt_value  
 
 load_dotenv()
 
@@ -13,6 +14,15 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "my_custom_token")
 WEBHOOK_URL_SUFFIX = "/webhook"
 NGROK_PORT = os.getenv("NGROK_PORT")
 
+#Checking if the listener server is already up
+def is_listener_running():
+    try:
+        r = requests.get(f"http://127.0.0.1:{NGROK_PORT}/docs", timeout=2)
+        return r.status_code == 200 or r.status_code == 404  # 404 is fine if /docs doesn't exist
+    except:
+        return False
+
+#Starting the listener server
 def start_listener():
     print("Starting listener agent...")
     #subprocess.Popen(["uvicorn", "listener_agent:app", "--host", "0.0.0.0", "--port", str(NGROK_PORT)])
@@ -23,6 +33,7 @@ def start_listener():
     start_new_session=True
 )
 
+#Checking if the ngrok tunnel is already up
 def is_ngrok_running():
     try:
         r = requests.get("http://127.0.0.1:4040/api/tunnels", timeout=2)
@@ -30,6 +41,7 @@ def is_ngrok_running():
     except:
         return False
 
+#Starting the ngrok tunnel
 def start_ngrok():
     print("Starting ngrok tunnel...")
     #subprocess.Popen(["ngrok", "http", str(NGROK_PORT)])
@@ -45,9 +57,9 @@ def fetch_credentials_by_phone_number(phone_number_id):
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT app_id, app_secret, whatsapp_token
-        FROM business_credentials
-        WHERE phone_number_id = %s
+        SELECT whatsapp_app_id, whatsapp_app_secret, whatsapp_api_key
+        FROM user_settings
+        WHERE whatsapp_phone_number_id = %s
     """, (phone_number_id,))
     row = cursor.fetchone()
     cursor.close()
@@ -57,11 +69,15 @@ def fetch_credentials_by_phone_number(phone_number_id):
         raise Exception("No credentials found for this phone_number_id")
 
     return {
-        "APP_ID": row[0],
-        "APP_SECRET": row[1],
-        "WHATSAPP_TOKEN": row[2],
+        
+        "APP_ID": decrypt_value(row[0]),
+        "APP_SECRET": decrypt_value(row[1]),
+        "WHATSAPP_TOKEN": decrypt_value(row[2]),
     }
 
+
+
+#Checking if local FastAPI server is up.
 def wait_for_local_server():
     print("Checking if local FastAPI server is up...")
     for _ in range(10):
@@ -106,15 +122,23 @@ def update_webhook(callback_url, app_id, app_secret):
 # Main script entry point
 if __name__ == "__main__":
 
-    phone_number_id = "599137786621519"
+    #below line is only for testing purpose. Need to remove it after testing
+    #phone_number_id = "599137786621519"
+    #phone_number_id = "599137786621519"
 
-    start_listener()
-    time.sleep(5)
-
+    # Check if listener already running
+    if is_listener_running():
+        print("Listener server already running.")
+    else:
+        start_listener()
+        time.sleep(5)
+   
+    #Checking if local FastAPI server is up.
     if not wait_for_local_server():
         print("Local FastAPI server not responding. Aborting.")
         exit()
 
+   #Checking if the ngrok tunnel is already up
     if not is_ngrok_running():
         start_ngrok()
         time.sleep(5)
@@ -126,6 +150,7 @@ if __name__ == "__main__":
 
     if forwarding_url:
         full_webhook_url = forwarding_url + WEBHOOK_URL_SUFFIX
+        # Function call to register the webhook with Meta
         update_webhook(full_webhook_url, creds["APP_ID"], creds["APP_SECRET"])
     else:
         print("No forwarding URL found. Aborting.")

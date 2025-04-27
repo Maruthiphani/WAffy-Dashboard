@@ -24,9 +24,9 @@ def get_business_credentials(phone_number_id):
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT whatsapp_token
-        FROM business_credentials
-        WHERE phone_number_id = %s
+        SELECT whatsapp_api_key
+        FROM user_settings
+        WHERE whatsapp_app_id = %s
     """, (phone_number_id,))
     row = cursor.fetchone()
     cursor.close()
@@ -48,25 +48,25 @@ async def verify(request: Request):
     return "Invalid token"
 
 # Send a reply to the customer
-def send_reply(phone_number_id: str, to: str, message: str):
-    creds = get_business_credentials(phone_number_id)
-    if not creds:
-        print("No token found for phone_number_id:", phone_number_id)
-        return
+# def send_reply(phone_number_id: str, to: str, message: str):
+#     creds = get_business_credentials(phone_number_id)
+#     if not creds:
+#         print("No token found for phone_number_id:", phone_number_id)
+#         return
 
-    whatsapp_token = creds["WHATSAPP_TOKEN"]
-    url = f"https://graph.facebook.com/v19.0/{phone_number_id}/messages"
-    headers = {
-        "Authorization": f"Bearer {whatsapp_token}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": to,
-        "text": {"body": message}
-    }
-    response = requests.post(url, headers=headers, json=payload)
-    print("Reply sent:", response.status_code, response.text)
+#     whatsapp_token = creds["WHATSAPP_TOKEN"]
+#     url = f"https://graph.facebook.com/v19.0/{phone_number_id}/messages"
+#     headers = {
+#         "Authorization": f"Bearer {whatsapp_token}",
+#         "Content-Type": "application/json"
+#     }
+#     payload = {
+#         "messaging_product": "whatsapp",
+#         "to": to,
+#         "text": {"body": message}
+#     }
+#     response = requests.post(url, headers=headers, json=payload)
+#     print("Reply sent:", response.status_code, response.text)
 
 # Handle incoming webhook message
 @app.post("/webhook")
@@ -119,30 +119,31 @@ async def receive_message(request: Request):
         with open("received_messages.json", "a") as f:
             f.write(json.dumps(result, indent=2))
             f.write("\n" + "-" * 50 + "\n")
+        
+        # #code to send reply to customer depending on recieved messege is valid or invalid
+        # relevant_keywords = [
+        #     "order", "cake", "buy", "purchase", "help", "issue", "problem", "nut free", "gluten free", "birthday", "engagement",
+        #     "wedding", "party", "anniversary", "event", "celebration", "delivery", "pickup", "time", "date", "location",
+        #     "contact", "number", "email", "message", "question", "inquiry", "feedback", "complaint", "suggestion", "request",
+        #     "service", "support", "customer", "client", "order number", "tracking", "status", "update", "confirmation",
+        #     "payment", "transaction", "receipt", "invoice", "refund", "exchange", "return", "policy", "terms", "conditions",
+        #     "privacy", "security", "data", "protection", "terms of service", "conditions of use", "customer service",
+        #     "technical support", "help desk", "support team", "contact us", "get in touch", "reach out", "customer care",
+        #     "technical assistance", "technical help", "menu", "flavor", "size", "price", "custom", "eggless", "urgent",
+        #     "delay", "allergen", "product"
+        # ]
 
-        relevant_keywords = [
-            "order", "cake", "buy", "purchase", "help", "issue", "problem", "nut free", "gluten free", "birthday", "engagement",
-            "wedding", "party", "anniversary", "event", "celebration", "delivery", "pickup", "time", "date", "location",
-            "contact", "number", "email", "message", "question", "inquiry", "feedback", "complaint", "suggestion", "request",
-            "service", "support", "customer", "client", "order number", "tracking", "status", "update", "confirmation",
-            "payment", "transaction", "receipt", "invoice", "refund", "exchange", "return", "policy", "terms", "conditions",
-            "privacy", "security", "data", "protection", "terms of service", "conditions of use", "customer service",
-            "technical support", "help desk", "support team", "contact us", "get in touch", "reach out", "customer care",
-            "technical assistance", "technical help", "menu", "flavor", "size", "price", "custom", "eggless", "urgent",
-            "delay", "allergen", "product"
-        ]
-
-        if not any(keyword in translated_message for keyword in relevant_keywords):
-            reply = (
-                "Hi! 👋 We specialize in cakes 🎂 and order support. "
-                "Could you please clarify your message or mention the order number?"
-            )
-            send_reply(phone_number_id, sender, reply)
-        else:
-            # Send thank-you / acknowledgment reply
-            reply_en = "Thanks for your message! 🍰 We’ve received your request and will follow up shortly."
-            reply = reply_en if detected_lang == "en" else translate_to_language(reply_en, detected_lang)
-            send_reply(phone_number_id, sender, reply)
+        # if not any(keyword in translated_message for keyword in relevant_keywords):
+        #     reply = (
+        #         "Hi! 👋 We specialize in cakes 🎂 and order support. "
+        #         "Could you please clarify your message or mention the order number?"
+        #     )
+        #     send_reply(phone_number_id, sender, reply)
+        # else:
+        #     # Send thank-you / acknowledgment reply
+        #     reply_en = "Thanks for your message! 🍰 We’ve received your request and will follow up shortly."
+        #     reply = reply_en if detected_lang == "en" else translate_to_language(reply_en, detected_lang)
+        #     send_reply(phone_number_id, sender, reply)
 
     except KeyError:
         print("Message format not standard or not a text message.")

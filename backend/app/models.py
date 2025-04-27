@@ -52,6 +52,7 @@ class UserSettings(Base):
     whatsapp_app_secret = Column(String, nullable=True)
     whatsapp_phone_number_id = Column(String, nullable=True)
     whatsapp_verify_token = Column(String, nullable=True)
+    whatsapp_api_key = Column(String, nullable=True)
     
     # CRM Integration settings
     crm_type = Column(String, nullable=True)

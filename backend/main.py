@@ -200,7 +200,7 @@ async def update_user_settings(clerk_id: str, settings_data: dict, db: Session =
     # Update settings with encrypted sensitive data
     for key, value in settings_data.items():
         try:
-            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "hubspot_access_token"] and value:
+            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key" "hubspot_access_token"] and value:
                 # Encrypt sensitive values
                 encrypted_value = encrypt_value(value)
                 setattr(user_settings, key, encrypted_value)
@@ -269,6 +269,7 @@ async def get_user_settings(clerk_id: str, db: Session = Depends(get_db)):
         "whatsapp_app_id", 
         "whatsapp_app_secret", 
         "whatsapp_verify_token", 
+        "whatsapp_api_key",
         "hubspot_access_token"
     ]
     

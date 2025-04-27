@@ -170,11 +170,11 @@ const Settings = () => {
                 foundedYear: userSettings.founded_year || "",
                 categories: userSettings.categories?.length ? userSettings.categories : [""],
                 whatsappAppId: userSettings.whatsapp_app_id || "",
-                whatsappAppSecret: userSettings.whatsapp_api_key || "", // Note: API key is stored as app secret
+                whatsappAppSecret: userSettings.whatsapp_app_secret || "", // Using correct field name
                 whatsappPhoneNumberId: userSettings.whatsapp_phone_number_id || "",
                 whatsappVerifyToken: userSettings.whatsapp_verify_token || "",
                 crmType: userSettings.crm_type || "hubspot",
-                hubspotAccessToken: userSettings.hubspot_api_key || "", // Note: API key is stored as access token
+                hubspotAccessToken: userSettings.hubspot_access_token || "", // Using correct field name
                 otherCrmDetails: userSettings.other_crm_details || "",
                 businessTags: userBusinessTags.map(tag => tag.id) || [],
                 viewConsolidatedData: userSettings.view_consolidated_data || false

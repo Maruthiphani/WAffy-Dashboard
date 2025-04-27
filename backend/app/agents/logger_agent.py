@@ -50,13 +50,14 @@ class LoggerAgent:
         self.hubspot_access_token = None
         
         # Check for HubSpot configuration
+        print("User settings found", self.user_settings)
         if self.user_settings and self.user_settings.hubspot_access_token:
-            # For user_id 4 or if crm_type is explicitly set to hubspot
-            if str(self.user_id) == "4" or self.user_settings.crm_type == "hubspot":
+            print("User settings found")
+            # Enable HubSpot if crm_type is set to hubspot
+            if self.user_settings.crm_type == "hubspot":
                 self.hubspot_enabled = True
                 # Use the provided HubSpot Private App Access Token and decrypt it
                 try:
-                    
                     # Try to decrypt the token
                     self.hubspot_access_token = decrypt_value(self.user_settings.hubspot_access_token)
                     
@@ -65,43 +66,23 @@ class LoggerAgent:
                         logger.info("Successfully decrypted HubSpot access token")
                     else:
                         logger.warning("Decryption returned None or empty string")
-                        
-                        # For user_id 4, use the encrypted token directly as a fallback
-                        if str(self.user_id) == "4":
-                            logger.warning("Using encrypted token directly for user_id 4")
-                            self.hubspot_access_token = self.user_settings.hubspot_access_token
-                            self.hubspot_enabled = True
+                        self.hubspot_enabled = False
                 except Exception as e:
                     logger.error(f"Error decrypting HubSpot access token: {str(e)}")
-                    
-                    # For user_id 4, use the encrypted token directly if decryption fails
-                    if str(self.user_id) == "4":
-                        logger.warning("Using encrypted token directly after decryption error")
-                        self.hubspot_access_token = self.user_settings.hubspot_access_token
-                        self.hubspot_enabled = True
+                    self.hubspot_enabled = False
                         
         # Check if consolidated data view is enabled
         self.view_consolidated_data = False
         if self.user_settings and hasattr(self.user_settings, 'view_consolidated_data'):
             self.view_consolidated_data = self.user_settings.view_consolidated_data
         
-        # Always store in DB if view_consolidated_data is enabled, for Excel integration, or for user_id 4
+        # Always store in DB if view_consolidated_data is enabled or for Excel integration
         self.store_in_db = self.view_consolidated_data
         
         # For Excel integration, always enable database storage regardless of view_consolidated_data setting
         if self.user_settings and self.user_settings.crm_type == 'excel':
             self.store_in_db = True
             self.view_consolidated_data = True
-        
-        # For user_id 4, always enable database storage
-        if str(self.user_id) == "4":
-            self.store_in_db = True
-            # Also enable HubSpot integration for user_id 4 for testing
-            if not self.hubspot_enabled:
-                self.hubspot_enabled = True
-                # Use the provided HubSpot Private App Access Token
-                self.hubspot_access_token = "nak"
-                logger.info("Enabled HubSpot integration for user_id 4 with provided token")
 
     def __del__(self):
         """Close the database session when the object is destroyed"""
@@ -111,9 +92,28 @@ class LoggerAgent:
     def _get_user_settings(self):
         """Get user settings from the database"""
         try:
+            # First, try to parse the user_id as an integer (database ID)
+            try:
+                user_id_int = int(self.user_id)
+                # If it's a numeric ID, try to get settings directly
+                logger.info(f"Looking for user settings with user_id {user_id_int}")
+                user_settings = self.db.query(UserSettings).filter(UserSettings.user_id == user_id_int).first()
+                if user_settings:
+                    logger.info(f"Found user settings for user_id {user_id_int}")
+                    return user_settings
+            except ValueError:
+                # Not a numeric ID, continue with clerk_id lookup
+                pass
+                
+            # If we get here, either the ID wasn't numeric or no settings were found
+            # Try to find by clerk_id
+            logger.info(f"Looking for user with clerk_id {self.user_id}")
             user = self.db.query(User).filter(User.clerk_id == self.user_id).first()
             if user:
+                logger.info(f"Found user with clerk_id {self.user_id}, looking for settings with user_id {user.id}")
                 return self.db.query(UserSettings).filter(UserSettings.user_id == user.id).first()
+                
+            logger.warning(f"No user or settings found for ID {self.user_id}")
             return None
         except Exception as e:
             logger.error(f"Error fetching user settings: {e}")
@@ -211,9 +211,13 @@ class LoggerAgent:
             
             if not customer:
                 # Ensure user_id is set correctly
-                user_id = int(self.user_id) if self.user_id else 4  # Default to user_id 4 if none available
+                user_id = int(self.user_id) if self.user_id else None
                 if self.user_settings and self.user_settings.user_id:
                     user_id = self.user_settings.user_id
+                
+                # If we still don't have a user_id, we can't create a customer
+                if user_id is None:
+                    raise ValueError("Cannot create customer without a valid user_id")
                     
                 # Create new customer
                 customer = Customer(
@@ -281,10 +285,9 @@ class LoggerAgent:
             if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
                 
-            # If user_id is still None, use a default value (4)
+            # If user_id is still None, we can't create an interaction
             if user_id is None:
-                user_id = 4
-                logger.warning(f"Using default user_id {user_id} for interaction")
+                raise ValueError("Cannot create interaction without a valid user_id")
             
             # Create new interaction record if no existing one found
             interaction = Interaction(
@@ -1471,10 +1474,9 @@ class LoggerAgent:
             if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
                 
-            # If user_id is still None, use a default value (4)
+            # If user_id is still None, we can't create an issue
             if user_id is None:
-                user_id = 4
-                logger.warning(f"Using default user_id {user_id} for issue")
+                raise ValueError("Cannot create issue without a valid user_id")
             
             # Extract issue and request from extracted_info if available
             description = data.get("description", "")
@@ -1534,10 +1536,9 @@ class LoggerAgent:
             if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
                 
-            # If user_id is still None, use a default value (4)
+            # If user_id is still None, we can't create an enquiry
             if user_id is None:
-                user_id = 4
-                logger.warning(f"Using default user_id {user_id} for enquiry")
+                raise ValueError("Cannot create enquiry without a valid user_id")
             
             # Extract message from data to use as description if description is not provided
             description = data.get("description", "")
@@ -1590,10 +1591,9 @@ class LoggerAgent:
             if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
                 
-            # If user_id is still None, use a default value (4)
+            # If user_id is still None, we can't create feedback
             if user_id is None:
-                user_id = 4
-                logger.warning(f"Using default user_id {user_id} for feedback")
+                raise ValueError("Cannot create feedback without a valid user_id")
             
             # Extract message from data to use as comments if comments is not provided
             comments = data.get("comments", "")
@@ -2113,9 +2113,12 @@ if __name__ == "__main__":
         # Create logger agent with the found user_id
         logger_agent = LoggerAgent(str(user_id))
     else:
-        logger.warning(f"No user found for business_phone_id {business_phone_id}, using default user_id 4")
-        # Fall back to user_id 4 if no user is found
-        logger_agent = LoggerAgent("4")
+        logger.warning(f"No user found for business_phone_id {business_phone_id}")
+        # We can't proceed without a valid user_id
+        print(json.dumps({"status": "error", "message": f"No user found for business_phone_id {business_phone_id}"}), indent=2)
+        # Exit the script instead of using return outside a function
+        import sys
+        sys.exit(1)
     
     # Process the message
     result = logger_agent.process_messages([test_message])

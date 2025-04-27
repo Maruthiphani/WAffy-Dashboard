@@ -8,7 +8,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from app.models import User, UserSettings
+from app.models import User, UserSettings, Order
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
@@ -315,6 +315,35 @@ async def verify_whatsapp_webhook(request: Request, db: Session = Depends(get_db
     
     # If verification fails or this is not a verification request
     raise HTTPException(status_code=403, detail="Verification failed")
+
+class OrderResponse(BaseModel):
+    """Order response model"""
+    order_id: int
+    customer_id: str
+    order_number: str
+    item: str
+    quantity: int
+    notes: Optional[str] = None
+    order_status: str
+    total_amount: float
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
+
+@app.get("/api/orders", response_model=List[OrderResponse])
+async def get_orders(db: Session = Depends(get_db)):
+    """Fetch all orders"""
+    orders = db.query(Order).all()
+    return orders
+
+@app.get("/api/orders/{customer_id}", response_model=List[OrderResponse])
+async def get_orders_by_customer(customer_id: str, db: Session = Depends(get_db)):
+    """Fetch orders for a specific customer"""
+    orders = db.query(Order).filter(Order.customer_id == customer_id).all()
+    return orders
+
 
 if __name__ == "__main__":
     import uvicorn

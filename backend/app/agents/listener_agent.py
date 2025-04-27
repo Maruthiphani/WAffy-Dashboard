@@ -1,8 +1,15 @@
 # app/agents/listener_agent.py
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from app.state import MessageState
 import time, json, os
+from collections import defaultdict
+
+# In-memory rate limiter
+message_counter = defaultdict(list)
+
+MAX_MESSAGES_PER_MINUTE = 10  
+TIME_WINDOW_SECONDS = 60  
 
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "PaperPencil_TeSt_token123")
 
@@ -27,6 +34,19 @@ def get_listener_router(graph):
             message = entry["messages"][0]
             contact = entry["contacts"][0]
             metadata = entry["metadata"]
+
+            customer_id=contact["wa_id"]
+            current_time = time.time()
+            # RATE LIMIT CHECK
+            timestamps = message_counter[customer_id]
+            # Only keep timestamps in last 60 seconds
+            timestamps = [ts for ts in timestamps if current_time - ts < TIME_WINDOW_SECONDS]
+            timestamps.append(current_time)
+            message_counter[customer_id] = timestamps
+
+            if len(timestamps) > MAX_MESSAGES_PER_MINUTE:
+                raise HTTPException(status_code=429, detail="Too many messages, slow down.")
+
 
             state = MessageState(
                 sender=message["from"],

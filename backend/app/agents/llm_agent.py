@@ -11,7 +11,6 @@ from google import genai
 from google.genai import types
 from app.utils.category_map import DEFAULT_CATEGORIES, DEFAULT_PRIORITY_MAP, STANDARD_KEYS
 
-
 categories_str = ", ".join(DEFAULT_CATEGORIES)
 priority_map_str = "\n".join(f"- {k}: {v}" for k, v in DEFAULT_PRIORITY_MAP.items())
 schema_str = "\n".join(f"- {k}: {v}" for k, v in STANDARD_KEYS.items())
@@ -135,83 +134,4 @@ If it's an order or update, you can also respond like:
 }}
         """.strip()
 
-# ✅ Singleton
 llm_agent = GeminiLLMAgent()
-
-
-
-# import os
-# import json
-# from dotenv import load_dotenv
-# import google.generativeai as genai
-# from app.utils.category_map import DEFAULT_CATEGORIES, DEFAULT_PRIORITY_MAP, STANDARD_KEYS
-
-# load_dotenv()
-# genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-
-# categories_str = ", ".join(DEFAULT_CATEGORIES)
-# priority_map_str = "\n".join(f"- {k}: {v}" for k, v in DEFAULT_PRIORITY_MAP.items())
-# schema_str = "\n".join(f"- {k}: {v}" for k, v in STANDARD_KEYS.items())
-
-# class GeminiLLMAgent:
-#     def __init__(self, model_name="gemini-1.5-pro-latest"):
-#         self.model = genai.GenerativeModel(model_name)
-
-#     def analyze(self, message: str) -> dict:
-#         prompt = self._build_prompt(message)
-
-#         try:
-#             response = self.model.generate_content(prompt)
-#             content = response.text.strip()
-#             print("[LLMAgent] RAW Gemini output:\n", content)
-
-#             if content.startswith("```json"):
-#                 content = content.replace("```json", "").replace("```", "").strip()
-#             elif content.startswith("```"):
-#                 content = content.replace("```", "").strip()
-
-#             return json.loads(content)
-#         except Exception as e:
-#             print("[LLMAgent] Error:", e)
-#             return {
-#                 "category": "unknown",
-#                 "priority": "moderate",
-#                 "conversation_status": "continue",
-#                 "extracted_info": {}
-#             }
-
-#     def _build_prompt(self, message: str) -> str:
-#         return f"""
-# You are a smart assistant that processes customer messages sent to a business on WhatsApp.
-
-# Task:
-# - Analyze the message and classify its intent.
-# - Assign a priority (high, moderate, low).
-# - Extract useful structured information.
-# - Indicate if this message continues, closes, or starts a conversation.
-
-# Message:
-# "{message}"
-
-# Categories to choose from:
-# {categories_str}
-
-# Priority mapping:
-# {priority_map_str}
-
-# Use the following keywords for extracted_info:
-# {schema_str}
-
-# Respond in JSON:
-# {{
-#   "category": "new order",
-#   "priority": "high",
-#   "conversation_status": "continue",
-#   "extracted_info": {{
-#     "delivery_time": "6pm Saturday"
-#   }}
-# }}
-#         """.strip()
-
-# # ✅ Export singleton
-# llm_agent = GeminiLLMAgent()

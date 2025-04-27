@@ -41,3 +41,31 @@ STANDARD_KEYS = {
     "appointment_time": "For services like clinic/salon, booking time",
     "contact_info": "Phone/email provided for follow-up",
 }
+
+# app/utils/table_mapper.py
+
+# These are known fixed categories
+CATEGORY_TO_TABLE = {
+    "new_order": "orders",
+    "order_status": "orders",
+    "complaint": "issues",
+    "return_refund": "issues",
+    "follow_up": "issues",
+    "feedback": "feedback",
+    "general_inquiry": "enquiries",
+}
+
+# Define irrelevant categories separately (greetings, thanks, etc.)
+IGNORED_CATEGORIES = {"greetings", "thanks", "small_talk", "chitchat"}
+
+def map_category_to_table(category: str) -> str | None:
+    category = category.lower().strip()
+
+    if category in IGNORED_CATEGORIES:
+        return None 
+
+    if category in CATEGORY_TO_TABLE:
+        return CATEGORY_TO_TABLE[category] 
+
+    return "enquiries" #user created categories
+

@@ -871,5 +871,1107 @@
     ],
     "business_phone_number": "15556454320",
     "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 20:57:19",
+    "raw_timestamp_utc": 1745614639,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E5MjNFM0U3OUFBQ0U4NTkwMzIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 20:57:49",
+    "raw_timestamp_utc": 1745614669,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E2NEIyNjY4MTRENjk0QTdCNzIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "details": "Happy Birthday Riya on one of them"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 20:58:08",
+    "raw_timestamp_utc": 1745614688,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E0RkYwQkJGQjE1RkE0OUUzNjkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "make it 3",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 3,
+          "details": "Happy Birthday Riya on one"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "make it 3"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:25:47",
+    "raw_timestamp_utc": 1745616347,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E5Rjc5RjlBOEU4Q0UzRjczRkUA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:26:09",
+    "raw_timestamp_utc": 1745616369,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCODgyNTc1RTdDNUU0QkQ3MTIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "details": "Happy Birthday Riya on one of them"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:26:34",
+    "raw_timestamp_utc": 1745616394,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwNTY4NkEyQjlFNzY4QTYyOEQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "make it 3",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 3,
+          "details": "Happy Birthday Riya on one of them"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "make it 3"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:27:30",
+    "raw_timestamp_utc": 1745616450,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwRTlBQTY4MDVBMTk0QjA4M0MA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i want to kill someone",
+    "predicted_category": "others",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "make it 3",
+      "i want to kill someone"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997"
+  },
+  {
+    "timestamp": "2025-04-25 21:48:18",
+    "raw_timestamp_utc": 1745617698,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E3M0M1MjgzNjU4NEFDNjMxRTYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "details": "Happy Birthday Riya on one of them"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them."
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders"
+  },
+  {
+    "timestamp": "2025-04-25 21:52:55",
+    "raw_timestamp_utc": 1745617975,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E0MDY2MDY3MkFBRUEwQjI5REIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate truffle cake",
+          "quantity": 2,
+          "notes": "Happy Birthday Riya"
+        }
+      ],
+      "delivery_time": "tomorrow evening"
+    },
+    "conversation_status": "continue",
+    "context": [
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 21:53:14",
+    "raw_timestamp_utc": 1745617994,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EzNUQyMDE3RUUwN0FDQzg1MjYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "Hi, I'd like to order 2 chocolate truffle cakes for tomorrow evening. Please write 'Happy Birthday Riya' on one of them.",
+      "hi",
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:05:58",
+    "raw_timestamp_utc": 1745618758,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwODlDQzZGNkQ5MTIxMjdBNjgA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:06:33",
+    "raw_timestamp_utc": 1745618793,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCMjkyQTRGQTE1QTVDN0Q2QzgA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:06:52",
+    "raw_timestamp_utc": 1745618812,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDQkQxMEY0MUYyQ0U0ODAxQ0UA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i want to place an order for a cake",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "cake",
+          "quantity": 1
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "i want to place an order for a cake"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders"
+  },
+  {
+    "timestamp": "2025-04-25 22:07:29",
+    "raw_timestamp_utc": 1745618849,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFMzU2ODkxNDRCRDI1QzE4RTkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:14:22",
+    "raw_timestamp_utc": 1745619262,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFN0NCREE1NzNEREQ4RkYzQTUA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hi",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hi"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null
+  },
+  {
+    "timestamp": "2025-04-25 22:28:38",
+    "raw_timestamp_utc": 1745620118,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E1MUExM0VEMzVBM0YwNzRBNkMA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "thanks",
+    "predicted_category": "feedback",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "close",
+    "context": [
+      "thanks"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "feedback"
+  },
+  {
+    "timestamp": "2025-04-25 22:28:52",
+    "raw_timestamp_utc": 1745620132,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EzQkM1MDE2MUQxODE0MjU2QTAA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "fine",
+    "predicted_category": "others",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "thanks",
+      "fine"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-25 22:29:37",
+    "raw_timestamp_utc": 1745620177,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDOUIzRTNBNTk3NTQ2QzhDRUEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "how are you",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "thanks",
+      "fine",
+      "how are you"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null
+  },
+  {
+    "timestamp": "2025-04-27 09:13:18",
+    "raw_timestamp_utc": 1745745198,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E1RDJDNEU3MzZGMTYxMDZGNzUA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "testing",
+    "predicted_category": "others",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "testing"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-27 09:13:37",
+    "raw_timestamp_utc": 1745745217,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDNUYyRDM1NDQzQ0VGOEE3RjEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "testing",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null
+  },
+  {
+    "timestamp": "2025-04-27 09:13:45",
+    "raw_timestamp_utc": 1745745225,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FBMDQ4MjRBRUIyMTY0QjE4OTYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "wassup",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "testing",
+      "hello",
+      "wassup"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null
+  },
+  {
+    "timestamp": "2025-04-27 09:13:58",
+    "raw_timestamp_utc": 1745745238,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E3OTY5MUU1Nzg2MjdFQTA4OUYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "i sent a message 5 days ago and no reply",
+    "predicted_category": "follow_up",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "testing",
+      "hello",
+      "wassup",
+      "i sent a message 5 days ago and no reply"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "issues"
+  },
+  {
+    "timestamp": "2025-04-27 09:14:18",
+    "raw_timestamp_utc": 1745745258,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E5RjIyMzQ0MEQ5RkI4RTRERjgA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "it is urgent",
+    "predicted_category": "follow_up",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "testing",
+      "hello",
+      "wassup",
+      "i sent a message 5 days ago and no reply",
+      "it is urgent"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "issues"
+  },
+  {
+    "timestamp": "2025-04-27 10:34:09",
+    "raw_timestamp_utc": 1745750049,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E3QUQwMDI5MkM3NjE1QURFNDMA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null
+  },
+  {
+    "timestamp": "2025-04-27 10:34:20",
+    "raw_timestamp_utc": 1745750060,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E1QUVGRDIzQkM5NjYzRjRDNTQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "\u00bfPuede confirmar el estado de mi entrega?",
+    "predicted_category": "order_status",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "\u00bfPuede confirmar el estado de mi entrega?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders"
+  },
+  {
+    "timestamp": "2025-04-27 10:34:40",
+    "raw_timestamp_utc": 1745750080,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FGNDk3NEIwQ0NBOTJBMkU2NEYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "kya kar rahe ho?",
+    "predicted_category": "others",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "\u00bfPuede confirmar el estado de mi entrega?",
+      "kya kar rahe ho?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "enquiries"
+  },
+  {
+    "timestamp": "2025-04-27 10:34:52",
+    "raw_timestamp_utc": 1745750092,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EyNzUyMDRENjkyRTA3NzY2OUUA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "namaste",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "\u00bfPuede confirmar el estado de mi entrega?",
+      "kya kar rahe ho?",
+      "namaste"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null
+  },
+  {
+    "timestamp": "2025-04-27 11:10:02",
+    "raw_timestamp_utc": 1745752202,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFMTVCNjA1MzdEMTUzMzY2NUEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "\u00bfD\u00f3nde est\u00e1 mi pedido?",
+    "predicted_category": "order_status",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "\u00bfD\u00f3nde est\u00e1 mi pedido?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders",
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:10:19",
+    "raw_timestamp_utc": 1745752219,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E1QkUzMUZBMEM5N0UxRTcxNjAA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "O\u00f9 est ma commande ?",
+    "predicted_category": "order_status",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "\u00bfD\u00f3nde est\u00e1 mi pedido?",
+      "O\u00f9 est ma commande ?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders",
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:10:39",
+    "raw_timestamp_utc": 1745752239,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0ExREVDODJGMTIyNUU3QkY3NDcA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "Wo ist meine Bestellung?",
+    "predicted_category": "order_status",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "\u00bfD\u00f3nde est\u00e1 mi pedido?",
+      "O\u00f9 est ma commande ?",
+      "Wo ist meine Bestellung?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders",
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:10:51",
+    "raw_timestamp_utc": 1745752251,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwMTc0QjcyOEJGNjA0QUMzNEUA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "\u79c1\u306e\u6ce8\u6587\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",
+    "predicted_category": "order_status",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "\u00bfD\u00f3nde est\u00e1 mi pedido?",
+      "O\u00f9 est ma commande ?",
+      "Wo ist meine Bestellung?",
+      "\u79c1\u306e\u6ce8\u6587\u306f\u3069\u3053\u3067\u3059\u304b\uff1f"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders",
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:11:07",
+    "raw_timestamp_utc": 1745752267,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E2MTFDMjEzNzBBMjgzRUIyQTMA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "\u6211\u7684\u8ba2\u5355\u5728\u54ea\u91cc\uff1f",
+    "predicted_category": "order_status",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "\u00bfD\u00f3nde est\u00e1 mi pedido?",
+      "O\u00f9 est ma commande ?",
+      "Wo ist meine Bestellung?",
+      "\u79c1\u306e\u6ce8\u6587\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",
+      "\u6211\u7684\u8ba2\u5355\u5728\u54ea\u91cc\uff1f"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders",
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:11:50",
+    "raw_timestamp_utc": 1745752310,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFM0M3QkEyQzBFNDRCRDM0MjcA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "\u0413\u0434\u0435 \u043c\u043e\u0439 \u0437\u0430\u043a\u0430\u0437?",
+    "predicted_category": "order_status",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "\u00bfD\u00f3nde est\u00e1 mi pedido?",
+      "O\u00f9 est ma commande ?",
+      "Wo ist meine Bestellung?",
+      "\u79c1\u306e\u6ce8\u6587\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",
+      "\u6211\u7684\u8ba2\u5355\u5728\u54ea\u91cc\uff1f",
+      "\u0413\u0434\u0435 \u043c\u043e\u0439 \u0437\u0430\u043a\u0430\u0437?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders",
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:12:05",
+    "raw_timestamp_utc": 1745752325,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFNjYxRTlDMzg4N0I5NTQwQTUA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "\u092e\u0947\u0930\u093e \u0911\u0930\u094d\u0921\u0930 \u0915\u0939\u093e\u0901 \u0939\u0948?",
+    "predicted_category": "order_status",
+    "priority": "moderate",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "\u00bfD\u00f3nde est\u00e1 mi pedido?",
+      "O\u00f9 est ma commande ?",
+      "Wo ist meine Bestellung?",
+      "\u79c1\u306e\u6ce8\u6587\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",
+      "\u6211\u7684\u8ba2\u5355\u5728\u54ea\u91cc\uff1f",
+      "\u0413\u0434\u0435 \u043c\u043e\u0439 \u0437\u0430\u043a\u0430\u0437?",
+      "\u092e\u0947\u0930\u093e \u0911\u0930\u094d\u0921\u0930 \u0915\u0939\u093e\u0901 \u0939\u0948?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders",
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:12:42",
+    "raw_timestamp_utc": 1745752362,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCNDY4MzI0QjQwRUQ0MUM2RUIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "\u0ca8\u0cbe\u0ca8\u0cc1 \u0c92\u0c82\u0ca6\u0cc1 \u0c9a\u0cbe\u0c95\u0cca\u0cb2\u0cc7\u0c9f\u0ccd \u0c95\u0cc7\u0c95\u0ccd \u0c86\u0cb0\u0ccd\u0ca1\u0cb0\u0ccd \u0cae\u0cbe\u0ca1\u0cac\u0cb9\u0cc1\u0ca6\u0cc7?",
+    "predicted_category": "new_order",
+    "priority": "high",
+    "extracted_info": {
+      "products": [
+        {
+          "item": "chocolate cake",
+          "quantity": 1
+        }
+      ]
+    },
+    "conversation_status": "continue",
+    "context": [
+      "\u00bfD\u00f3nde est\u00e1 mi pedido?",
+      "O\u00f9 est ma commande ?",
+      "Wo ist meine Bestellung?",
+      "\u79c1\u306e\u6ce8\u6587\u306f\u3069\u3053\u3067\u3059\u304b\uff1f",
+      "\u6211\u7684\u8ba2\u5355\u5728\u54ea\u91cc\uff1f",
+      "\u0413\u0434\u0435 \u043c\u043e\u0439 \u0437\u0430\u043a\u0430\u0437?",
+      "\u092e\u0947\u0930\u093e \u0911\u0930\u094d\u0921\u0930 \u0915\u0939\u093e\u0901 \u0939\u0948?",
+      "\u0ca8\u0cbe\u0ca8\u0cc1 \u0c92\u0c82\u0ca6\u0cc1 \u0c9a\u0cbe\u0c95\u0cca\u0cb2\u0cc7\u0c9f\u0ccd \u0c95\u0cc7\u0c95\u0ccd \u0c86\u0cb0\u0ccd\u0ca1\u0cb0\u0ccd \u0cae\u0cbe\u0ca1\u0cac\u0cb9\u0cc1\u0ca6\u0cc7?"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": "orders",
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:50:58",
+    "raw_timestamp_utc": 1745754658,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EzNTUyQTRGRjE3QTRCMDJBOTEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:08",
+    "raw_timestamp_utc": 1745754668,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FDM0YzNTJEODRDRDM1ODY1ODMA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:09",
+    "raw_timestamp_utc": 1745754669,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E4MkQwRUJDOEQ3QzQ5NDRCREEA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:11",
+    "raw_timestamp_utc": 1745754671,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0EwMTMwQTk3MUMwMjYyQzE4OEIA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello",
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:12",
+    "raw_timestamp_utc": 1745754672,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FFOERDNjJCMUZFQkJDQUEwMTkA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:13",
+    "raw_timestamp_utc": 1745754673,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FCQkY5NkE0MjlFRDJGQUI2M0YA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:14",
+    "raw_timestamp_utc": 1745754674,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0FGNUY0QkFGMjI0OUNFNUM0QkQA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:16",
+    "raw_timestamp_utc": 1745754676,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0ExOTAzNkRFMzBDMzczNUFDN0IA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:17",
+    "raw_timestamp_utc": 1745754677,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E3NjZCN0E2N0E4OUY3Q0RDRjYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
+  },
+  {
+    "timestamp": "2025-04-27 11:51:18",
+    "raw_timestamp_utc": 1745754678,
+    "message_id": "wamid.HBgMNDQ3Nzc4NTk2NzczFQIAEhgUM0E2MjA1OTRDRkFEQTZGMUVCRTYA",
+    "message_type": "text",
+    "customer_id": "447778596773",
+    "sender": "447778596773",
+    "customer_name": "Akanksha",
+    "message": "hello",
+    "predicted_category": "greetings",
+    "priority": "low",
+    "extracted_info": {},
+    "conversation_status": "continue",
+    "context": [
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello",
+      "hello"
+    ],
+    "business_phone_number": "15556454320",
+    "business_phone_id": "574048935800997",
+    "table_name": null,
+    "detected_language": null,
+    "is_english": null
   }
 ]

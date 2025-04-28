@@ -931,6 +931,7 @@ const Settings = () => {
                   placeholder="Enter your WhatsApp Phone Number ID"
                 />
               </div>
+              {/* Verify Token field removed as webhooks are set up through code */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Verify Token
@@ -1063,19 +1064,28 @@ const Settings = () => {
                       <span className="text-green-600 font-bold">5</span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800">Set Up Webhooks</h4>
-                      <p className="text-sm text-gray-600">Navigate to <span className="font-mono bg-gray-100 px-1 rounded">WhatsApp → Configuration → Webhooks → Edit</span></p>
-                      <div className="mt-2 bg-yellow-50 p-2 rounded border border-yellow-200">
+                      <h4 className="font-medium text-gray-800">Generate a Long-Lived Access Token</h4>
+                      <p className="text-sm text-gray-600">Generate a token using the <span className="font-mono bg-gray-100 px-1 rounded">Meta Graph API</span></p>
+                      <div className="mt-2 bg-blue-50 p-2 rounded border border-blue-200">
                         <div className="flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-600 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 mr-1" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                           </svg>
-                          <span className="text-xs font-semibold text-yellow-800">For the webhook setup:</span>
+                          <span className="text-xs font-semibold text-blue-800">Token Generation Steps:</span>
                         </div>
-                        <ul className="text-xs text-yellow-800 list-disc pl-5 mt-1">
-                          <li>Callback URL: <span className="font-mono bg-white px-1 rounded">https://your-waffy-domain.com/api/webhook/whatsapp</span></li>
-                          <li>Verify Token: Use the token you generated above</li>
-                          <li>Subscribe to at least: <span className="font-mono">messages</span> and <span className="font-mono">message_status</span></li>
+                        <ul className="text-xs text-blue-800 list-disc pl-5 mt-1">
+                          <li>Go to <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Graph API Explorer</a></li>
+                          <li>Select your app from the dropdown menu</li>
+                          <li>Click <span className="font-semibold">"Generate Access Token"</span></li>
+                          <li>Request the following permissions:
+                            <ul className="list-disc pl-5 mt-1">
+                              <li><span className="font-mono">whatsapp_business_messaging</span></li>
+                              <li><span className="font-mono">whatsapp_business_management</span></li>
+                              <li><span className="font-mono">business_management</span></li>
+                            </ul>
+                          </li>
+                          <li>Once you have a short-lived token, use the <a href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Access Token Debugger</a> to extend it to a long-lived token</li>
+                          <li>Copy the generated long-lived token to the <span className="font-semibold">WhatsApp Access Token</span> field above</li>
                         </ul>
                       </div>
                     </div>

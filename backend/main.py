@@ -414,8 +414,19 @@ class OrderResponse(BaseModel):
     ##return orders
 
 @app.get("/api/orders", response_model=List[dict])
-async def get_orders(db: Session = Depends(get_db)):
-    orders = db.query(Order).all()
+async def get_orders(clerk_id: str = None, db: Session = Depends(get_db)):
+    # Get user by clerk_id if provided
+    user = None
+    if clerk_id:
+        user = get_user_by_clerk_id(db, clerk_id)
+    
+    # Filter by user_id if clerk_id was provided and user was found
+    if user:
+        # Order by created_at in descending order to get latest first
+        orders = db.query(Order).filter(Order.user_id == user.id).order_by(Order.created_at.desc()).all()
+    else:
+        # If no clerk_id or user not found, return all orders (for backward compatibility)
+        orders = db.query(Order).order_by(Order.created_at.desc()).all()
     
     enriched_orders = []
     for order in orders:
@@ -457,8 +468,19 @@ class CustomerResponse(BaseModel):
 
 
 @app.get("/api/customers", response_model=List[dict])
-async def get_customers(db: Session = Depends(get_db)):
-    customers = db.query(Customer).all()
+async def get_customers(clerk_id: str = None, db: Session = Depends(get_db)):
+    # Get user by clerk_id if provided
+    user = None
+    if clerk_id:
+        user = get_user_by_clerk_id(db, clerk_id)
+    
+    # Filter by user_id if clerk_id was provided and user was found
+    if user:
+        # Order by created_at in descending order to get latest first
+        customers = db.query(Customer).filter(Customer.user_id == user.id).order_by(Customer.created_at.desc()).all()
+    else:
+        # If no clerk_id or user not found, return all customers (for backward compatibility)
+        customers = db.query(Customer).order_by(Customer.created_at.desc()).all()
 
     enriched_customers = []
     for customer in customers:
@@ -548,9 +570,20 @@ class IssueResponse(BaseModel):
         orm_mode = True
 
 @app.get("/api/issues", response_model=List[dict])
-async def get_issues(db: Session = Depends(get_db)):
-    """Fetch all issues"""
-    issues = db.query(Issue).all()
+async def get_issues(clerk_id: str = None, db: Session = Depends(get_db)):
+    """Fetch all issues ordered by latest first, filtered by user if clerk_id provided"""
+    # Get user by clerk_id if provided
+    user = None
+    if clerk_id:
+        user = get_user_by_clerk_id(db, clerk_id)
+    
+    # Filter by user_id if clerk_id was provided and user was found
+    if user:
+        # Order by created_at in descending order to get latest first
+        issues = db.query(Issue).filter(Issue.user_id == user.id).order_by(Issue.created_at.desc()).all()
+    else:
+        # If no clerk_id or user not found, return all issues (for backward compatibility)
+        issues = db.query(Issue).order_by(Issue.created_at.desc()).all()
     
     enriched_issues = []
     for issue in issues:
@@ -617,9 +650,20 @@ class EnquiryResponse(BaseModel):
 
 
 @app.get("/api/enquiries", response_model=List[dict])
-async def get_enquiries(db: Session = Depends(get_db)):
-    """Fetch all enquiries with updated column names"""
-    enquiries = db.query(Enquiry).all()
+async def get_enquiries(clerk_id: str = None, db: Session = Depends(get_db)):
+    """Fetch all enquiries with updated column names, ordered by latest first, filtered by user if clerk_id provided"""
+    # Get user by clerk_id if provided
+    user = None
+    if clerk_id:
+        user = get_user_by_clerk_id(db, clerk_id)
+    
+    # Filter by user_id if clerk_id was provided and user was found
+    if user:
+        # Order by created_at in descending order to get latest first
+        enquiries = db.query(Enquiry).filter(Enquiry.user_id == user.id).order_by(Enquiry.created_at.desc()).all()
+    else:
+        # If no clerk_id or user not found, return all enquiries (for backward compatibility)
+        enquiries = db.query(Enquiry).order_by(Enquiry.created_at.desc()).all()
 
     enriched_enquiries = []
     for enquiry in enquiries:

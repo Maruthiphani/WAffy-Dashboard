@@ -137,9 +137,15 @@ export const getUserSettings = async (clerkId) => {
 
 
 
-export const getOrders = async () => {
+/**
+ * Get orders for the current user
+ * @param {string} clerkId - Optional Clerk user ID to filter by
+ * @returns {Promise} - Promise with the list of orders
+ */
+export const getOrders = async (clerkId = null) => {
   try {
-    const response = await fetch(`${API_URL}/orders`);
+    const url = clerkId ? `${API_URL}/orders?clerk_id=${clerkId}` : `${API_URL}/orders`;
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error('Failed to fetch orders');
     }
@@ -186,16 +192,22 @@ export const getOrders = async () => {
 //   }
 // };
 
-export const getCustomers = async () => {
+/**
+ * Get customers for the current user
+ * @param {string} clerkId - Optional Clerk user ID to filter by
+ * @returns {Promise} - Promise with the list of customers
+ */
+export const getCustomers = async (clerkId = null) => {
   try {
-    const response = await fetch(`${API_URL}/customers`);
+    const url = clerkId ? `${API_URL}/customers?clerk_id=${clerkId}` : `${API_URL}/customers`;
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
     return await response.json();
   } catch (error) {
     console.error('Error fetching customers:', error);
-    throw error;
+    return [];
   }
 };
 
@@ -253,14 +265,20 @@ export const getCustomers = async () => {
 //   }
 // };
 
-export const getEnquiries = async () => {
+/**
+ * Get enquiries for the current user
+ * @param {string} clerkId - Optional Clerk user ID to filter by
+ * @returns {Promise} - Promise with the list of enquiries
+ */
+export const getEnquiries = async (clerkId = null) => {
   try {
-    const response = await fetch(`${API_URL}/enquiries`);
+    const url = clerkId ? `${API_URL}/enquiries?clerk_id=${clerkId}` : `${API_URL}/enquiries`;
+    const response = await fetch(url);
     if (!response.ok) throw new Error(`Error: ${response.status}`);
     return await response.json();
   } catch (error) {
     console.error('Error fetching enquiries:', error);
-    throw error;
+    return [];
   }
 };
 
@@ -270,9 +288,15 @@ export const getEnquiries = async () => {
  * Get all issues from the backend
  * @returns {Promise} - Promise with the list of issues
  */
-export const getIssues = async () => {
+/**
+ * Get issues for the current user
+ * @param {string} clerkId - Optional Clerk user ID to filter by
+ * @returns {Promise} - Promise with the list of issues
+ */
+export const getIssues = async (clerkId = null) => {
   try {
-    const response = await fetch(`${API_URL}/issues`);
+    const url = clerkId ? `${API_URL}/issues?clerk_id=${clerkId}` : `${API_URL}/issues`;
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }

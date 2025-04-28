@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import DashboardHeader from "../components/DashboardHeader";
 import { getOrders, getCustomers, getEnquiries, getIssues } from "../services/userService";
 import { Table, Button, Tag } from "antd";
+import { useUser } from "@clerk/clerk-react";
 
 const Dashboard = () => {
   const [tab, setTab] = useState("orders");
@@ -16,31 +17,40 @@ const Dashboard = () => {
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
-  const [user] = useState({
-    firstName: "Jane",
-    lastName: "Doe",
-    email: "jane.doe@example.com",
-    profileImage: ""
-  });
+  // Use Clerk's useUser hook to get the authenticated user
+  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
 
   const handleLogout = () => alert("Logged out!");
   const handleUpdateProfile = () => alert("Update profile clicked!");
 
   useEffect(() => {
-    fetchAllData();
-  }, []);
+    // Fetch data when Clerk user is loaded
+    if (isClerkLoaded) {
+      fetchAllData();
+    }
+  }, [isClerkLoaded, clerkUser]);
 
   const fetchAllData = async () => {
-    const [ordersData, customersData, enquiriesData, issuesData] = await Promise.all([
-      getOrders(),
-      getCustomers(),
-      getEnquiries(),
-      getIssues()
-    ]);
-    setOrders(ordersData);
-    setCustomers(customersData);
-    setEnquiries(enquiriesData);
-    setIssues(issuesData);
+    // Only fetch data if Clerk user is loaded
+    if (!isClerkLoaded || !clerkUser) return;
+    
+    // Get the clerk_id to filter data by user
+    const clerkId = clerkUser.id;
+    
+    try {
+      const [ordersData, customersData, enquiriesData, issuesData] = await Promise.all([
+        getOrders(clerkId),
+        getCustomers(clerkId),
+        getEnquiries(clerkId),
+        getIssues(clerkId)
+      ]);
+      setOrders(ordersData);
+      setCustomers(customersData);
+      setEnquiries(enquiriesData);
+      setIssues(issuesData);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    }
   };
 
   const handleFilterSubmit = () => {
@@ -206,7 +216,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <DashboardHeader user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
+      <DashboardHeader user={clerkUser} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
       <div className="min-h-screen bg-gray-50 space-y-6 pt-24 px-4 sm:px-6"> {/* Increased padding and added background */}
 
       {/* Stats */}

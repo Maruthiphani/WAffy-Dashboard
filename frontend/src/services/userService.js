@@ -115,3 +115,171 @@ export const getUserSettings = async (clerkId) => {
     };
   }
 };
+
+// /**
+//  * Get all orders from the backend
+//  * @returns {Promise} - Promise with the list of orders
+//  */
+// export const getOrders = async () => {
+//   try {
+//     const response = await fetch(`${API_URL}/orders`);
+
+//     if (!response.ok) {
+//       throw new Error(`Error: ${response.status}`);
+//     }
+
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching orders:', error);
+//     return [];
+//   }
+// };
+
+
+
+export const getOrders = async () => {
+  try {
+    const response = await fetch(`${API_URL}/orders`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch orders');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return [];
+  }
+};
+
+
+
+
+/**
+ * Get all customers from the backend
+ * @returns {Promise} - Promise with the list of customers
+ */
+// export const getCustomers = async () => {
+//   try {
+//     const response = await fetch(`${API_URL}/customers`);
+//     if (!response.ok) {
+//       throw new Error(`Error: ${response.status}`);
+//     }
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching customers:', error);
+//     return [];
+//   }
+// };
+
+
+// export const getCustomers = async () => {
+//   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+  
+//   try {
+//     const response = await fetch(`${API_URL}/customers`);
+//     if (!response.ok) {
+//       throw new Error(`Error: ${response.status}`);
+//     }
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching customers:', error);
+//     throw error;
+//   }
+// };
+
+export const getCustomers = async () => {
+  try {
+    const response = await fetch(`${API_URL}/customers`);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    throw error;
+  }
+};
+
+
+
+
+
+/**
+ * Get all issues from the backend
+ * @returns {Promise} - Promise with the list of issues
+ */
+// export const getIssues = async () => {
+//   try {
+//     const response = await fetch(`${API_URL}/issues`);
+//     if (!response.ok) {
+//       throw new Error(`Error: ${response.status}`);
+//     }
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching issues:', error);
+//     return [];
+//   }
+// };
+
+// Fetch issues
+// export const getIssues = async () => {
+//   try {
+//     const response = await fetch(`${API_URL}/issues`);
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch issues");
+//     }
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching issues:', error);
+//     throw error;
+//   }
+// };
+
+
+
+/**
+ * Get all enquiries from the backend
+ * @returns {Promise} - Promise with the list of enquiries
+ */
+// export const getEnquiries = async () => {
+//   try {
+//     const response = await fetch(`${API_URL}/enquiries`);
+//     if (!response.ok) {
+//       throw new Error(`Error: ${response.status}`);
+//     }
+//     return await response.json();
+//   } catch (error) {
+//     console.error('Error fetching enquiries:', error);
+//     return [];
+//   }
+// };
+
+export const getEnquiries = async () => {
+  try {
+    const response = await fetch(`${API_URL}/enquiries`);
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching enquiries:', error);
+    throw error;
+  }
+};
+
+
+
+/**
+ * Get all issues from the backend
+ * @returns {Promise} - Promise with the list of issues
+ */
+export const getIssues = async () => {
+  try {
+    const response = await fetch(`${API_URL}/issues`);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching issues:', error);
+    return [];
+  }
+};
+

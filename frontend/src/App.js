@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { SignedIn, SignedOut, SignIn, SignUp, UserButton, useUser } from "@clerk/clerk-react";
-import { messages } from "./data/messages";
-import { MessageTab } from "./components/MessageTab";
+//import { messages } from "./data/messages";
+//import { MessageTab } from "./components/MessageTab";
 import { createUser, getUserByClerkId } from "./services/userService";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
@@ -21,10 +21,11 @@ function App() {
     alert(`Reply to message ID: ${id}`);
   };
 
+  {/*
   const sortedMessages = ["Emergency", "Important", "Routine"].flatMap(priority =>
     messages.filter(msg => msg.priority === priority)
   );
-
+*/}
   const toggleFaq = (index) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
@@ -75,12 +76,7 @@ function App() {
           <SignedIn>
             {waffyUser ? (
               <>
-                {/* Full-width Hero only on dashboard route */}
-                {window.location.pathname === "/dashboard" && (
-                  <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] px-0">
-                    <HeroModernMotion activeTab={activeTab} setActiveTab={setActiveTab} />
-                  </div>
-                )}
+                {/* Hero section removed from dashboard */}
                 <div className="flex">
                   {/* Sidebar */}
                   <Sidebar />

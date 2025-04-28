@@ -5,14 +5,14 @@ import os
 import psycopg2
 import sys
 from dotenv import load_dotenv
-from Util import decrypt_value
+from utils.encryption import decrypt_value
 
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "my_custom_token")
 WEBHOOK_URL_SUFFIX = "/webhook"
-NGROK_PORT = os.getenv("NGROK_PORT")
+NGROK_PORT = os.getenv("NGROK_PORT") 
 
 #Checking if the listener server is already up
 def is_listener_running():

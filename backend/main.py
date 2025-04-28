@@ -5,9 +5,10 @@ import os
 import urllib.parse
 import json
 import logging
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
+from agents.Auto_Update_Webhook import run_auto_update_webhook
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 from datetime import datetime
@@ -184,7 +185,7 @@ async def get_user(clerk_id: str, db: Session = Depends(get_db)):
     return user
 
 @app.put("/api/users/{clerk_id}/settings")
-async def update_user_settings(clerk_id: str, settings_data: dict, db: Session = Depends(get_db)):
+async def update_user_settings(clerk_id: str, settings_data: dict, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Update user settings with encryption for sensitive data"""
     # Get user by clerk_id
     user = get_user_by_clerk_id(db, clerk_id)
@@ -199,10 +200,33 @@ async def update_user_settings(clerk_id: str, settings_data: dict, db: Session =
     else:
         user_settings = user.settings
     
+    # Track if WhatsApp API credentials are being updated
+    whatsapp_credentials_updated = False
+    phone_number_id_updated = False
+    app_id = None
+    app_secret = None
+    phone_number_id = None
+    
     # Update settings with encrypted sensitive data
     for key, value in settings_data.items():
         try:
-            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key", "hubspot_access_token"] and value:
+            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key"] and value:
+                # Encrypt sensitive values
+                encrypted_value = encrypt_value(value)
+                setattr(user_settings, key, encrypted_value)
+                logger.info(f"Successfully encrypted {key}")
+                whatsapp_credentials_updated = True
+                
+                # Store original values for webhook update
+                if key == "whatsapp_app_id":
+                    app_id = value
+                elif key == "whatsapp_app_secret":
+                    app_secret = value
+            elif key == "whatsapp_phone_number_id" and value:
+                setattr(user_settings, key, value)
+                phone_number_id_updated = True
+                phone_number_id = value
+            elif key == "hubspot_access_token" and value:
                 # Encrypt sensitive values
                 encrypted_value = encrypt_value(value)
                 setattr(user_settings, key, encrypted_value)
@@ -220,10 +244,24 @@ async def update_user_settings(clerk_id: str, settings_data: dict, db: Session =
     db.commit()
     db.refresh(user_settings)
     
+    # Check if we should update the webhook
+    if whatsapp_credentials_updated and phone_number_id_updated and phone_number_id:
+        logger.info(f"WhatsApp credentials updated, triggering webhook update for phone number ID: {phone_number_id}")
+        # Run webhook update in the background
+        try:
+            background_tasks.add_task(run_auto_update_webhook, phone_number_id, app_id, app_secret)
+            logger.info("Webhook update task added to background")
+        except Exception as e:
+            logger.error(f"Error scheduling webhook update: {e}")
+    
     # Prepare response (exclude sensitive data)
     response_data = {k: v for k, v in settings_data.items() if k not in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key", "hubspot_access_token"]}
     response_data["id"] = user_settings.id
     response_data["user_id"] = user.id
+    
+    # Add webhook update status to response if applicable
+    if whatsapp_credentials_updated and phone_number_id_updated and phone_number_id:
+        response_data["webhook_update"] = "Webhook update scheduled in background"
     
     return response_data
 

@@ -180,6 +180,15 @@ export default function HeroModernMotion({ activeTab, setActiveTab }) {
               <span className="bg-gray-100 px-4 py-2 rounded-full text-sm font-medium hover:bg-green-50 transition cursor-pointer">Excel</span>
             </div>
           </div>
+          
+          {/* Language support */}
+          <div className="mt-6">
+            <p className="text-sm text-gray-500 mb-4">Supports multiple languages:</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="bg-purple-50 px-4 py-2 rounded-full text-sm font-medium text-purple-700 hover:bg-purple-100 transition cursor-pointer">40+ Global Languages</span>
+              <span className="bg-blue-50 px-4 py-2 rounded-full text-sm font-medium text-blue-700 hover:bg-blue-100 transition cursor-pointer">10 Indian Languages</span>
+            </div>
+          </div>
         </div>
         {/* Right: Interactive Slider Card */}
         <div className="lg:w-1/2 flex flex-col items-center justify-center mt-12 lg:mt-0">

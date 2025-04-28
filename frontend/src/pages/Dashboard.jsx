@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DashboardHeader from "../components/DashboardHeader";
-import { getOrders, getCustomers, getEnquiries } from "../services/userService";
+import { getOrders, getCustomers, getEnquiries, getIssues } from "../services/userService";
 import { Table, Button, Tag } from "antd";
 
 const Dashboard = () => {
@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [enquiries, setEnquiries] = useState([]);
+  const [issues, setIssues] = useState([]);
 
   const [customerFilter, setCustomerFilter] = useState("");
   const [dateFilter, setDateFilter] = useState(new Date().toISOString().split("T")[0]);
@@ -30,39 +31,61 @@ const Dashboard = () => {
   }, []);
 
   const fetchAllData = async () => {
-    const [ordersData, customersData, enquiriesData] = await Promise.all([
+    const [ordersData, customersData, enquiriesData, issuesData] = await Promise.all([
       getOrders(),
       getCustomers(),
-      getEnquiries()
+      getEnquiries(),
+      getIssues()
     ]);
     setOrders(ordersData);
     setCustomers(customersData);
     setEnquiries(enquiriesData);
+    setIssues(issuesData);
   };
 
-  const handleFilterSubmit = async () => {
+  const handleFilterSubmit = () => {
     setSelectedCustomer(customerFilter);
     setSelectedDate(dateFilter);
-    await fetchAllData();
   };
 
-  const filteredOrders = orders.filter(order => {
-    const matchCustomer = selectedCustomer ? order.customer_id === selectedCustomer : true;
-    const matchDate = selectedDate ? order.DeliveryDate?.split("T")[0] === selectedDate : true;
-    return matchCustomer && matchDate;
-  });
+  const handleResetFilters = () => {
+    // Reset all filters
+    setCustomerFilter("");
+    setDateFilter("");
+    setSelectedCustomer("");
+    setSelectedDate("");
+  };
 
-  const filteredCustomers = customers.filter(customer => {
-    const matchCustomer = selectedCustomer ? customer.CustomerId === selectedCustomer : true;
-    const matchDate = selectedDate ? customer.DeliveryDate?.split("T")[0] === selectedDate : true;
+  const applyFilters = (item, idField = 'CustomerId', dateField = 'DeliveryDate') => {
+    if (!item) return false;
+    let itemCustomerId = item[idField];
+    if (!itemCustomerId && idField === 'CustomerId') {
+      itemCustomerId = item.customer_id;
+    }
+    
+    const matchCustomer = !selectedCustomer || String(itemCustomerId) === String(selectedCustomer);
+    
+    let itemDate = item[dateField];
+    if (!itemDate) {
+      itemDate = item.created_at || item.UpdatedDate || item.CreatedDate;
+    }
+    
+    // Convert date to YYYY-MM-DD format for comparison
+    let formattedDate = '';
+    if (itemDate && typeof itemDate === 'string') {
+      formattedDate = itemDate.split('T')[0];
+    }
+    
+    const matchDate = !selectedDate || formattedDate === selectedDate;
+    
     return matchCustomer && matchDate;
-  });
+  };
 
-  const filteredEnquiries = enquiries.filter(enquiry => {
-    const matchCustomer = selectedCustomer ? enquiry.CustomerId === selectedCustomer : true;
-    const matchDate = selectedDate ? enquiry.DeliveryDate?.split("T")[0] === selectedDate : true;
-    return matchCustomer && matchDate;
-  });
+  // Apply filters to each data type
+  const filteredOrders = orders.filter(order => applyFilters(order, 'customer_id', 'DeliveryDate'));
+  const filteredCustomers = customers.filter(customer => applyFilters(customer, 'CustomerId', 'DeliveryDate'));
+  const filteredEnquiries = enquiries.filter(enquiry => applyFilters(enquiry, 'CustomerId', 'DeliveryDate'));
+  const filteredIssues = issues.filter(issue => applyFilters(issue, 'CustomerId', 'DeliveryDate'));
 
   const orderColumns = [
     { title: "Customer Name", dataIndex: "CustomerName", key: "CustomerName" },
@@ -82,6 +105,31 @@ const Dashboard = () => {
     { title: "Email", dataIndex: "Email", key: "Email" },
     { title: "Delivery Date", dataIndex: "DeliveryDate", key: "DeliveryDate" },
     { title: "Updated Date", dataIndex: "UpdatedDate", key: "UpdatedDate" }
+  ];
+
+  const issueColumns = [
+    { title: "Issue ID", dataIndex: "IssueId", key: "IssueId" },
+    { title: "Customer ID", dataIndex: "CustomerId", key: "CustomerId" },
+    // { title: "Order ID", dataIndex: "OrderId", key: "OrderId" },
+    { title: "Issue Type", dataIndex: "IssueType", key: "IssueType" },
+    { title: "Description", dataIndex: "Description", key: "Description" },
+    { 
+      title: "Priority", 
+      dataIndex: "Priority", 
+      key: "Priority",
+      render: (priority) => {
+        if (!priority) return null;
+        let color = "blue";
+        if (priority.toLowerCase() === "high") color = "red";
+        else if (priority.toLowerCase() === "medium") color = "orange";
+        else if (priority.toLowerCase() === "low") color = "green";
+        return <Tag color={color}>{priority.toUpperCase()}</Tag>;
+      }
+    },
+    { title: "Status", dataIndex: "Status", key: "Status" },
+    // { title: "Resolution Notes", dataIndex: "ResolutionNotes", key: "ResolutionNotes" },
+    { title: "Created Date", dataIndex: "DeliveryDate", key: "DeliveryDate", render: (date) => date ? new Date(date).toLocaleDateString() : "" },
+    { title: "Updated Date", dataIndex: "UpdatedDate", key: "UpdatedDate", render: (date) => date ? new Date(date).toLocaleDateString() : "" },
   ];
 
   const enquiryColumns = [
@@ -112,19 +160,42 @@ const Dashboard = () => {
     if (tab === "orders") return filteredOrders.map((item, index) => ({ ...item, key: index }));
     if (tab === "customers") return filteredCustomers.map((item, index) => ({ ...item, key: index }));
     if (tab === "enquiries") return filteredEnquiries.map((item, index) => ({ ...item, key: index }));
+    if (tab === "issues") return filteredIssues.map((item, index) => ({ ...item, key: index }));
   };
 
   const getCurrentColumns = () => {
     if (tab === "orders") return orderColumns;
     if (tab === "customers") return customerColumns;
     if (tab === "enquiries") return enquiryColumns;
+    if (tab === "issues") return issueColumns;
   };
 
   const getCustomerOptions = () => {
-    if (tab === "orders") return [...new Set(orders.map(order => order.customer_id))];
-    if (tab === "customers") return [...new Set(customers.map(customer => customer.CustomerId))];
-    if (tab === "enquiries") return [...new Set(enquiries.map(enquiry => enquiry.CustomerId))];
-    return [];
+    let customerIds = [];
+    
+    // Collect customer IDs from all data types
+    orders.forEach(order => {
+      const id = order.customer_id || order.CustomerId;
+      if (id) customerIds.push(id);
+    });
+    
+    customers.forEach(customer => {
+      const id = customer.CustomerId || customer.customer_id;
+      if (id) customerIds.push(id);
+    });
+    
+    enquiries.forEach(enquiry => {
+      const id = enquiry.CustomerId || enquiry.customer_id;
+      if (id) customerIds.push(id);
+    });
+    
+    issues.forEach(issue => {
+      const id = issue.CustomerId || issue.customer_id;
+      if (id) customerIds.push(id);
+    });
+    
+    // Remove duplicates and filter out empty values
+    return [...new Set(customerIds)].filter(id => id);
   };
 
   const stats = {
@@ -134,8 +205,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
       <DashboardHeader user={user} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
+      <div className="min-h-screen bg-gray-50 space-y-6 pt-24 px-4 sm:px-6"> {/* Increased padding and added background */}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -143,10 +215,40 @@ const Dashboard = () => {
           <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
           <p className="text-2xl font-bold">{stats.total}</p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-sm font-medium text-gray-500">Response Rate</h3>
-          <p className="text-2xl font-bold">{stats.responseRate}</p>
-        </div>
+        
+        {/* Priority Breakdown */}
+        {/* <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold mb-4">Priority Breakdown</h2>
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-red-600">Emergency</span>
+                <span className="text-sm font-medium text-gray-700">{emergencyPercent}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-red-500 h-2 rounded-full" style={{ width: `${emergencyPercent}%` }}></div>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-orange-600">Important</span>
+                <span className="text-sm font-medium text-gray-700">{importantPercent}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${importantPercent}%` }}></div>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-green-600">Routine</span>
+                <span className="text-sm font-medium text-gray-700">{routinePercent}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-green-500 h-2 rounded-full" style={{ width: `${routinePercent}%` }}></div>
+              </div>
+            </div>
+          </div>
+        </div> */}
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-sm font-medium text-gray-500">Avg. Response Time</h3>
           <p className="text-2xl font-bold">{stats.avgResponseTime}</p>
@@ -155,7 +257,7 @@ const Dashboard = () => {
 
       {/* Tabs */}
       <div className="flex gap-4 mb-6">
-        { ["orders", "customers", "enquiries"].map((tabName) => (
+        { ["orders", "customers", "enquiries", "issues"].map((tabName) => (
           <button
             key={tabName}
             onClick={() => setTab(tabName)}
@@ -192,12 +294,18 @@ const Dashboard = () => {
           />
         </div>
 
-        <div>
+        <div className="flex gap-2">
           <button
             onClick={handleFilterSubmit}
-            className="px-8 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
+            className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
           >
-            Submit
+            Apply Filters
+          </button>
+          <button
+            onClick={handleResetFilters}
+            className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-400 transition duration-300"
+          >
+            Reset
           </button>
         </div>
       </div>
@@ -208,7 +316,8 @@ const Dashboard = () => {
         dataSource={getCurrentData()}
         pagination={{ pageSize: 10 }}
       />
-    </div>
+      </div>
+    </>
   );
 };
 

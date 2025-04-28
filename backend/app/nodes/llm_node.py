@@ -1,6 +1,7 @@
 from app.agents.llm_agent import GeminiLLMAgent
 from app.state import MessageState
 import json
+from app.utils.category_map import map_category_to_table
 
 llm_agent = GeminiLLMAgent()
 
@@ -44,6 +45,10 @@ def llm_node(state: MessageState) -> MessageState:
     new_info = result.get("extracted_info", {})
     existing_info = state.extracted_info or {}
     state.extracted_info = merge_extracted_info(existing_info, new_info)
+
+    category = state.predicted_category
+    table_name = map_category_to_table(state.predicted_category)
+    state.table_name = table_name
 
     print(f"[LLMNode] ✅ Analysis result:\n{json.dumps(result, indent=2)}")
     print(f"[LLMNode] 🧾 Merged extracted_info:\n{json.dumps(state.extracted_info, indent=2)}")

@@ -20,3 +20,4 @@ class MessageState(BaseModel):
 
     business_phone_number: Optional[str] = None
     business_phone_id: Optional[str] = None
+    table_name: Optional[str] = None 

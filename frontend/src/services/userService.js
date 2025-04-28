@@ -33,7 +33,7 @@ export const createUser = async (userData) => {
 /**
  * Get user data by Clerk ID
  * @param {string} clerkId - Clerk user ID
- * @returns {Promise} - Promise with the user data
+ * @returns {Promise} - Promise with the user data or null if not found
  */
 export const getUserByClerkId = async (clerkId) => {
   try {
@@ -43,13 +43,15 @@ export const getUserByClerkId = async (clerkId) => {
       if (response.status === 404) {
         return null; // User not found
       }
-      throw new Error(`Error: ${response.status}`);
+      console.warn(`Error fetching user: ${response.status}`);
+      return null; // Return null instead of throwing for any error
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error fetching user:', error);
-    throw error;
+    console.error('Network error fetching user:', error);
+    // Return null instead of throwing the error
+    return null;
   }
 };
 
@@ -57,7 +59,7 @@ export const getUserByClerkId = async (clerkId) => {
  * Update user settings
  * @param {string} clerkId - Clerk user ID
  * @param {Object} settingsData - User settings data
- * @returns {Promise} - Promise with the updated user data
+ * @returns {Promise} - Promise with the updated user data or error object
  */
 export const updateUserSettings = async (clerkId, settingsData) => {
   try {
@@ -70,13 +72,14 @@ export const updateUserSettings = async (clerkId, settingsData) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      console.warn(`Error updating user settings: ${response.status}`);
+      return { error: `Failed to update settings (${response.status})` };
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error updating user settings:', error);
-    throw error;
+    console.error('Network error updating user settings:', error);
+    return { error: 'Network error while updating settings' };
   }
 };
 
@@ -93,13 +96,23 @@ export const getUserSettings = async (clerkId) => {
       if (response.status === 404) {
         return null; // Settings not found
       }
+      if (response.status === 500) {
+        console.warn('Server error fetching settings, returning empty settings');
+        // Return empty settings object instead of throwing an error
+        return {
+          message: 'Could not load settings due to a server error. Please save your settings again.'
+        };
+      }
       throw new Error(`Error: ${response.status}`);
     }
 
     return await response.json();
   } catch (error) {
     console.error('Error fetching user settings:', error);
-    throw error;
+    // Return a user-friendly error message instead of throwing
+    return {
+      message: 'Could not load settings. Please try again or save your settings.'
+    };
   }
 };
 

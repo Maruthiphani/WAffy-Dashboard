@@ -76,12 +76,7 @@ function App() {
           <SignedIn>
             {waffyUser ? (
               <>
-                {/* Full-width Hero only on dashboard route */}
-                {window.location.pathname === "/dashboard" && (
-                  <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] px-0">
-                    <HeroModernMotion activeTab={activeTab} setActiveTab={setActiveTab} />
-                  </div>
-                )}
+                {/* Hero section removed from dashboard */}
                 <div className="flex">
                   {/* Sidebar */}
                   <Sidebar />

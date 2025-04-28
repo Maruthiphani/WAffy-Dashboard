@@ -5,7 +5,7 @@ import os
 import psycopg2
 import sys
 from dotenv import load_dotenv
-from Util import decrypt_value  
+from Util import decrypt_value
 
 load_dotenv()
 
@@ -27,7 +27,7 @@ def start_listener():
     print("Starting listener agent...")
     #subprocess.Popen(["uvicorn", "listener_agent:app", "--host", "0.0.0.0", "--port", str(NGROK_PORT)])
     subprocess.Popen(
-    ["uvicorn", "listener_agent:app", "--host", "0.0.0.0", "--port", str(NGROK_PORT)],
+    ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", str(NGROK_PORT)],
     stdout=subprocess.DEVNULL,
     stderr=subprocess.DEVNULL,
     start_new_session=True
@@ -54,6 +54,7 @@ def start_ngrok():
 
 # Fetch credentials for a given phone_number_id
 def fetch_credentials_by_phone_number(phone_number_id):
+    print("Fetching credentials for phone_number_id:", phone_number_id)
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
     cursor.execute("""
@@ -119,38 +120,53 @@ def update_webhook(callback_url, app_id, app_secret):
     else:
         print("Failed to update webhook:", response.text)
 
-# Main script entry point
-if __name__ == "__main__":
 
-    #below line is only for testing purpose. Need to remove it after testing
-    #phone_number_id = "599137786621519"
-    #phone_number_id = "599137786621519"
+# --- Master function to call everything ---
+def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None):
+    print(f"Starting webhook update process for Phone Number ID: {phone_number_id}")
 
-    # Check if listener already running
-    if is_listener_running():
-        print("Listener server already running.")
-    else:
+    # 1. Check or start listener
+    if not is_listener_running():
         start_listener()
         time.sleep(5)
-   
-    #Checking if local FastAPI server is up.
-    if not wait_for_local_server():
-        print("Local FastAPI server not responding. Aborting.")
-        exit()
+        if not wait_for_local_server():
+            print("Local FastAPI server not responding. Aborting.")
+            return {"status": "error", "message": "Local server not up"}
+    else:
+        print("Listener server already running.")
 
-   #Checking if the ngrok tunnel is already up
+    # 2. Check or start ngrok
     if not is_ngrok_running():
         start_ngrok()
         time.sleep(5)
     else:
         print("Ngrok is already running.")
 
-    creds = fetch_credentials_by_phone_number(phone_number_id)
-    forwarding_url = get_ngrok_url()
+    # 3. Fetch credentials if app_id and app_secret not provided
+    if not app_id or not app_secret:
+        creds = fetch_credentials_by_phone_number(phone_number_id)
+        app_id = creds["APP_ID"]
+        app_secret = creds["APP_SECRET"]
 
-    if forwarding_url:
-        full_webhook_url = forwarding_url + WEBHOOK_URL_SUFFIX
-        # Function call to register the webhook with Meta
-        update_webhook(full_webhook_url, creds["APP_ID"], creds["APP_SECRET"])
-    else:
+    # 4. Get forwarding URL
+    forwarding_url = get_ngrok_url()
+    if not forwarding_url:
         print("No forwarding URL found. Aborting.")
+        return {"status": "error", "message": "No forwarding URL"}
+
+    full_webhook_url = forwarding_url + WEBHOOK_URL_SUFFIX
+    print(f"Full Webhook URL: {full_webhook_url}")
+
+    # 5. Update webhook
+    update_webhook(full_webhook_url, app_id, app_secret)
+
+    return {"status": "success", "webhook_url": full_webhook_url}
+
+
+# --- Optional way to run if standalone ---
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        phone_number_id = sys.argv[1]
+        run_auto_update_webhook(phone_number_id)
+    else:
+        print(" Phone number ID must be provided as command-line argument.")

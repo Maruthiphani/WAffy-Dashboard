@@ -8,7 +8,7 @@ import logging
 from fastapi import FastAPI, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
-from agents.Auto_Update_Webhook import run_auto_update_webhook
+from agents.auto_update_webhook import run_auto_update_webhook
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 from datetime import datetime

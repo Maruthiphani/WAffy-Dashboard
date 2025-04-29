@@ -44,7 +44,7 @@ def get_listener_router(graph):
     router = APIRouter()
 
     # ---- Webhook Verification Endpoint ----
-    @router.get("/webhook/" + phone_number_id)
+    @router.get("/webhook/{phone_number_id}")
     
     async def verify_webhook(phone_number_id: str, request: Request):
         #get verify token from database
@@ -62,7 +62,7 @@ def get_listener_router(graph):
         return "Invalid token"
 
     # ---- Webhook Message Receiver Endpoint ----
-    @router.post("/webhook/" + phone_number_id)
+    @router.post("/webhook/{phone_number_id}")
     async def receive_whatsapp_message(phone_number_id: str, request: Request):
         data = await request.json()
         try:

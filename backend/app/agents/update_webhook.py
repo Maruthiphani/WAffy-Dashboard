@@ -147,7 +147,7 @@ def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None, verif
         return {"status": "error", "message": "No forwarding URL"}
 
     # Construct the full webhook URL dynamically with phone_number_id
-    WEBHOOK_URL_SUFFIX = "/webhook" + phone_number_id
+    WEBHOOK_URL_SUFFIX = "webhook/" + phone_number_id
     full_webhook_url = forwarding_url + WEBHOOK_URL_SUFFIX
     print(f"Full Webhook URL: {full_webhook_url}")
 

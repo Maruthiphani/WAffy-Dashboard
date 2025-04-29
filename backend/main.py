@@ -221,6 +221,7 @@ async def update_user_settings(clerk_id: str, settings_data: dict, background_ta
     app_id = None
     app_secret = None
     phone_number_id = None
+    verify_token = None
     
     # Update settings with encrypted sensitive data
     for key, value in settings_data.items():
@@ -232,15 +233,19 @@ async def update_user_settings(clerk_id: str, settings_data: dict, background_ta
                 logger.info(f"Successfully encrypted {key}")
                 whatsapp_credentials_updated = True
                 
-                # Store original values for webhook update
+                # Track WhatsApp app credentials for webhook update
                 if key == "whatsapp_app_id":
                     app_id = value
+                    whatsapp_credentials_updated = True
                 elif key == "whatsapp_app_secret":
                     app_secret = value
-            elif key == "whatsapp_phone_number_id" and value:
-                setattr(user_settings, key, value)
-                phone_number_id_updated = True
-                phone_number_id = value
+                    whatsapp_credentials_updated = True
+                elif key == "whatsapp_verify_token":
+                    verify_token = value
+                    whatsapp_credentials_updated = True
+                elif key == "whatsapp_phone_number_id":
+                    phone_number_id = value
+                    phone_number_id_updated = True
             elif key == "hubspot_access_token" and value:
                 # Encrypt sensitive values
                 encrypted_value = encrypt_value(value)
@@ -264,7 +269,18 @@ async def update_user_settings(clerk_id: str, settings_data: dict, background_ta
         logger.info(f"WhatsApp credentials updated, triggering webhook update for phone number ID: {phone_number_id}")
         # Run webhook update in the background
         try:
-            background_tasks.add_task(run_auto_update_webhook, phone_number_id, app_id, app_secret)
+            # Decrypt the verify token if it was encrypted
+            decrypted_verify_token = None
+            if verify_token:
+                try:
+                    decrypted_verify_token = decrypt_value(verify_token)
+                    logger.info("Successfully decrypted verify token for webhook update")
+                except Exception as decrypt_error:
+                    logger.error(f"Error decrypting verify token: {decrypt_error}")
+                    # Fall back to encrypted token if decryption fails
+                    decrypted_verify_token = verify_token
+            
+            background_tasks.add_task(run_auto_update_webhook, phone_number_id, app_id, app_secret, decrypted_verify_token)
             logger.info("Webhook update task added to background")
         except Exception as e:
             logger.error(f"Error scheduling webhook update: {e}")

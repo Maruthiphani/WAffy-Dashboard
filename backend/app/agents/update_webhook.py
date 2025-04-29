@@ -103,18 +103,23 @@ def get_ngrok_url():
     return None
 
 # Register the webhook with Meta
-def update_webhook(callback_url, app_id, app_secret):
+def update_webhook(callback_url, app_id, app_secret, verify_token=None):
     print("Starting webhook update process...")
     print("callback_url", callback_url)
     print("app_id", app_id)
     print("app_secret", app_secret)
     url = f"https://graph.facebook.com/v19.0/{app_id}/subscriptions"
+    
+    # Use the provided verify_token if available, otherwise fall back to the default
+    token_to_use = verify_token if verify_token else VERIFY_TOKEN
+    print(f"Using verify token: {'Custom token' if verify_token else 'Default token'}")
+    
     params = {
         "access_token": f"{app_id}|{app_secret}",
         "object": "whatsapp_business_account",
         "callback_url": callback_url,
         "fields": "messages",
-        "verify_token": VERIFY_TOKEN,
+        "verify_token": token_to_use,
     }
 
     response = requests.post(url, data=params)
@@ -135,7 +140,7 @@ def update_webhook(callback_url, app_id, app_secret):
     
 
 # --- Master function to call everything ---
-def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None):
+def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None, verify_token=None):
     print(f"Starting webhook update process for Phone Number ID: {phone_number_id}")
 
     # ---- Condition 1: phone_number_id is missing ----
@@ -190,7 +195,7 @@ def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None):
     print(f"Full Webhook URL: {full_webhook_url}")
 
     # 5. Update webhook
-    webhook_update_result=update_webhook(full_webhook_url, app_id, app_secret)
+    webhook_update_result=update_webhook(full_webhook_url, app_id, app_secret, verify_token)
     print("Webhook Update Result:", webhook_update_result["message"])
     if webhook_update_result["status"] == "error":
         return webhook_update_result  # return the detailed error message

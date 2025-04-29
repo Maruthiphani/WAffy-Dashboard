@@ -266,23 +266,15 @@ async def update_user_settings(clerk_id: str, settings_data: dict, background_ta
     db.refresh(user_settings)
     
     # Check if we should update the webhook
-    if whatsapp_credentials_updated and phone_number_id_updated and phone_number_id:
+    if whatsapp_credentials_updated and phone_number_id_updated and phone_number_id and verify_token:
         print("WhatsApp credentials updated, triggering webhook update")
         logger.info(f"WhatsApp credentials updated, triggering webhook update for phone number ID: {phone_number_id}")
         # Run webhook update in the background
         try:
-            # Decrypt the verify token if it was encrypted
-            decrypted_verify_token = None
-            if verify_token:
-                try:
-                    decrypted_verify_token = decrypt_value(verify_token)
-                    logger.info("Successfully decrypted verify token for webhook update")
-                except Exception as decrypt_error:
-                    logger.error(f"Error decrypting verify token: {decrypt_error}")
-                    # Fall back to encrypted token if decryption fails
-                    decrypted_verify_token = verify_token
-            
-            background_tasks.add_task(run_auto_update_webhook, phone_number_id, app_id, app_secret, decrypted_verify_token)
+            print("Starting webhook update process...")
+            print(verify_token)
+
+            background_tasks.add_task(run_auto_update_webhook, phone_number_id, app_id, app_secret, verify_token)
             logger.info("Webhook update task added to background")
         except Exception as e:
             logger.error(f"Error scheduling webhook update: {e}")

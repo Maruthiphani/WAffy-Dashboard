@@ -9,7 +9,7 @@ psycopg2-binary==2.9.6
 
 # Environment and Configuration
 python-dotenv==1.0.0
-pydantic==1.10.8
+pydantic==2.10.6
 
 # HTTP and API Clients
 requests==2.31.0

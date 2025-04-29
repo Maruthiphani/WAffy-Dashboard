@@ -109,7 +109,7 @@ def update_webhook(callback_url, app_id, app_secret, verify_token):
 # -----------------------------------------------
 
 # --- Master function to call everything ---
-def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None, verify_Token=None):
+def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None, verify_token=None):
     print(f"Starting webhook update process for Phone Number ID: {phone_number_id}")
     print("app_id", app_id)
     print("app_secret", app_secret)

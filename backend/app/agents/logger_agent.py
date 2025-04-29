@@ -1359,62 +1359,20 @@ class LoggerAgent:
             logger.error(error_message)
             return {"status": "error", "message": error_message}
             
-    def _store_order(self, data: Dict[str, Any]) -> Optional[Order]:
-        """Store order data in the orders table"""
+    def _store_order(self, data: Dict[str, Any]) -> List[Optional[Order]]:
+        """Store order data in the orders table
+        
+        If multiple products are found, creates separate order entries with the same order number.
+        Returns a list of created orders.
+        """
         try:
             # Ensure user_id is set correctly
             user_id = int(self.user_id) if self.user_id else None
             if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
             
-            # Extract product information from data
-            item = ""
-            quantity = 1
-            notes = ""
-            
             # Debug log to see what's in the data
             logger.info(f"Order data: {json.dumps(data, default=str)}")
-            
-            # Check for products array directly in the data object
-            if "products" in data and isinstance(data["products"], list) and len(data["products"]) > 0:
-                logger.info(f"Found products array in data: {json.dumps(data['products'], default=str)}")
-                product = data["products"][0]
-                
-                # Extract values with detailed logging
-                item = product.get("item", "")
-                logger.info(f"Extracted item: {item}")
-                
-                quantity = product.get("quantity", 1)
-                logger.info(f"Extracted quantity: {quantity}")
-                
-                notes = product.get("notes", "")
-                logger.info(f"Extracted notes: {notes}")
-            # Check in extracted_info if not found directly
-            elif data.get("extracted_info"):
-                extracted_info = data.get("extracted_info")
-                logger.info(f"Checking extracted info: {json.dumps(extracted_info, default=str)}")
-                
-                if isinstance(extracted_info, dict):
-                    # Check for products array in extracted_info
-                    if "products" in extracted_info and isinstance(extracted_info["products"], list) and len(extracted_info["products"]) > 0:
-                        logger.info(f"Found products array in extracted_info: {json.dumps(extracted_info['products'], default=str)}")
-                        product = extracted_info["products"][0]
-                        
-                        # Extract values
-                        item = product.get("item", "")
-                        logger.info(f"Extracted item: {item}")
-                        
-                        quantity = product.get("quantity", 1)
-                        logger.info(f"Extracted quantity: {quantity}")
-                        
-                        notes = product.get("notes", "")
-                        logger.info(f"Extracted notes: {notes}")
-                    else:
-                        # Try direct keys in extracted_info
-                        logger.info("No products array found in extracted_info, trying direct keys")
-                        item = extracted_info.get("product_type", extracted_info.get("item", ""))
-                        quantity = extracted_info.get("quantity", 1)
-                        notes = extracted_info.get("notes", "")
             
             # Generate a unique order number if not provided
             order_number = data.get("order_number", "")
@@ -1439,23 +1397,81 @@ class LoggerAgent:
                     interaction_id = interaction.interaction_id
                     logger.info(f"Linking order to interaction_id: {interaction_id}")
             
-            order = Order(
-                user_id=user_id,
-                customer_id=data.get("customer_id"),
-                interaction_id=interaction_id,
-                order_number=order_number,
-                item=item,  # This will now contain the product item from extracted_info
-                quantity=quantity,
-                notes=notes,
-                order_status=order_status,
-                total_amount=data.get("total_amount", "0")
-            )
+            # Find product information
+            products = []
             
-            self.db.add(order)
-            self.db.commit()
-            self.db.refresh(order)
-            logger.info(f"Stored order {order.order_id} for customer {data.get('customer_id')}")
-            return order
+            # Check for products array directly in the data object
+            if "products" in data and isinstance(data["products"], list) and len(data["products"]) > 0:
+                logger.info(f"Found products array in data: {json.dumps(data['products'], default=str)}")
+                products = data["products"]
+            # Check in extracted_info if not found directly
+            elif data.get("extracted_info"):
+                extracted_info = data.get("extracted_info")
+                logger.info(f"Checking extracted info: {json.dumps(extracted_info, default=str)}")
+                
+                if isinstance(extracted_info, dict):
+                    # Check for products array in extracted_info
+                    if "products" in extracted_info and isinstance(extracted_info["products"], list) and len(extracted_info["products"]) > 0:
+                        logger.info(f"Found products array in extracted_info: {json.dumps(extracted_info['products'], default=str)}")
+                        products = extracted_info["products"]
+                    else:
+                        # Try direct keys in extracted_info
+                        logger.info("No products array found in extracted_info, trying direct keys")
+                        # Create a single product from direct keys
+                        products = [{
+                            "item": extracted_info.get("product_type", extracted_info.get("item", "")),
+                            "quantity": extracted_info.get("quantity", 1),
+                            "notes": extracted_info.get("notes", ""),
+                            "unit": extracted_info.get("unit", "")
+                        }]
+            
+            # If no products found, create a default one
+            if not products:
+                products = [{
+                    "item": "",
+                    "quantity": 1,
+                    "notes": "",
+                    "unit": ""
+                }]
+            
+            # Create an order for each product
+            created_orders = []
+            for product in products:
+                # Extract values with detailed logging
+                item = product.get("item", "")
+                logger.info(f"Extracted item: {item}")
+                
+                quantity = product.get("quantity", 1)
+                logger.info(f"Extracted quantity: {quantity}")
+                
+                unit = product.get("unit", "")
+                logger.info(f"Extracted unit: {unit}")
+                
+                # Check for details or notes
+                notes = product.get("details", product.get("notes", ""))
+                logger.info(f"Extracted notes: {notes}")
+                
+                order = Order(
+                    user_id=user_id,
+                    customer_id=data.get("customer_id"),
+                    interaction_id=interaction_id,
+                    order_number=order_number,  # Same order number for all products
+                    item=item,
+                    quantity=quantity,
+                    unit=unit,  # Add the unit field
+                    notes=notes,
+                    order_status=order_status,
+                    total_amount=data.get("total_amount", "0")
+                )
+            
+                self.db.add(order)
+                self.db.commit()
+                self.db.refresh(order)
+                logger.info(f"Stored order {order.order_id} for customer {data.get('customer_id')}")
+                created_orders.append(order)
+            
+            logger.info(f"Created {len(created_orders)} orders with order number {order_number}")
+            return created_orders
         except Exception as e:
             self.db.rollback()
             error_msg = f"Error storing order: {str(e)}"
@@ -1464,7 +1480,7 @@ class LoggerAgent:
             if self.user_settings:
                 user_id = self.user_settings.user_id
             self._log_error("Database Error", error_msg, user_id)
-            return None
+            return []  # Return empty list instead of None
             
     def _store_issue(self, data: Dict[str, Any]) -> Optional[Issue]:
         """Store issue data in the issues table"""

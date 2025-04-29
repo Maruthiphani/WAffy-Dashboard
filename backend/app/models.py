@@ -130,6 +130,7 @@ class Order(Base):
     order_number = Column(String(50))
     item = Column(String(100))
     quantity = Column(Integer)
+    unit = Column(String(50), nullable=True)  # Added unit field for measurement units like kg, litres, etc.
     notes = Column(String(200))
     order_status = Column(String(20))
     total_amount = Column(String(20))

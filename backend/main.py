@@ -489,6 +489,7 @@ async def get_orders(clerk_id: str = None, db: Session = Depends(get_db)):
             "OrderNumber": order.order_number,
             "Item": order.item,
             "Quantity": order.quantity,
+            "Unit": order.unit if hasattr(order, 'unit') and order.unit else "",  # Include unit field
             "Notes": order.notes,
             "Status": order.order_status,
             "Amount": float(order.total_amount) if order.total_amount else 0.0,

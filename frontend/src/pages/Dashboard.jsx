@@ -101,11 +101,14 @@ const Dashboard = () => {
     { title: "Customer Name", dataIndex: "CustomerName", key: "CustomerName" },
     { title: "Order Number", dataIndex: "OrderNumber", key: "OrderNumber" },
     { title: "Item", dataIndex: "Item", key: "Item" },
-    { title: "Quantity", dataIndex: "Quantity", key: "Quantity" },
+    { title: "Quantity", key: "Quantity", render: (_, record) => {
+      // Display quantity and unit together with a space
+      return `${record.Quantity}${record.Unit ? ' (' + record.Unit + ')' : ''}`;
+    }},
     { title: "Notes", dataIndex: "Notes", key: "Notes" },
     { title: "Status", dataIndex: "Status", key: "Status", render: (text) => <Tag color="green">{text}</Tag> },
     { title: "Amount ($)", dataIndex: "Amount", key: "Amount" },
-    { title: "Delivery Date", dataIndex: "DeliveryDate", key: "DeliveryDate" },
+    { title: "Delivery Date", dataIndex: "DeliveryDate", key: "DeliveryDate", render: (date) => date ? new Date(date).toLocaleDateString() : "" },
     { title: "Action", key: "action", render: () => <Button size="small" type="primary">Done</Button> }
   ];
 

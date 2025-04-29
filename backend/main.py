@@ -226,7 +226,8 @@ async def update_user_settings(clerk_id: str, settings_data: dict, background_ta
     # Update settings with encrypted sensitive data
     for key, value in settings_data.items():
         try:
-            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key"] and value:
+            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key", "whatsapp_phone_number_id"] and value:
+                print(f"Updating {key} with value: {value}")
                 # Encrypt sensitive values
                 encrypted_value = encrypt_value(value)
                 setattr(user_settings, key, encrypted_value)
@@ -266,6 +267,7 @@ async def update_user_settings(clerk_id: str, settings_data: dict, background_ta
     
     # Check if we should update the webhook
     if whatsapp_credentials_updated and phone_number_id_updated and phone_number_id:
+        print("WhatsApp credentials updated, triggering webhook update")
         logger.info(f"WhatsApp credentials updated, triggering webhook update for phone number ID: {phone_number_id}")
         # Run webhook update in the background
         try:

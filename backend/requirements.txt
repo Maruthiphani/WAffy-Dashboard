@@ -1,29 +1,29 @@
-# Web Framework and API
-fastapi==0.95.2
-uvicorn==0.22.0
-python-multipart==0.0.6
+fastapi==0.115.11
+uvicorn==0.34.0
 
-# Database
-sqlalchemy==2.0.20
-psycopg2-binary==2.9.6
-
-# Environment and Configuration
-python-dotenv==1.0.0
 pydantic==2.10.6
+pydantic-settings==2.8.1
 
-# HTTP and API Clients
-requests==2.31.0
+langchain==0.3.20
+langchain-core==0.3.43
+langchain-community==0.3.19
+langchain-openai==0.3.8
 
-# Data Processing
-pandas==2.0.3
+langgraph==0.3.5
+langgraph-sdk==0.1.55
+langgraph-checkpoint==2.0.18
+langgraph-prebuilt==0.1.2
 
-# Security and Encryption
-cryptography==41.0.3
-
-# Language Processing
-google-cloud-translate==3.11.1
-langgraph==0.0.19
+google-generativeai==0.8.5
 google-genai==1.10.0
+openai==1.61.1
 
-# Utilities
-python-dateutil==2.8.2
+httpx==0.28.1
+httpx-sse==0.4.0
+
+anyio==4.8.0
+starlette==0.46.0
+
+faiss-cpu==1.10.0
+
+python-dotenv==1.0.1  

@@ -3,9 +3,10 @@ import subprocess
 import time
 import os
 import psycopg2
+import logging
 import sys
 from dotenv import load_dotenv
-from utils.encryption import decrypt_value
+from Util import decrypt_value
 
 load_dotenv()
 
@@ -54,7 +55,7 @@ def start_ngrok():
 
 # Fetch credentials for a given phone_number_id
 def fetch_credentials_by_phone_number(phone_number_id):
-    print("Fetching credentials for phone_number_id:", phone_number_id)
+    print("Fetching credentials for phone_number_id from Waffy database:", phone_number_id)
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
     cursor.execute("""
@@ -76,14 +77,12 @@ def fetch_credentials_by_phone_number(phone_number_id):
         "WHATSAPP_TOKEN": decrypt_value(row[2]),
     }
 
-
-
 #Checking if local FastAPI server is up.
 def wait_for_local_server():
     print("Checking if local FastAPI server is up...")
     for _ in range(10):
         try:
-            r = requests.get("http://localhost:8000/webhook")
+            r = requests.get(f"http://localhost:{NGROK_PORT}/webhook")
             if r.status_code in [200, 400]:  # 400 expected from verify token mismatch
                 return True
         except:
@@ -117,13 +116,30 @@ def update_webhook(callback_url, app_id, app_secret):
     response = requests.post(url, data=params)
     if response.status_code == 200:
         print("✅ Webhook updated successfully:", callback_url)
+        return {
+            "status": "success",
+            "message": f"Webhook updated successfully: {callback_url}"
+        }
     else:
         print("Failed to update webhook:", response.text)
-
+        return {
+            "status": "error",
+            "message": "Webhook configuration was unsuccessful for the entered credentials. Please check the entered credentials again.",
+            "details": response.text  # optional: can help in debugging
+        }
+    
 
 # --- Master function to call everything ---
 def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None):
     print(f"Starting webhook update process for Phone Number ID: {phone_number_id}")
+
+    # ---- Condition 1: phone_number_id is missing ----
+    if not phone_number_id:
+        logging.error("Webhook configuration was unsuccessful, because phone number id was not entered.")
+        return {
+            "status": "error",
+            "message": "Webhook configuration was unsuccessful, because phone number id was not entered."
+        }
 
     # 1. Check or start listener
     if not is_listener_running():
@@ -142,11 +158,20 @@ def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None):
     else:
         print("Ngrok is already running.")
 
+
     # 3. Fetch credentials if app_id and app_secret not provided
     if not app_id or not app_secret:
         creds = fetch_credentials_by_phone_number(phone_number_id)
         app_id = creds["APP_ID"]
         app_secret = creds["APP_SECRET"]
+
+         # ---- Condition 2: phone_number_id provided but app_id or app_secret missing ----
+        if (app_id is not None or app_secret is not None) and (not app_id or not app_secret):
+            logging.error("Webhook configuration was unsuccessful, because app id or app secret credentials were not entered.")
+            return {
+                "status": "error",
+                "message": "Webhook configuration was unsuccessful, because app id or app secret credentials were not entered."
+            }
 
     # 4. Get forwarding URL
     forwarding_url = get_ngrok_url()
@@ -158,7 +183,10 @@ def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None):
     print(f"Full Webhook URL: {full_webhook_url}")
 
     # 5. Update webhook
-    update_webhook(full_webhook_url, app_id, app_secret)
+    webhook_update_result=update_webhook(full_webhook_url, app_id, app_secret)
+    print("Webhook Update Result:", webhook_update_result["message"])
+    if webhook_update_result["status"] == "error":
+        return webhook_update_result  # return the detailed error message
 
     return {"status": "success", "webhook_url": full_webhook_url}
 

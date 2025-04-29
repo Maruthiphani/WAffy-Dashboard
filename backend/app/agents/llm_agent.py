@@ -51,7 +51,7 @@ class GeminiLLMAgent:
             print("[LLMAgent] RAW Gemini output:\n", content)
 
             if response.candidates and hasattr(response.candidates[0], "finish_reason"):
-                print("🔒 Safety Finish Reason:", response.candidates[0].finish_reason)
+                print(" Safety Finish Reason:", response.candidates[0].finish_reason)
 
             if content.startswith("```json"):
                 content = content.replace("```json", "").replace("```", "").strip()
@@ -92,6 +92,16 @@ Your tasks:
 - If related: combine the extracted_info meaningfully.
 - Return conversation_status: 'new', 'continue', or 'close'.
 
+Extraction Rules:
+- If the message talks about ordering products:
+    - Extract fields like:
+        - "item" (product name)
+        - "quantity" (how many units, integer or null if not mentioned)
+        - "unit" (measurement like "1kg", "500gm", "5 liters")
+        - "notes" (any special instruction if mentioned, else null)
+- If the message is a complaint, inquiry, etc.:
+    - Extract relevant fields like "issue", "order_id", "delivery_address", "product", "status", etc.
+
 Categories to choose from:
 {categories_str}
 
@@ -126,8 +136,8 @@ If it's an order or update, you can also respond like:
   "conversation_status": "continue",
   "extracted_info": {{
     "items": [
-      {{ "product": "A4 paper", "quantity": 5 }},
-      {{ "product": "black pens", "quantity": 3 }}
+      {{ "product": "chocolate cake", "quantity": 2, "unit": 3ml, "notes": "same as instagram" }},
+      {{ "product": "cotton", "quantity": 1, "unit": "5kg", "notes": "white color" }},
     ],
     "delivery_address": "14 Park Street"
   }}

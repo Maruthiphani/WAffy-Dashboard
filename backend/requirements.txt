@@ -23,7 +23,7 @@ cryptography==41.0.3
 # Language Processing
 google-cloud-translate==3.11.1
 langgraph==0.0.19
-google-generativeai==0.8.5
+google-genai==1.10.0
 
 # Utilities
 python-dateutil==2.8.2

@@ -11,12 +11,12 @@ from sqlalchemy import create_engine
 from app.agents.update_webhook import run_auto_update_webhook
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, List
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 from database import get_db
-from app.models import User, UserSettings, Order, Customer, Enquiry, Issue
+from app.models import User, UserSettings, Order, Customer, Enquiry, Issue, ResponseMetrics
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -451,9 +451,13 @@ class OrderResponse(BaseModel):
     order_number: str
     item: str
     quantity: int
+    unit: Optional[str] = None
     notes: Optional[str] = None
     order_status: str
     total_amount: float
+    delivery_address: Optional[str] = None
+    delivery_time: Optional[str] = None
+    delivery_method: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -494,6 +498,10 @@ async def get_orders(clerk_id: str = None, db: Session = Depends(get_db)):
             "Status": order.order_status,
             "Amount": float(order.total_amount) if order.total_amount else 0.0,
             "DeliveryDate": order.created_at.isoformat() if order.created_at else None,
+            # Include delivery information
+            "DeliveryAddress": order.delivery_address if hasattr(order, 'delivery_address') and order.delivery_address else None,
+            "DeliveryTime": order.delivery_time if hasattr(order, 'delivery_time') and order.delivery_time else None,
+            "DeliveryMethod": order.delivery_method if hasattr(order, 'delivery_method') and order.delivery_method else None,
         })
     
     return enriched_orders
@@ -737,6 +745,51 @@ async def get_enquiries(clerk_id: str = None, db: Session = Depends(get_db)):
     return enriched_enquiries
 
 
+
+
+@app.get("/api/response-metrics", response_model=List[dict])
+async def get_response_metrics(clerk_id: str = None, days: int = 30, db: Session = Depends(get_db)):
+    """Fetch response metrics for the dashboard"""
+    # Get user by clerk_id if provided
+    user = None
+    if clerk_id:
+        user = get_user_by_clerk_id(db, clerk_id)
+    
+    # Calculate the date range (last X days)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+    
+    # Filter by user_id if clerk_id was provided and user was found
+    if user:
+        metrics = db.query(ResponseMetrics).filter(
+            ResponseMetrics.user_id == user.id,
+            ResponseMetrics.message_received_at >= start_date,
+            ResponseMetrics.message_received_at <= end_date
+        ).order_by(ResponseMetrics.message_received_at.desc()).all()
+    else:
+        # If no clerk_id or user not found, return all metrics within date range
+        metrics = db.query(ResponseMetrics).filter(
+            ResponseMetrics.message_received_at >= start_date,
+            ResponseMetrics.message_received_at <= end_date
+        ).order_by(ResponseMetrics.message_received_at.desc()).all()
+    
+    # Format the metrics for the response
+    formatted_metrics = []
+    for metric in metrics:
+        formatted_metrics.append({
+            "MetricId": metric.metric_id,
+            "UserId": metric.user_id,
+            "MessageId": metric.message_id,
+            "CustomerId": metric.customer_id,
+            "MessageType": metric.message_type,
+            "ResponseType": metric.response_type,
+            "ResponseTimeSeconds": round(metric.response_time_seconds, 2),
+            "MessageReceivedAt": metric.message_received_at.isoformat() if metric.message_received_at else None,
+            "ResponseSentAt": metric.response_sent_at.isoformat() if metric.response_sent_at else None,
+            "CreatedAt": metric.created_at.isoformat() if metric.created_at else None
+        })
+    
+    return formatted_metrics
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ import json
 import csv
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
@@ -1451,6 +1451,46 @@ class LoggerAgent:
                 notes = product.get("details", product.get("notes", ""))
                 logger.info(f"Extracted notes: {notes}")
                 
+                # Extract delivery information from extracted_info if available
+                delivery_address = None
+                delivery_time = None
+                delivery_method = None
+                
+                # Check for delivery info in extracted_info
+                if data.get("extracted_info") and isinstance(data.get("extracted_info"), dict):
+                    extracted_info = data.get("extracted_info")
+                    
+                    # Extract delivery address
+                    if "delivery_address" in extracted_info:
+                        delivery_address = extracted_info["delivery_address"]
+                        logger.info(f"Extracted delivery address: {delivery_address}")
+                    
+                    # Extract delivery time
+                    if "delivery_time" in extracted_info:
+                        delivery_time_str = extracted_info["delivery_time"]
+                        # Convert relative time to actual date if needed
+                        if delivery_time_str == "tomorrow":
+                            tomorrow = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0) + timedelta(days=1)
+                            delivery_time = tomorrow.strftime("%Y-%m-%d %H:%M")
+                        elif delivery_time_str == "today":
+                            today = datetime.now().replace(hour=18, minute=0, second=0, microsecond=0)
+                            delivery_time = today.strftime("%Y-%m-%d %H:%M")
+                        else:
+                            delivery_time = delivery_time_str
+                        logger.info(f"Extracted delivery time: {delivery_time}")
+                    
+                    # Extract delivery method
+                    if "delivery_method" in extracted_info:
+                        delivery_method = extracted_info["delivery_method"]
+                        logger.info(f"Extracted delivery method: {delivery_method}")
+                    elif "delivery_type" in extracted_info:
+                        delivery_method = extracted_info["delivery_type"]
+                        logger.info(f"Extracted delivery method from type: {delivery_method}")
+                    elif delivery_address:  # Default to home delivery if address is provided
+                        delivery_method = "home delivery"
+                        logger.info(f"Set default delivery method to 'home delivery'")
+                
+                # Create order with delivery information
                 order = Order(
                     user_id=user_id,
                     customer_id=data.get("customer_id"),
@@ -1461,7 +1501,11 @@ class LoggerAgent:
                     unit=unit,  # Add the unit field
                     notes=notes,
                     order_status=order_status,
-                    total_amount=data.get("total_amount", "0")
+                    total_amount=data.get("total_amount", "0"),
+                    # Add delivery information
+                    delivery_address=delivery_address,
+                    delivery_time=delivery_time,
+                    delivery_method=delivery_method
                 )
             
                 self.db.add(order)

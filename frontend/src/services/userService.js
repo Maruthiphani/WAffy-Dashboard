@@ -188,12 +188,12 @@ export const getEnquiries = async (clerkId = null) => {
  * @param {string} clerkId - Optional Clerk user ID to filter by
  * @returns {Promise} - Promise with the list of issues
  */
-export const getIssues = async (clerkId = null) => {
+export const getIssues = async (clerkId) => {
   try {
     const url = clerkId ? `${API_URL}/issues?clerk_id=${clerkId}` : `${API_URL}/issues`;
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      throw new Error(`Error fetching issues: ${response.statusText}`);
     }
     return await response.json();
   } catch (error) {
@@ -202,3 +202,18 @@ export const getIssues = async (clerkId = null) => {
   }
 };
 
+export const getResponseMetrics = async (clerkId, days = 30) => {
+  try {
+    const url = clerkId 
+      ? `${API_URL}/response-metrics?clerk_id=${clerkId}&days=${days}` 
+      : `${API_URL}/response-metrics?days=${days}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Error fetching response metrics: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching response metrics:', error);
+    return [];
+  }
+};

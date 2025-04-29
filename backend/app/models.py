@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean, Float
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -134,6 +134,10 @@ class Order(Base):
     notes = Column(String(200))
     order_status = Column(String(20))
     total_amount = Column(String(20))
+    # Delivery information fields
+    delivery_address = Column(String(255), nullable=True)  # Customer's delivery address
+    delivery_time = Column(String(100), nullable=True)    # Requested delivery time/date
+    delivery_method = Column(String(50), nullable=True)   # Delivery method (pickup, home delivery, etc.)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     customer = relationship("Customer", back_populates="orders")
@@ -202,3 +206,19 @@ class ErrorLog(Base):
     
     # Relationship with User model (optional)
     user = relationship("User", backref="error_logs")
+
+class ResponseMetrics(Base):
+    __tablename__ = "response_metrics"
+    metric_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    message_id = Column(String(100))
+    customer_id = Column(String(20))
+    message_type = Column(String(50))
+    response_type = Column(String(50))
+    response_time_seconds = Column(Float)
+    message_received_at = Column(DateTime)
+    response_sent_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationship with User model
+    user = relationship("User", backref="response_metrics")

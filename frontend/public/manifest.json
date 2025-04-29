@@ -1,6 +1,7 @@
 {
   "short_name": "WAffy",
   "name": "WAffy | Your WhatsApp Agent",
+  "description": "AI-powered WhatsApp business dashboard for managing orders and customer interactions",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,30 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait",
+  "theme_color": "#4CAF50",
+  "background_color": "#ffffff",
+  "categories": ["business", "productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "logo-1.jpg",
+      "type": "image/jpg",
+      "sizes": "1280x720"
+    }
+  ],
+  "lang": "en-US",
+  "dir": "ltr"
 }

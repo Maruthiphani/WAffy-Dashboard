@@ -6,12 +6,12 @@ import psycopg2
 import logging
 import sys
 from dotenv import load_dotenv
-from Util import decrypt_value
+from utils.encryption import decrypt_value
 
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "my_custom_token")
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "PaperPencil_TeSt_token123")
 WEBHOOK_URL_SUFFIX = "/webhook"
 NGROK_PORT = os.getenv("NGROK_PORT") 
 
@@ -29,8 +29,8 @@ def start_listener():
     #subprocess.Popen(["uvicorn", "listener_agent:app", "--host", "0.0.0.0", "--port", str(NGROK_PORT)])
     subprocess.Popen(
     ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", str(NGROK_PORT)],
-    stdout=subprocess.DEVNULL,
-    stderr=subprocess.DEVNULL,
+   # stdout=subprocess.DEVNULL,
+    #stderr=subprocess.DEVNULL,
     start_new_session=True
 )
 
@@ -104,6 +104,10 @@ def get_ngrok_url():
 
 # Register the webhook with Meta
 def update_webhook(callback_url, app_id, app_secret):
+    print("Starting webhook update process...")
+    print("callback_url", callback_url)
+    print("app_id", app_id)
+    print("app_secret", app_secret)
     url = f"https://graph.facebook.com/v19.0/{app_id}/subscriptions"
     params = {
         "access_token": f"{app_id}|{app_secret}",
@@ -114,6 +118,7 @@ def update_webhook(callback_url, app_id, app_secret):
     }
 
     response = requests.post(url, data=params)
+    print("Webhook response:", response.text)
     if response.status_code == 200:
         print("✅ Webhook updated successfully:", callback_url)
         return {
@@ -158,12 +163,14 @@ def run_auto_update_webhook(phone_number_id, app_id=None, app_secret=None):
     else:
         print("Ngrok is already running.")
 
-
+    print("app_id", app_id)
+    print("app_secret", app_secret)
     # 3. Fetch credentials if app_id and app_secret not provided
     if not app_id or not app_secret:
         creds = fetch_credentials_by_phone_number(phone_number_id)
         app_id = creds["APP_ID"]
         app_secret = creds["APP_SECRET"]
+        print("Fetched credentials:", app_id, app_secret)
 
          # ---- Condition 2: phone_number_id provided but app_id or app_secret missing ----
         if (app_id is not None or app_secret is not None) and (not app_id or not app_secret):

@@ -48,7 +48,7 @@ class LoggerAgent:
         # Check if HubSpot integration is enabled
         self.hubspot_enabled = False
         self.hubspot_access_token = None
-        
+        print("ABBBBBBBB")
         # Check for HubSpot configuration
         print("User settings found", self.user_settings)
         if self.user_settings and self.user_settings.hubspot_access_token:

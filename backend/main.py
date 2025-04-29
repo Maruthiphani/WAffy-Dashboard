@@ -8,7 +8,7 @@ import logging
 from fastapi import FastAPI, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
-from agents.auto_update_webhook import run_auto_update_webhook
+from app.agents.auto_update_webhook import run_auto_update_webhook
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 from datetime import datetime
@@ -24,6 +24,13 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
+
+# Import graph builder and listener agent here, but don't create app instance yet
+from app.graph_builder import build_graph
+from app.agents.listener_agent import get_listener_router
+
+# Build the graph for message processing
+graph = build_graph()
 
 # Get encryption key from environment or use a default for development
 ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "waffy_encryption_key_for_development_only")
@@ -144,6 +151,14 @@ app.add_middleware(
 # Import and include business routes
 from routes.business_routes import router as business_router
 app.include_router(business_router)
+
+# Include the listener agent router with the graph
+# This adds the webhook endpoints to the main application
+app.include_router(get_listener_router(graph))
+
+# Log available routes for debugging
+for route in app.routes:
+    logger.info(f"Route: {route.path}, Methods: {route.methods}")
 
 # Helper function to get user by clerk_id
 def get_user_by_clerk_id(db: Session, clerk_id: str):

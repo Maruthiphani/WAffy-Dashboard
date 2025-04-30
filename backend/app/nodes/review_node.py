@@ -73,6 +73,15 @@ def review_node(state: MessageState, db: Session = Depends(get_db)) -> MessageSt
             state.extracted_info["order_number"] = reviewed_data.get("order_number")
             state.extracted_info["is_addition_to_existing_order"] = True
             
+            # IMPORTANT: Also set these directly on the state object itself
+            # This ensures they're available to the logger agent
+            state.order_number = reviewed_data.get("order_number")
+            state.is_addition_to_existing_order = True
+            
+            # Print debug information
+            print(f"REVIEW NODE: Setting order_number to '{reviewed_data.get('order_number')}'")
+            print(f"REVIEW NODE: Setting is_addition_to_existing_order to True")
+            
             # Log that we're adding to an existing order
             logger.info(f"Adding to existing order {reviewed_data.get('order_number')}")
             

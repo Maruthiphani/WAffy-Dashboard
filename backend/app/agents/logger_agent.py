@@ -1387,6 +1387,12 @@ class LoggerAgent:
             is_addition = data.get("is_addition_to_existing_order", False)
             print(f"LOGGER AGENT: 🔄 Initial is_addition flag: {is_addition}")
             
+            # Check if is_addition_to_existing_order is set directly on the message_state
+            if hasattr(self, 'message_state') and self.message_state and hasattr(self.message_state, 'is_addition_to_existing_order'):
+                is_addition = self.message_state.is_addition_to_existing_order
+                print(f"LOGGER AGENT: ✅ Found is_addition_to_existing_order flag directly on message_state: {is_addition}")
+            
+            # Also check in extracted_info
             if "extracted_info" in data and isinstance(data["extracted_info"], dict):
                 if data["extracted_info"].get("is_addition_to_existing_order", False):
                     is_addition = True
@@ -1397,6 +1403,13 @@ class LoggerAgent:
             order_number = data.get("order_number", "")
             print(f"LOGGER AGENT: 🆔 Initial order_number from data: '{order_number}'")
             
+            # Check if order_number is set directly on the message_state
+            if not order_number and hasattr(self, 'message_state') and self.message_state and hasattr(self.message_state, 'order_number'):
+                order_number = self.message_state.order_number
+                if order_number:
+                    print(f"LOGGER AGENT: ✅ Found order_number directly on message_state: '{order_number}'")
+            
+            # Also check in extracted_info
             if not order_number and "extracted_info" in data and isinstance(data["extracted_info"], dict):
                 order_number = data["extracted_info"].get("order_number", "")
                 if order_number:

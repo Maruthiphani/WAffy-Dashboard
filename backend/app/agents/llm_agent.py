@@ -6,7 +6,6 @@ from datetime import datetime
 from google import genai
 from google.genai import types
 from app.utils.category_map import DEFAULT_CATEGORIES, DEFAULT_PRIORITY_MAP, STANDARD_KEYS
-from app.agents.logger_agent import get_categories_for_business
 
 categories_str = ", ".join(DEFAULT_CATEGORIES)
 priority_map_str = "\n".join(f"- {k}: {v}" for k, v in DEFAULT_PRIORITY_MAP.items())
@@ -61,9 +60,8 @@ class GeminiLLMAgent:
             print("[LLMAgent] Safety check failed, assuming message is safe. Error:", e)
             return True  # Fail open to avoid false blocking
 
-    def analyze(self, message: str, business_phone_id: str,context: list[str] = None, prev_info: dict | None = None) -> dict:
-        categories = get_categories_for_business(business_phone_id)
-        prompt = self._build_prompt(message,categories, context)
+    def analyze(self, message: str,context: list[str] = None, prev_info: dict | None = None) -> dict:
+        prompt = self._build_prompt(message, context)
 
         generation_config = types.GenerateContentConfig(
             temperature=0.5,
@@ -111,7 +109,6 @@ class GeminiLLMAgent:
 
     def _build_prompt(self, message: str, context: list[str] = None) -> str:
         context_str = "\n".join(f"- {msg}" for msg in context[-10:]) if context else "None"
-        categories_str = ", ".join(categories or DEFAULT_CATEGORIES)
     
 
         return f"""

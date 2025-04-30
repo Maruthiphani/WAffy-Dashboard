@@ -1,195 +1,230 @@
-# WAffy Dashboard
+# WAffy - Your Smart WhatsApp Agent for SMBs
 
-WAffy organizes your WhatsApp messages, tags your customer chats, and keeps your CRM in sync. Never miss a sale again.
+**WAffy** is a smart multi-agent system designed to streamline WhatsApp communication for small and medium-sized businesses (SMBs). It transforms chaotic WhatsApp inboxes into organized, actionable workflows, saving time and improving customer engagement.
 
-## Project Structure
+![image](https://github.com/user-attachments/assets/33a4cfa9-a694-467b-b844-90ce86461c51)
 
-This project consists of:
-- Frontend: React application with Clerk for authentication
-- Backend: FastAPI server with PostgreSQL database
 
-## Prerequisites
+---
 
-- Node.js (v14 or higher)
-- Python (v3.8 or higher)
-- PostgreSQL
+## Problem
 
-## Setup Instructions
+SMBs rely heavily on **WhatsApp** for customer interactions, including orders, queries, complaints, and updates. However, they face significant challenges:
+- **Unstructured inboxes** that are overwhelming to manage.
+- **Manual data entry** into Excel or CRMs, which is time-consuming.
+- **Missed follow-ups**, leading to lost deals or delayed responses.
 
-### Database Setup
+---
 
-1. Install PostgreSQL if you haven't already
-2. Create a new database:
-```sql
-CREATE DATABASE waffy_db;
-```
+## Solution
 
-### Backend Setup
+**WAffy** automates and organizes WhatsApp communication with the following features:
+- **Listens** to incoming messages via the WhatsApp Cloud API.
+- **Classifies** messages by category (e.g., order, complaint) and urgency in real time.
+- **Logs** messages automatically into Excel or HubSpot CRM.
+- **Generates AI-driven responses** for common queries.
+- **Visualizes** data in a clean, interactive React dashboard.
 
-1. Navigate to the backend directory:
-```bash
-cd backend
-```
+WAffy eliminates manual effort, turning WhatsApp chaos into clarity for business owners.
 
-2. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+---
 
-3. Install dependencies:
-```bash
-pip install -r ../requirements.txt
-```
+## Multilingual Support
 
-4. Create a `.env` file based on `.env.example`:
-```bash
-cp .env.example .env
-```
+WAffy supports **40+ languages**, including English, Hindi, Tamil, Spanish, Arabic, and more. It classifies, tags, and responds to messages in any supported language, ensuring seamless communication with diverse customers.
 
-5. Update the `.env` file with your PostgreSQL credentials
+> WAffy speaks your customers’ language — literally.
 
-6. Start the backend server:
-```bash
-python main.py
-```
-The server will run at http://localhost:8000
+---
 
-### Frontend Setup
+## Target Audience
 
-1. Navigate to the frontend directory:
-```bash
-cd frontend
-```
+WAffy is designed for:
+- Small and medium-sized online brands (e.g., clothing, decor, handmade goods).
+- Service-based businesses (e.g., fitness trainers, tutors, coaches).
+- Local sellers using WhatsApp as their primary customer channel.
 
-2. Install dependencies:
-```bash
-npm install
-```
+---
 
-3. Create a `.env` file with your Clerk credentials:
-```
-REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-REACT_APP_API_URL=http://localhost:8000/api
-```
+## Impact
 
-4. Start the frontend development server:
-```bash
-npm start
-```
-The application will run at http://localhost:3000
+| **Before WAffy**                | **After WAffy**                              |
+|---------------------------------|----------------------------------------------|
+| Hundreds of mixed chats         | Categorized and prioritized messages         |
+| Manual CRM entry                | Auto-logged to HubSpot/Excel                |
+| Missed follow-ups               | Clear tags and dashboard alerts             |
+| Slow replies                    | Instant AI-suggested replies                |
 
-## User Registration Flow
+---
 
-1. Users sign up using Clerk authentication
-2. Upon successful signup, a new user record is created in the PostgreSQL database
-3. Each user is assigned a unique WAffy ID that is stored and displayed in the dashboard
-4. User-specific data is associated with this WAffy ID
+## Real-World Example
 
-## API Endpoints
+A homegrown clothing brand receives 50–80 WhatsApp messages daily, including order queries, size complaints, and feedback.
 
-### User Management
-- `POST /api/users`: Create a new user in the database
-- `GET /api/users/{clerk_id}`: Get user information by Clerk ID
+**Before WAffy:**
+- The founder manually read each message.
+- Typed updates into Google Sheets.
+- Missed responses to unhappy customers.
 
-### User Settings
-- `GET /api/users/{clerk_id}/settings`: Get user settings with decrypted sensitive data
-- `PUT /api/users/{clerk_id}/settings`: Update user settings with encryption for sensitive data
+**After WAffy:**
+- Messages are tagged (e.g., order, complaint, feedback).
+- Critical messages are marked urgent.
+- Data is synced to HubSpot automatically.
+- Suggested replies save **2+ hours daily**.
 
-### Webhooks
-- `POST /api/webhook/clerk`: Webhook endpoint for Clerk events
+---
+
+## Current Features (MVP)
+
+- ✅ WhatsApp Cloud API webhook setup.
+- ✅ **Listener Agent** captures incoming messages.
+- ✅ Message classification with tags (e.g., order, complaint).
+- ✅ Excel logging with download option.
+- ✅ HubSpot ticket creation via API.
+- ✅ Basic React dashboard with real-time data.
+- ✅ AI-generated responses for basic order queries.
+
+---
+
+## Future Scope
+
+- **Feedback Learning**: Improve classification accuracy over time.
+- **Catalog Management**: Manage product info and send links via chat.
+- **OCR Agent**: Read payment screenshots to update systems.
+- **Multi-User Support**: Enable team collaboration for SMBs.
+- **Real-Time Alerts**: Enhance reply-from-dashboard functionality.
+- **Smart Nudges**: Suggest follow-ups based on message behavior.
+- **Customer Sentiment Analysis**: Gain insights for business improvement.
+- **Recurring Workflows**: Automate weekly reports and re-engagement messages.
+
+---
+
+## Technical Stack
+
+| **Layer**           | **Technologies**                                                                 |
+|---------------------|----------------------------------------------------------------------------------|
+| **Backend**         | FastAPI (Python)                                                                |
+| **AI & Agents**     | LangGraph for multi-agent AI orchestration                                      |
+| **Frontend**        | React.js, Tailwind CSS, Ant Design                                              |
+| **Authentication**  | Clerk.dev                                                                       |
+| **Database**        | PostgreSQL (hosted on Aiven with SSL)                                           |
+| **Integrations**    | WhatsApp Cloud API (Graph API v18.0), HubSpot API, Excel/Google Sheets via APIs |
+| **Deployment**      | Local: ngrok for HTTPS; Production: FastAPI on Render                            |
+
+---
+
+## Architecture
+
+### Agent Architecture
+
+1. **Listener Agent**  
+   - Receives all incoming messages from the **WhatsApp Cloud API** webhook.  
+   - Parses the payload, authenticates the request, and prepares a normalized message object.  
+   - Passes the message forward for validation and processing.
+
+2. **Validator Agent**  
+   - Checks whether the message is valid and processable.  
+   - Filters out duplicate, empty, or unsupported message types.  
+   - Only valid messages proceed to the next step.
+
+3. **Context Agent**  
+   - Fetches the latest conversation context (e.g., the last few messages from the same user).  
+   - Enables continuity in conversations and helps understand follow-up or fragmented messages.  
+   - Appends contextual information to the current message before sending it to the LLM Agent.
+
+4. **LLM Agent**  
+   - The core logic layer, powered by a large language model, performs:  
+     - Intent classification (e.g., order, enquiry, complaint).  
+     - Priority tagging (e.g., high, medium, low).  
+     - Entity extraction (e.g., product, quantity, name).  
+     - Language understanding across **40+ languages**.  
+   - Returns a structured JSON payload with intent and extracted fields.
+
+5. **Review Agent**  
+   - Applicable only for order-related messages.  
+   - Checks if an order from the same customer exists within a 30-minute window.  
+   - Consolidates new messages with existing orders or treats them as fresh orders.  
+   - Ensures multiple short messages from a customer are grouped appropriately.
+
+6. **Logger Agent**  
+   - Stores structured message data in the **PostgreSQL** database.  
+   - If CRM sync is enabled, creates/updates contacts and logs tickets in **HubSpot** with relevant tags and details.  
+   - Ensures reliable storage of message history and metadata for future reference.
+
+7. **Responder Agent**  
+   - Selects appropriate responses (predefined templates or dynamic) based on the classified message type and extracted data.  
+   - Sends replies to users via the **WhatsApp Cloud API** and logs the response status.  
+   - Serves as the final communication step in the workflow.
+
+---
 
 ## Features
 
-### User Authentication
-- Secure authentication using Clerk
-- User profile management with first and last name
+### Clerk Authentication
+- Secure, real-time authentication with Clerk for seamless login/logout.
 
-### Dashboard
-- Overview of WhatsApp message statistics
-- Priority breakdown of messages
-- Message filtering by category and status
+### Frontend (React + Tailwind CSS + Ant Design)
+- **Dashboard**: Manage Orders, Customers, and Enquiries via a tab-based UI.  
+- **Hero Slider**: Display promotions and banners.  
+- **Dynamic Filtering**: Filter by Customer ID or Date with live updates.  
+- **Vibrant UI/UX**: Gradient buttons, active tabs, responsive tables, and real-time data.
 
-### Settings
-- User profile management (first name, last name)
-- Business information (name, description, contact details, etc.)
-- Dynamic category management with predefined options and custom categories
-- WhatsApp Cloud API integration with encrypted API keys
-- CRM integration options (Hubspot, etc.)
-- Visual category reference for better user understanding
+### Backend (FastAPI)
+- **APIs**: `/api/orders`, `/api/customers`, `/api/enquiries`.  
+- **Data Fetching**: Pulls data securely from PostgreSQL.  
+- **Automatic Refresh**: Updates dashboard data instantly on filter submission.
 
-### Security
-- Encrypted storage of sensitive API keys
-- Database storage of user settings
-- Secure authentication with Clerk
+### Database (PostgreSQL)
+- Structured tables for orders, customers, and enquiries.  
+- Automatic timestamps for record creation and updates.  
+- Secure SSL connection via Aiven.
 
-## Environment Variables
+---
 
-### Backend (.env)
-```
-DATABASE_URL=postgresql://username:password@localhost/waffy_db
-PORT=8000
-HOST=0.0.0.0
-ENCRYPTION_KEY=your_secure_encryption_key
-```
+## Setup Instructions
 
-### Frontend (.env)
-```
-REACT_APP_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-REACT_APP_API_URL=http://localhost:8000/api
-```
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/your-repo/waffy.git
+   cd waffy
+   ```
 
-## Available Scripts
+2. **Install Dependencies**:
+   - Backend: `pip install -r requirements.txt`
+   - Frontend: `cd frontend && npm install`
 
-In the frontend directory, you can run:
+3. **Configure Environment**:
+   - Set up `.env` with WhatsApp API keys, HubSpot tokens, and Aiven PostgreSQL credentials.
+   - Configure Clerk.dev for authentication.
 
-### `npm start`
+4. **Run Locally**:
+   - Backend: `uvicorn main:app --reload`
+   - Frontend: `npm start`
+   - Use ngrok for temporary HTTPS webhook URLs.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+5. **Deploy to Production**:
+   - Backend: Deploy FastAPI to Render.
+   - Frontend: Build and host on Vercel or Netlify.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Contributing
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+We welcome contributions! Please follow these steps:
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/your-feature`).
+3. Commit changes (`git commit -m "Add your feature"`).
+4. Push to the branch (`git push origin feature/your-feature`).
+5. Open a pull request.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## License
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Contact
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+For questions or support, reach out to us at [support@waffy.app](mailto:support@waffy.app) or join our [community Discord](https://discord.gg/your-discord-link).

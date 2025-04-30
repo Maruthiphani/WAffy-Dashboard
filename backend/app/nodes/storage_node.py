@@ -34,6 +34,19 @@ def storage_node(state: MessageState) -> MessageState:
         message_type = state.message_type if hasattr(state, 'message_type') else state.get('message_type', '')
         message_data = state.dict() if hasattr(state, 'dict') else state
         
+        # Check if this is an addition to an existing order (from review agent)
+        is_addition_to_existing_order = False
+        order_number = None
+        
+        if hasattr(state, 'metadata') and state.metadata:
+            if 'is_addition_to_existing_order' in state.metadata:
+                is_addition_to_existing_order = state.metadata['is_addition_to_existing_order']
+                logger.info(f"Review agent identified this as an addition to an existing order")
+                
+            if 'order_number' in state.metadata:
+                order_number = state.metadata['order_number']
+                logger.info(f"Using order number from review agent: {order_number}")
+        
         # Always respond for now
         # We need to modify the state but can't add attributes to MessageState
         # So we'll return a dictionary with all the original state plus our additions
@@ -121,6 +134,13 @@ def storage_node(state: MessageState) -> MessageState:
             if first_result.get("status") == "success" and first_result.get("type") == "order":
                 order_data = first_result.get("data", {})
                 logger.info(f"Extracted order_data: {json.dumps(order_data, default=str)}")
+                
+                # If this is an addition to an existing order, update the order data
+                if is_addition_to_existing_order and order_number:
+                    if 'order_number' not in order_data or not order_data['order_number']:
+                        order_data['order_number'] = order_number
+                    order_data['is_addition_to_existing_order'] = True
+                    logger.info(f"Updated order data with existing order number: {order_number}")
                 
                 if order_data:
                     # Add delivery information to order data if available

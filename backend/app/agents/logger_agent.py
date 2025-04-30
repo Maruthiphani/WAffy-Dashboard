@@ -341,7 +341,8 @@ class LoggerAgent:
                 "message": message_state.message,
                 "category": message_state.predicted_category,
                 "priority": message_state.priority,
-                "extracted_info": message_state.extracted_info  # Pass extracted_info as a separate field
+                "extracted_info": message_state.extracted_info,
+                "context": message_state.context
             }
             
             # Store in table
@@ -1365,6 +1366,7 @@ class LoggerAgent:
         If multiple products are found, creates separate order entries with the same order number.
         Returns a list of created orders.
         """
+        created_orders = []
         try:
             # Ensure user_id is set correctly
             user_id = int(self.user_id) if self.user_id else None
@@ -1374,6 +1376,9 @@ class LoggerAgent:
             # Debug log to see what's in the data
             logger.info(f"Order data: {json.dumps(data, default=str)}")
             
+            # Check if this is an addition to an existing order
+            is_addition = data.get("is_addition_to_existing_order", False)
+            
             # Generate a unique order number if not provided
             order_number = data.get("order_number", "")
             if not order_number:
@@ -1381,6 +1386,10 @@ class LoggerAgent:
                 customer_prefix = data.get("customer_id", "")[:4]
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
                 order_number = f"ORD-{customer_prefix}-{timestamp}"
+                
+            # Log if this is an addition to an existing order
+            if is_addition:
+                logger.info(f"Adding products to existing order {order_number}")
             
             # Ensure order_status is a valid value (check constraint issue)
             valid_statuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]
@@ -1390,6 +1399,111 @@ class LoggerAgent:
                 
             # Get interaction_id from the message_state if available
             interaction_id = None
+            if hasattr(self, 'message_state') and self.message_state:
+                # If we have a stored interaction for this message, use its ID
+                interaction = self._get_interaction_by_message_id(self.message_state.message_id)
+                if interaction:
+                    interaction_id = interaction.interaction_id
+                    logger.info(f"Linking order to interaction_id: {interaction_id}")
+            
+            # Find product information
+            products = []
+            
+            # Check for products array directly in the data object
+            if "products" in data and isinstance(data["products"], list) and len(data["products"]) > 0:
+                logger.info(f"Found products array in data: {json.dumps(data['products'], default=str)}")
+                products = data["products"]
+            # Check in extracted_info if not found directly
+            elif data.get("extracted_info") and isinstance(data.get("extracted_info"), dict):
+                extracted_info = data.get("extracted_info")
+                logger.info(f"Checking extracted info: {json.dumps(extracted_info, default=str)}")
+                
+                if isinstance(extracted_info, dict):
+                    # Check for products array in extracted_info
+                    if "products" in extracted_info and isinstance(extracted_info["products"], list) and len(extracted_info["products"]) > 0:
+                        logger.info(f"Found products array in extracted_info: {json.dumps(extracted_info['products'], default=str)}")
+                        products = extracted_info["products"]
+                    else:
+                        # Try direct keys in extracted_info
+                        logger.info("No products array found in extracted_info, trying direct keys")
+                        # Create a single product from direct keys
+                        products = [{
+                            "item": extracted_info.get("product_type", extracted_info.get("item", "")),
+                            "quantity": extracted_info.get("quantity", 1),
+                            "notes": extracted_info.get("notes", ""),
+                            "unit": extracted_info.get("unit", "")
+                        }]
+            
+            # If no products found, create a default one
+            if not products:
+                products = [{
+                    "item": "",
+                    "quantity": 1,
+                    "notes": "",
+                    "unit": ""
+                }]
+            
+            # Get existing order
+            existing_order = self.db.query(Order).filter(Order.order_number == order_number).first()
+            if existing_order:
+                logger.info(f"Found existing order {existing_order.order_id} for order number {order_number}")
+                
+                # Add products to existing order
+                for product in products:
+                    # Extract values with detailed logging
+                    item = product.get("item", "")
+                    logger.info(f"Extracted item: {item}")
+                    
+                    quantity = product.get("quantity", 1)
+                    logger.info(f"Extracted quantity: {quantity}")
+                    
+                    unit = product.get("unit", "")
+                    logger.info(f"Extracted unit: {unit}")
+                    
+                    # Check for details or notes
+                    notes = product.get("details", product.get("notes", ""))
+                    logger.info(f"Extracted notes: {notes}")
+                    
+                    # Create order with delivery information
+                    order = Order(
+                        user_id=user_id,
+                        customer_id=data.get("customer_id"),
+                        interaction_id=interaction_id,
+                        order_number=order_number,  # Same order number for all products
+                        item=item,
+                        quantity=quantity,
+                        unit=unit,  # Add the unit field
+                        notes=notes,
+                        order_status=order_status,
+                        total_amount=data.get("total_amount", "0"),
+                        # Add delivery information
+                        delivery_address=data.get("delivery_address"),
+                        delivery_time=data.get("delivery_time"),
+                        delivery_method=data.get("delivery_method")
+                    )
+                    
+                    self.db.add(order)
+                    self.db.commit()
+                    self.db.refresh(order)
+                    logger.info(f"Added product to existing order {existing_order.order_id}: {order.order_id}")
+                
+                return [existing_order]
+            else:
+                logger.error(f"No existing order found for order number {order_number}")
+                # Continue with normal order creation
+                
+            # Find product information
+            products = []
+            
+            # Check for products array directly in the data object
+            if "products" in data and isinstance(data["products"], list) and len(data["products"]) > 0:
+                logger.info(f"Found products array in data: {json.dumps(data['products'], default=str)}")
+                products = data["products"]
+            # Check in extracted_info if not found directly
+            elif data.get("extracted_info"):
+                
+                # Get interaction_id from the message_state if available
+                interaction_id = None
             if hasattr(self, 'message_state') and self.message_state:
                 # If we have a stored interaction for this message, use its ID
                 interaction = self._get_interaction_by_message_id(self.message_state.message_id)

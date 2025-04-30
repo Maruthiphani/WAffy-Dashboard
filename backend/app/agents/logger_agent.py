@@ -1456,8 +1456,9 @@ class LoggerAgent:
             
             # Get existing order
             existing_order = self.db.query(Order).filter(Order.order_number == order_number).first()
-            if existing_order:
+            if existing_order and is_addition:
                 logger.info(f"Found existing order {existing_order.order_id} for order number {order_number}")
+                created_orders = []
                 
                 # Add products to existing order
                 for product in products:
@@ -1475,7 +1476,22 @@ class LoggerAgent:
                     notes = product.get("details", product.get("notes", ""))
                     logger.info(f"Extracted notes: {notes}")
                     
-                    # Create order with delivery information
+                    # Skip if this product is already in the order
+                    existing_product = self.db.query(Order).filter(
+                        Order.order_number == order_number,
+                        Order.item == item
+                    ).first()
+                    
+                    if existing_product:
+                        logger.info(f"Product {item} already exists in order {order_number}, updating quantity")
+                        # Update quantity instead of creating a new entry
+                        existing_product.quantity += quantity
+                        self.db.commit()
+                        self.db.refresh(existing_product)
+                        created_orders.append(existing_product)
+                        continue
+                    
+                    # Create new order entry with the same order number
                     order = Order(
                         user_id=user_id,
                         customer_id=data.get("customer_id"),
@@ -1483,7 +1499,7 @@ class LoggerAgent:
                         order_number=order_number,  # Same order number for all products
                         item=item,
                         quantity=quantity,
-                        unit=unit,  # Add the unit field
+                        unit=unit,
                         notes=notes,
                         order_status=order_status,
                         total_amount=data.get("total_amount", "0"),
@@ -1496,32 +1512,57 @@ class LoggerAgent:
                     self.db.add(order)
                     self.db.commit()
                     self.db.refresh(order)
-                    logger.info(f"Added product to existing order {existing_order.order_id}: {order.order_id}")
+                    created_orders.append(order)
+                    logger.info(f"Added product {item} to existing order {order_number}")
                 
-                return [existing_order]
-            else:
-                logger.error(f"No existing order found for order number {order_number}")
-                # Continue with normal order creation
+                # Return all created/updated orders
+                return created_orders if created_orders else [existing_order]
                 
-            # Find product information
-            products = []
+            # If not adding to an existing order or no existing order found, create a new one
+            logger.info(f"Creating new order with order number {order_number}")
+            created_orders = []
             
-            # Check for products array directly in the data object
-            if "products" in data and isinstance(data["products"], list) and len(data["products"]) > 0:
-                logger.info(f"Found products array in data: {json.dumps(data['products'], default=str)}")
-                products = data["products"]
-            # Check in extracted_info if not found directly
-            elif data.get("extracted_info"):
+            # Process each product for the new order
+            for product in products:
+                # Extract values with detailed logging
+                item = product.get("item", "")
+                logger.info(f"New order - extracted item: {item}")
                 
-                # Get interaction_id from the message_state if available
-                interaction_id = None
-            if hasattr(self, 'message_state') and self.message_state:
-                # If we have a stored interaction for this message, use its ID
-                interaction = self._get_interaction_by_message_id(self.message_state.message_id)
-                if interaction:
-                    interaction_id = interaction.interaction_id
-                    logger.info(f"Linking order to interaction_id: {interaction_id}")
+                quantity = product.get("quantity", 1)
+                logger.info(f"New order - extracted quantity: {quantity}")
+                
+                unit = product.get("unit", "")
+                logger.info(f"New order - extracted unit: {unit}")
+                
+                # Check for details or notes
+                notes = product.get("details", product.get("notes", ""))
+                logger.info(f"New order - extracted notes: {notes}")
+                
+                # Create order with delivery information
+                order = Order(
+                    user_id=user_id,
+                    customer_id=data.get("customer_id"),
+                    interaction_id=interaction_id,
+                    order_number=order_number,  # Same order number for all products
+                    item=item,
+                    quantity=quantity,
+                    unit=unit,
+                    notes=notes,
+                    order_status=order_status,
+                    total_amount=data.get("total_amount", "0"),
+                    # Add delivery information
+                    delivery_address=data.get("delivery_address"),
+                    delivery_time=data.get("delivery_time"),
+                    delivery_method=data.get("delivery_method")
+                )
+                
+                self.db.add(order)
+                self.db.commit()
+                self.db.refresh(order)
+                created_orders.append(order)
+                logger.info(f"Created new order item {item} with order number {order_number}")
             
+            return created_orders
             # Find product information
             products = []
             

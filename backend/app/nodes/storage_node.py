@@ -132,13 +132,49 @@ def storage_node(state: MessageState) -> MessageState:
             
             # If we successfully processed an order, send a confirmation
             if first_result.get("status") == "success" and first_result.get("type") == "order":
-                order_data = first_result.get("data", {})
-                logger.info(f"Extracted order_data: {json.dumps(order_data, default=str)}")
+                # Initialize order_data
+                order_data = {}
+                
+                # Check if data is a list of orders or a dictionary
+                if isinstance(first_result.get("data"), list) and len(first_result["data"]) > 0:
+                    # It's a list of Order objects
+                    created_orders = first_result["data"]
+                    logger.info(f"Found {len(created_orders)} orders in result")
+                    
+                    # Get the first order for order number and other details
+                    first_order = created_orders[0]
+                    
+                    # Extract order details from the first order
+                    if hasattr(first_order, 'order_number') and first_order.order_number:
+                        order_data['order_number'] = first_order.order_number
+                        logger.info(f"Using order number from created order: {first_order.order_number}")
+                        
+                    if hasattr(first_order, 'customer_id') and first_order.customer_id:
+                        order_data['customer_id'] = first_order.customer_id
+                        
+                    # Get all items from all orders with the same order number
+                    items = []
+                    for order in created_orders:
+                        if hasattr(order, 'item') and order.item:
+                            items.append({
+                                'item': order.item,
+                                'quantity': order.quantity if hasattr(order, 'quantity') else 1,
+                                'unit': order.unit if hasattr(order, 'unit') else '',
+                                'notes': order.notes if hasattr(order, 'notes') else ''
+                            })
+                    
+                    if items:
+                        order_data['products'] = items
+                        logger.info(f"Added {len(items)} products to order data")
+                else:
+                    # It's a dictionary with order details
+                    order_data = first_result.get("data", {})
+                    logger.info(f"Extracted order_data: {json.dumps(order_data, default=str)}")
                 
                 # If this is an addition to an existing order, update the order data
                 if is_addition_to_existing_order and order_number:
-                    if 'order_number' not in order_data or not order_data['order_number']:
-                        order_data['order_number'] = order_number
+                    # Always use the order number from the review agent for consistency
+                    order_data['order_number'] = order_number
                     order_data['is_addition_to_existing_order'] = True
                     logger.info(f"Updated order data with existing order number: {order_number}")
                 

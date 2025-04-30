@@ -54,8 +54,24 @@ def review_node(state: MessageState, db: Session = Depends(get_db)) -> MessageSt
         
         # Update state with reviewed data if it's an addition to an existing order
         if reviewed_data.get("is_addition_to_existing_order", False):
+            # Initialize metadata if it doesn't exist
+            if not hasattr(state, 'metadata') or state.metadata is None:
+                state.metadata = {}
+                
             state.metadata["is_addition_to_existing_order"] = True
             state.metadata["order_number"] = reviewed_data.get("order_number")
+            
+            # Also add to extracted_info to ensure it's passed to the logger agent
+            if not hasattr(state, 'extracted_info') or state.extracted_info is None:
+                state.extracted_info = {}
+                
+            # Make sure extracted_info is a dictionary
+            if not isinstance(state.extracted_info, dict):
+                state.extracted_info = {}
+                
+            # Add order_number to extracted_info
+            state.extracted_info["order_number"] = reviewed_data.get("order_number")
+            state.extracted_info["is_addition_to_existing_order"] = True
             
             # Log that we're adding to an existing order
             logger.info(f"Adding to existing order {reviewed_data.get('order_number')}")
@@ -63,12 +79,15 @@ def review_node(state: MessageState, db: Session = Depends(get_db)) -> MessageSt
             # If there was delivery info in the original order, preserve it
             if "delivery_address" in reviewed_data:
                 state.metadata["delivery_address"] = reviewed_data.get("delivery_address")
+                state.extracted_info["delivery_address"] = reviewed_data.get("delivery_address")
                 
             if "delivery_time" in reviewed_data:
                 state.metadata["delivery_time"] = reviewed_data.get("delivery_time")
+                state.extracted_info["delivery_time"] = reviewed_data.get("delivery_time")
                 
             if "delivery_method" in reviewed_data:
                 state.metadata["delivery_method"] = reviewed_data.get("delivery_method")
+                state.extracted_info["delivery_method"] = reviewed_data.get("delivery_method")
         
         return state
         

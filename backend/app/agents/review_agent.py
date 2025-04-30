@@ -30,20 +30,30 @@ class ReviewAgent:
             Updated data with consolidated order information if applicable
         """
         try:
+            # Get customer ID
             customer_id = data.get("customer_id")
             if not customer_id:
                 logger.warning("No customer_id found in order data")
                 return data
                 
+            # Get message and context
+            message = data.get("message", "")
+            context = data.get("context", [])
+            
+            # Log the current data for debugging
+            logger.info(f"Reviewing order for customer {customer_id}")
+            logger.info(f"Message: {message}")
+            logger.info(f"Context: {context}")
+            
             # Extract products from the current order
             current_products = self._extract_products(data)
             if not current_products:
                 logger.warning("No products found in current order")
                 return data
             
-            # Get the current message
-            message = data.get("message", "").lower()
-            context = data.get("context", [])
+            # Log the products found
+            product_names = [p.get("item", "") for p in current_products if p.get("item")]
+            logger.info(f"Products in current order: {', '.join(product_names)}")
             
             # Check if there's a pending order for this customer
             pending_orders = self._get_pending_orders(customer_id)
@@ -53,19 +63,20 @@ class ReviewAgent:
             
             # Get the most recent pending order
             most_recent_order = pending_orders[0] if pending_orders else None
+            if most_recent_order:
+                logger.info(f"Found pending order: {most_recent_order.order_number} created at {most_recent_order.created_at}")
             
-            # Check if this is a continuation of a previous order conversation
+            # Check if this is a continuation based on context and message
             is_continuation = self._is_order_continuation(message, current_products, context)
             
             if is_continuation and most_recent_order:
-                logger.info(f"Message appears to be a continuation of order {most_recent_order.order_number}")
+                logger.info(f"This appears to be an addition to existing order {most_recent_order.order_number}")
                 
                 # Add the existing order number to the data
                 data["order_number"] = most_recent_order.order_number
                 data["is_addition_to_existing_order"] = True
                 
                 # Log the products being added
-                product_names = [p.get("item", "") for p in current_products if p.get("item")]
                 logger.info(f"Adding products {', '.join(product_names)} to existing order {most_recent_order.order_number}")
                 
                 # If there was delivery info in the original order, preserve it
@@ -77,6 +88,8 @@ class ReviewAgent:
                     
                 if most_recent_order.delivery_method and not data.get("delivery_method"):
                     data["delivery_method"] = most_recent_order.delivery_method
+            else:
+                logger.info(f"Creating a new order for these products")
             
             return data
             
@@ -152,47 +165,25 @@ class ReviewAgent:
         """
         message = message.lower()
         
-        # Check if the message contains product names
-        product_names = [p.get("item", "").lower() for p in products if p.get("item")]
-        
-        # Keywords that indicate this is just an inquiry or addition to existing order
-        continuation_keywords = [
-            "when can i", "when will", "also", "too", "as well", "add", "include", 
-            "i want", "i need", "i'd like", "can i get", "can i order"
-        ]
-        
-        # Keywords that indicate this is definitely a new order
-        new_order_keywords = [
-            "new order", "another order", "different order", "place a new", 
-            "start a new", "create a new"
-        ]
-        
-        # Check if any new order keywords are present
-        for keyword in new_order_keywords:
-            if keyword in message:
-                return False
-        
-        # Check if the message is asking about the current product
-        for product in product_names:
-            if product and product in message:
-                # Check if any continuation keywords are present
-                for keyword in continuation_keywords:
-                    if keyword in message:
-                        return True
-                        
-                # If the message only mentions the product without other context,
-                # it's likely a continuation
-                if len(message.split()) < 10 and product in message:
-                    return True
-        
-        # Check if the context suggests this is part of an ongoing order conversation
-        order_context_keywords = ["order", "delivery", "send", "want", "need"]
-        context_has_order = any(any(keyword in ctx.lower() for keyword in order_context_keywords) for ctx in context[-5:] if ctx)
-        
-        # If there's recent order context and the message is simple, it's likely a continuation
-        if context_has_order and len(message.split()) < 10:
+        # Check if there are explicit keywords indicating this is an addition to an existing order
+        addition_keywords = ["also", "add", "along with", "with this", "as well"]
+        for keyword in addition_keywords:
+            if keyword in message.lower():
+                logger.info(f"Found addition keyword: {keyword}")
+                return True
+                
+        # Check if there's context from previous messages
+        if context and len(context) > 1:
+            # If there are previous messages in the context, it's likely a continuation
+            logger.info(f"Found previous messages in context: {len(context)} messages")
             return True
             
+        # If we have multiple products in a single message, it's likely a single order
+        if len(products) > 1:
+            logger.info(f"Found multiple products in a single message: {len(products)} products")
+            return False
+            
+        # By default, return False to create a new order
         return False
 
 # Create a singleton instance

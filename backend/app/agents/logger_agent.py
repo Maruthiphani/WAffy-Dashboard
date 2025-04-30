@@ -1378,14 +1378,25 @@ class LoggerAgent:
             
             # Check if this is an addition to an existing order
             is_addition = data.get("is_addition_to_existing_order", False)
+            if "extracted_info" in data and isinstance(data["extracted_info"], dict):
+                if data["extracted_info"].get("is_addition_to_existing_order", False):
+                    is_addition = True
+                    logger.info("Found is_addition_to_existing_order flag in extracted_info")
+            
+            # Get order number from data or extracted_info
+            order_number = data.get("order_number", "")
+            if not order_number and "extracted_info" in data and isinstance(data["extracted_info"], dict):
+                order_number = data["extracted_info"].get("order_number", "")
+                if order_number:
+                    logger.info(f"Using order_number from extracted_info: {order_number}")
             
             # Generate a unique order number if not provided
-            order_number = data.get("order_number", "")
             if not order_number:
                 # Create a timestamp-based order ID with customer prefix
                 customer_prefix = data.get("customer_id", "")[:4]
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
                 order_number = f"ORD-{customer_prefix}-{timestamp}"
+                logger.info(f"Generated new order number: {order_number}")
                 
             # Log if this is an addition to an existing order
             if is_addition:

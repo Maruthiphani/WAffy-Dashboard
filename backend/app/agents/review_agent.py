@@ -209,37 +209,67 @@ class ReviewAgent:
             customer_id_str = str(customer_id)
             print(f"REVIEW AGENT: 🔍 Using customer_id as string: '{customer_id_str}'")
             
-            # Try direct comparison with the original customer_id
-            query1 = self.db.query(Order).filter(Order.customer_id == customer_id).order_by(desc(Order.created_at))
-            result1 = query1.first()
-            print(f"REVIEW AGENT: 🔍 Query 1 (original ID): {result1 is not None}")
+            # Try different query approaches with error handling
+            result1 = result2 = result3 = None
+            query1 = query2 = query3 = None
             
-            # Try with string casting
-            query2 = self.db.query(Order).filter(Order.customer_id == customer_id_str).order_by(desc(Order.created_at))
-            result2 = query2.first()
-            print(f"REVIEW AGENT: 🔍 Query 2 (string cast): {result2 is not None}")
+            try:
+                # Try direct comparison with the original customer_id
+                query1 = self.db.query(Order).filter(Order.customer_id == customer_id).order_by(desc(Order.created_at))
+                result1 = query1.first()
+                print(f"REVIEW AGENT: 🔍 Query 1 (original ID): {result1 is not None}")
+            except Exception as e:
+                print(f"REVIEW AGENT: ⚠️ Error in Query 1: {str(e)}")
             
-            # Try with explicit cast in SQL
-            from sqlalchemy import cast, String
-            query3 = self.db.query(Order).filter(cast(Order.customer_id, String) == customer_id_str).order_by(desc(Order.created_at))
-            result3 = query3.first()
-            print(f"REVIEW AGENT: 🔍 Query 3 (SQL cast): {result3 is not None}")
+            try:
+                # Try with string casting
+                query2 = self.db.query(Order).filter(Order.customer_id == customer_id_str).order_by(desc(Order.created_at))
+                result2 = query2.first()
+                print(f"REVIEW AGENT: 🔍 Query 2 (string cast): {result2 is not None}")
+            except Exception as e:
+                print(f"REVIEW AGENT: ⚠️ Error in Query 2: {str(e)}")
+            
+            try:
+                # Try with explicit cast in SQL
+                from sqlalchemy import cast, String
+                query3 = self.db.query(Order).filter(cast(Order.customer_id, String) == customer_id_str).order_by(desc(Order.created_at))
+                result3 = query3.first()
+                print(f"REVIEW AGENT: 🔍 Query 3 (SQL cast): {result3 is not None}")
+            except Exception as e:
+                print(f"REVIEW AGENT: ⚠️ Error in Query 3: {str(e)}")
             
             # Use the query that worked
-            query = query2 if result2 is not None else (query1 if result1 is not None else query3)
-            print(f"REVIEW AGENT: 🔍 Using query that worked")
+            if result2 is not None:
+                query = query2
+                print("REVIEW AGENT: 🔍 Using query 2 (string cast)")
+            elif result1 is not None:
+                query = query1
+                print("REVIEW AGENT: 🔍 Using query 1 (original ID)")
+            elif result3 is not None:
+                query = query3
+                print("REVIEW AGENT: 🔍 Using query 3 (SQL cast)")
+            else:
+                # Default to query2 if none worked
+                query = query2
+                print("REVIEW AGENT: 🔍 No queries returned results, defaulting to query 2")
             
             # Print the raw SQL query for debugging
             print(f"REVIEW AGENT: 🔍 Raw SQL query: {query}")
             
             # Check if there are ANY orders for this customer, regardless of status
-            all_orders = self.db.query(Order).filter(Order.customer_id == customer_id_str).all()
-            print(f"REVIEW AGENT: 🔍 Found {len(all_orders)} total orders for customer {customer_id_str}")
-            if all_orders:
-                print(f"REVIEW AGENT: 🔍 First order: ID={all_orders[0].order_id}, Number={all_orders[0].order_number}, Status={all_orders[0].order_status}")
-                print(f"REVIEW AGENT: 🔍 Customer ID in DB: '{all_orders[0].customer_id}', Type: {type(all_orders[0].customer_id)}")
-            else:
-                # Try a LIKE query to find similar customer IDs
+            try:
+                all_orders = self.db.query(Order).filter(Order.customer_id == customer_id_str).all()
+                print(f"REVIEW AGENT: 🔍 Found {len(all_orders)} total orders for customer {customer_id_str}")
+                if all_orders:
+                    print(f"REVIEW AGENT: 🔍 First order: ID={all_orders[0].order_id}, Number={all_orders[0].order_number}, Status={all_orders[0].order_status}")
+                    print(f"REVIEW AGENT: 🔍 Customer ID in DB: '{all_orders[0].customer_id}', Type: {type(all_orders[0].customer_id)}")
+                else:
+                    print(f"REVIEW AGENT: 🔍 No orders found with exact customer ID: '{customer_id_str}'")
+            except Exception as e:
+                print(f"REVIEW AGENT: ⚠️ Error checking for all orders: {str(e)}")
+                
+            # Try a LIKE query to find similar customer IDs
+            try:
                 print("REVIEW AGENT: 🔍 Trying LIKE query to find similar customer IDs...")
                 from sqlalchemy import or_
                 similar_orders = self.db.query(Order).filter(
@@ -253,23 +283,32 @@ class ReviewAgent:
                     print(f"REVIEW AGENT: 🔍 Similar customer IDs found: {[order.customer_id for order in similar_orders[:5]]}")
                 else:
                     print("REVIEW AGENT: 🔍 No similar customer IDs found")
+            except Exception as e:
+                print(f"REVIEW AGENT: ⚠️ Error in LIKE query: {str(e)}")
                     
-                # Get all customer IDs in the database to see what's available
+            # Get all customer IDs in the database to see what's available
+            try:
                 all_customers = self.db.query(Order.customer_id).distinct().limit(10).all()
                 print(f"REVIEW AGENT: 🔍 Sample customer IDs in database: {[cid[0] for cid in all_customers]}")
+            except Exception as e:
+                print(f"REVIEW AGENT: ⚠️ Error getting sample customer IDs: {str(e)}")
             
-            most_recent_order = query.first()
+            try:
+                most_recent_order = query.first()
 
-            # Check if most_recent_order exists before trying to access its properties
-            if most_recent_order:
-                print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_number} - {most_recent_order.created_at}")
-                print(f"REVIEW AGENT: 📦 Most recent order status: {most_recent_order.order_status}")
-            else:
-                print(f"REVIEW AGENT: ❌ No orders found for customer {customer_id}")
-            
-            # If no orders or the most recent order is not pending, return empty list
-            if not most_recent_order or most_recent_order.order_status != "pending":
-                print(f"REVIEW AGENT: ❌ No pending orders found for customer {customer_id}")
+                # Check if most_recent_order exists before trying to access its properties
+                if most_recent_order:
+                    print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_number} - {most_recent_order.created_at}")
+                    print(f"REVIEW AGENT: 📦 Most recent order status: {most_recent_order.order_status}")
+                else:
+                    print(f"REVIEW AGENT: ❌ No orders found for customer {customer_id}")
+                
+                # If no orders or the most recent order is not pending, return empty list
+                if not most_recent_order or most_recent_order.order_status != "pending":
+                    print(f"REVIEW AGENT: ❌ No pending orders found for customer {customer_id}")
+                    return []
+            except Exception as e:
+                print(f"REVIEW AGENT: ⚠️ Error checking most recent order: {str(e)}")
                 return []
             
             # Return the most recent order in a list

@@ -77,12 +77,12 @@ function App() {
             {waffyUser ? (
               <>
                 {/* Hero section removed from dashboard */}
-                <div className="flex">
+                <div className="flex flex-col md:flex-row">
                   {/* Sidebar */}
                   <Sidebar />
 
                   {/* Main Content Area */}
-                  <div className="md:ml-64 w-full p-3 sm:p-6 flex-1 transition-all duration-300">
+                  <div className="w-full md:ml-64 pt-16 md:pt-16 p-2 sm:p-4 md:p-6 flex-1 transition-all duration-300">
                     <Routes>
                       <Route path="/" element={<Navigate to="/dashboard" replace />} />
                       <Route path="/dashboard" element={<Dashboard />} />

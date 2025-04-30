@@ -311,22 +311,57 @@ def responder_node(state) -> Dict[str, Any]:
             if hasattr(state, 'extracted_info'):
                 extracted_info = state.extracted_info
                 if extracted_info and isinstance(extracted_info, dict):
-                    # Check for various possible field names for product/item
-                    for field in ['product_type', 'item', 'product', 'order_item']:
-                        if field in extracted_info and extracted_info[field]:
-                            simple_order_data['item'] = extracted_info[field]
-                            logger.info(f"Extracted item from extracted_info.{field}: {extracted_info[field]}")
-                            break
+                    # First check for products list which is the preferred source
+                    if 'products' in extracted_info and extracted_info['products'] and isinstance(extracted_info['products'], list):
+                        products = extracted_info['products']
+                        logger.info(f"Found products list with {len(products)} items")
+                        
+                        # Create a formatted list of all products
+                        items_list = []
+                        for product in products:
+                            if isinstance(product, dict) and 'item' in product:
+                                item_text = product['item']
+                                quantity = product.get('quantity', 1)
+                                unit = product.get('unit', '')
+                                
+                                # Format the item with quantity and unit
+                                formatted_item = f"{quantity} {unit} {item_text}".strip()
+                                formatted_item = formatted_item.replace('  ', ' ')  # Remove double spaces
+                                items_list.append(formatted_item)
+                                
+                                logger.info(f"Added product to order: {formatted_item}")
+                        
+                        # Join all items with commas and 'and' for the last item
+                        if items_list:
+                            if len(items_list) == 1:
+                                simple_order_data['item'] = items_list[0]
+                            else:
+                                simple_order_data['item'] = ", ".join(items_list[:-1]) + " and " + items_list[-1]
+                            
+                            logger.info(f"Final combined item list: {simple_order_data['item']}")
+                            
+                            # Since we're using a combined item list, set quantity to 1
+                            simple_order_data['quantity'] = 1
+                            simple_order_data['unit'] = ''
                     
-                    # Check for quantity
-                    if 'quantity' in extracted_info and extracted_info['quantity']:
-                        simple_order_data['quantity'] = extracted_info['quantity']
-                        logger.info(f"Extracted quantity: {extracted_info['quantity']}")
-                    
-                    # Check for unit
-                    if 'unit' in extracted_info and extracted_info['unit']:
-                        simple_order_data['unit'] = extracted_info['unit']
-                        logger.info(f"Extracted unit: {extracted_info['unit']}")
+                    # Fallback to other fields if no products list is found
+                    elif not simple_order_data.get('item'):
+                        # Check for various possible field names for product/item
+                        for field in ['product_type', 'item', 'product', 'order_item']:
+                            if field in extracted_info and extracted_info[field]:
+                                simple_order_data['item'] = extracted_info[field]
+                                logger.info(f"Extracted item from extracted_info.{field}: {extracted_info[field]}")
+                                break
+                        
+                        # Check for quantity
+                        if 'quantity' in extracted_info and extracted_info['quantity']:
+                            simple_order_data['quantity'] = extracted_info['quantity']
+                            logger.info(f"Extracted quantity: {extracted_info['quantity']}")
+                        
+                        # Check for unit
+                        if 'unit' in extracted_info and extracted_info['unit']:
+                            simple_order_data['unit'] = extracted_info['unit']
+                            logger.info(f"Extracted unit: {extracted_info['unit']}")
             
             response = responder_agent.send_order_confirmation(sender, simple_order_data)
             logger.info(f"Sent simple order confirmation to {sender}: {response}")

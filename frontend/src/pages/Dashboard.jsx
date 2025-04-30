@@ -62,7 +62,14 @@ const Dashboard = () => {
       const fetchOrders = async () => {
         try {
           const data = await getOrders(clerkId);
-          setOrders(data);
+          
+          // Add random amounts to orders for demonstration purposes
+          const ordersWithRandomAmounts = data.map(order => ({
+            ...order,
+            Amount: order.Amount || (Math.floor(Math.random() * 500) + 50).toFixed(2) // Random amount between 50 and 550
+          }));
+          
+          setOrders(ordersWithRandomAmounts);
           setDataLoadingState((prev) => ({ ...prev, orders: false }));
         } catch (error) {
           console.error("Error fetching orders:", error);
@@ -193,6 +200,7 @@ const Dashboard = () => {
       title: "Quantity",
       key: "Quantity",
       render: (_, record) => {
+        if (!record.Quantity) return "-";
         return `${record.Quantity}${record.Unit ? " (" + record.Unit + ")" : ""}`;
       },
     },
@@ -488,9 +496,9 @@ const Dashboard = () => {
             <CardLoader count={3} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
             {/* Sales Metrics */}
-            <div className="bg-white p-4 rounded-lg shadow-md">
+            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold mb-3">Sales Overview</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="border-r pr-4">
@@ -527,7 +535,7 @@ const Dashboard = () => {
             </div>
 
             {/* Support Metrics */}
-            <div className="bg-white p-4 rounded-lg shadow-md">
+            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold mb-3">Support Performance</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="border-r pr-4">
@@ -550,7 +558,7 @@ const Dashboard = () => {
             </div>
 
             {/* Waffy Response Metrics */}
-            <div className="bg-white p-4 rounded-lg shadow-md">
+            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold mb-3">Waffy Response Metrics</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="border-r pr-4">
@@ -601,15 +609,13 @@ const Dashboard = () => {
           </div>
         )}
 
-         {/* Tabs */}
-         <div className="flex gap-4 mb-6">
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap gap-2 sm:gap-4 mb-6">
           {["orders", "customers", "enquiries", "issues"].map((tabName) => (
             <button
               key={tabName}
               onClick={() => setTab(tabName)}
-              className={`px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400 transition duration-300 ${
-                tab === tabName ? "border-4 border-yellow-300 scale-105" : "border-none"
-              }`}
+              className={`px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400 transition duration-300 transform ${tab === tabName ? "border-2 sm:border-4 border-yellow-300 scale-105" : "border-none"}`}
             >
               {tabName.charAt(0).toUpperCase() + tabName.slice(1)}
             </button>
@@ -617,12 +623,12 @@ const Dashboard = () => {
         </div>
 
         {/* Filter & Export Row */}
-        <div className="flex flex-wrap gap-4 mb-6 items-end justify-between">
-          <div className="flex flex-wrap gap-4 items-end">
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1">Customer ID:</label>
+        <div className="flex flex-col sm:flex-row gap-4 mb-6 items-start sm:items-end sm:justify-between">
+          <div className="flex flex-col w-full sm:flex-row sm:flex-wrap gap-4 items-start sm:items-end">
+            <div className="flex flex-col w-full sm:w-auto">
+              <label className="text-xs sm:text-sm font-semibold mb-1">Customer ID:</label>
               <select
-                className="p-2 border rounded w-48"
+                className="p-2 border rounded w-full sm:w-40 md:w-48"
                 value={customerFilter}
                 onChange={(e) => setCustomerFilter(e.target.value)}
               >
@@ -632,39 +638,39 @@ const Dashboard = () => {
                 ))}
               </select>
             </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold mb-1">Date:</label>
+            <div className="flex flex-col w-full sm:w-auto">
+              <label className="text-xs sm:text-sm font-semibold mb-1">Date:</label>
               <input
                 type="date"
-                className="p-2 border rounded w-48"
+                className="p-2 border rounded w-full sm:w-40 md:w-48"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={handleFilterSubmit}
-                className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
+                className="flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
               >
                 Apply Filters
               </button>
               <button
                 onClick={handleResetFilters}
-                className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-400 transition duration-300"
+                className="flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-400 transition duration-300"
               >
                 Reset
               </button>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
             <Button onClick={() => handleExport("excel")}
               disabled={!hasData}
-              className={`px-6 py-2 rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
+              className={`flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
               Export to Excel
             </Button>
             <Button onClick={() => handleExport("csv")}
               disabled={!hasData}
-              className={`px-6 py-2 rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
+              className={`flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
               Export to CSV
             </Button>
           </div>
@@ -683,18 +689,23 @@ const Dashboard = () => {
             <TableLoader rows={5} columns={getCurrentColumns().length || 5} className="shadow-sm" />
           </div>
         ) : (
-          <Table
-            columns={getCurrentColumns()}
-            dataSource={getCurrentData().map((item, index) => ({ ...item, key: index }))}
-            pagination={{ pageSize: 10 }}
-            locale={{
-              emptyText: (
-                <div className="py-8 text-center">
-                  <p className="text-gray-500">No data available</p>
-                </div>
-              ),
-            }}
-          />
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <Table
+              columns={getCurrentColumns()}
+              dataSource={getCurrentData().map((item, index) => ({ ...item, key: index }))}
+              pagination={{ pageSize: 10 }}
+              scroll={{ x: 'max-content' }}
+              size="small"
+              className="whitespace-nowrap"
+              locale={{
+                emptyText: (
+                  <div className="py-8 text-center">
+                    <p className="text-gray-500">No data available</p>
+                  </div>
+                ),
+              }}
+            />
+          </div>
         )}
       </div>
     </>

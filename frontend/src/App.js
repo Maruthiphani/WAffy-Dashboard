@@ -8,7 +8,7 @@ import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Downloads from "./pages/Downloads";
 import Settings from "./pages/Settings";
-import HeroModernMotion from "./data/heroModernMotion";
+import HeroModernMotion from "./data/HeroModernMotion";
 
 
 function App() {

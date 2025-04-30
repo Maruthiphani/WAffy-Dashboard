@@ -27,7 +27,20 @@ def storage_node(state: MessageState) -> MessageState:
         else:
             logger_agent = LoggerAgent("4")  # Default user ID
 
-        result = logger_agent.process_messages([state.dict()])
+        # Create a dictionary from the state but preserve special attributes
+        state_dict = state.dict()
+        
+        # Check if this is an addition to an existing order (from review agent)
+        if hasattr(state, 'is_addition_to_existing_order') and state.is_addition_to_existing_order:
+            state_dict['is_addition_to_existing_order'] = True
+            print(f"STORAGE NODE: Found is_addition_to_existing_order flag on state")
+            
+        if hasattr(state, 'order_number') and state.order_number:
+            state_dict['order_number'] = state.order_number
+            print(f"STORAGE NODE: Found order_number on state: {state.order_number}")
+            
+        # Pass the state with preserved attributes to the logger agent
+        result = logger_agent.process_messages([state_dict])
         logger.info(f"Logger agent result: {json.dumps(result, default=str)}")
         
         # Get message type and data

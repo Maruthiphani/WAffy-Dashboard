@@ -172,6 +172,17 @@ class LoggerAgent:
         try:
             # Store the message_state in the instance for use by other methods
             self.message_state = message_state
+            
+            # Debug print to see what's in the message_state
+            print(f"LOGGER AGENT: 📝 Processing message state: {json.dumps(message_state.dict() if hasattr(message_state, 'dict') else message_state, default=str)[:200]}...")
+            
+            # Check if order information is directly in the message_state dictionary
+            if isinstance(message_state, dict):
+                if message_state.get('is_addition_to_existing_order'):
+                    print(f"LOGGER AGENT: ✅ Found is_addition_to_existing_order in message_state dict")
+                if message_state.get('order_number'):
+                    print(f"LOGGER AGENT: ✅ Found order_number in message_state dict: {message_state.get('order_number')}")
+            
             interaction = None
             
             # Always store in the database if view_consolidated_data is enabled or if HubSpot is enabled
@@ -1384,30 +1395,51 @@ class LoggerAgent:
             logger.info(f"Order data: {json.dumps(data, default=str)}")
             
             # Check if this is an addition to an existing order
-            is_addition = data.get("is_addition_to_existing_order", False)
-            print(f"LOGGER AGENT: 🔄 Initial is_addition flag: {is_addition}")
+            is_addition = False
             
-            # Check if is_addition_to_existing_order is set directly on the message_state
-            if hasattr(self, 'message_state') and self.message_state and hasattr(self.message_state, 'is_addition_to_existing_order'):
-                is_addition = self.message_state.is_addition_to_existing_order
-                print(f"LOGGER AGENT: ✅ Found is_addition_to_existing_order flag directly on message_state: {is_addition}")
+            # First check if it's directly in the data dictionary
+            if data.get("is_addition_to_existing_order", False):
+                is_addition = True
+                print(f"LOGGER AGENT: ✅ Found is_addition_to_existing_order flag directly in data: {is_addition}")
+            
+            # Check if is_addition_to_existing_order is set directly on the message_state object
+            elif hasattr(self, 'message_state'):
+                # If message_state is a dictionary
+                if isinstance(self.message_state, dict) and self.message_state.get('is_addition_to_existing_order'):
+                    is_addition = True
+                    print(f"LOGGER AGENT: ✅ Found is_addition_to_existing_order flag in message_state dict")
+                # If message_state is an object with attributes
+                elif hasattr(self.message_state, 'is_addition_to_existing_order') and self.message_state.is_addition_to_existing_order:
+                    is_addition = True
+                    print(f"LOGGER AGENT: ✅ Found is_addition_to_existing_order flag as attribute on message_state")
             
             # Also check in extracted_info
-            if "extracted_info" in data and isinstance(data["extracted_info"], dict):
+            if not is_addition and "extracted_info" in data and isinstance(data["extracted_info"], dict):
                 if data["extracted_info"].get("is_addition_to_existing_order", False):
                     is_addition = True
                     print("LOGGER AGENT: ✅ Found is_addition_to_existing_order flag in extracted_info")
                     logger.info("Found is_addition_to_existing_order flag in extracted_info")
             
-            # Get order number from data or extracted_info
-            order_number = data.get("order_number", "")
-            print(f"LOGGER AGENT: 🆔 Initial order_number from data: '{order_number}'")
+            print(f"LOGGER AGENT: 🔄 Final is_addition flag: {is_addition}")
             
-            # Check if order_number is set directly on the message_state
-            if not order_number and hasattr(self, 'message_state') and self.message_state and hasattr(self.message_state, 'order_number'):
-                order_number = self.message_state.order_number
-                if order_number:
-                    print(f"LOGGER AGENT: ✅ Found order_number directly on message_state: '{order_number}'")
+            # Get order number from various possible locations
+            order_number = ""
+            
+            # First check if it's directly in the data dictionary
+            if data.get("order_number"):
+                order_number = data.get("order_number")
+                print(f"LOGGER AGENT: ✅ Found order_number directly in data: '{order_number}'")
+            
+            # Check if order_number is set on the message_state
+            elif hasattr(self, 'message_state'):
+                # If message_state is a dictionary
+                if isinstance(self.message_state, dict) and self.message_state.get('order_number'):
+                    order_number = self.message_state.get('order_number')
+                    print(f"LOGGER AGENT: ✅ Found order_number in message_state dict: '{order_number}'")
+                # If message_state is an object with attributes
+                elif hasattr(self.message_state, 'order_number') and self.message_state.order_number:
+                    order_number = self.message_state.order_number
+                    print(f"LOGGER AGENT: ✅ Found order_number as attribute on message_state: '{order_number}'")
             
             # Also check in extracted_info
             if not order_number and "extracted_info" in data and isinstance(data["extracted_info"], dict):
@@ -1415,6 +1447,8 @@ class LoggerAgent:
                 if order_number:
                     print(f"LOGGER AGENT: ✅ Found order_number in extracted_info: '{order_number}'")
                     logger.info(f"Using order_number from extracted_info: {order_number}")
+                    
+            print(f"LOGGER AGENT: 🆔 Final order_number: '{order_number}'")
             
             # Generate a unique order number if not provided and not adding to existing order
             if not order_number and not is_addition:

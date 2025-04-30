@@ -198,7 +198,7 @@ def responder_node(state) -> Dict[str, Any]:
         response_start_time = time.time()
         
         # Check if we should respond
-        should_respond = False
+        should_respond = True
         if hasattr(state, 'should_respond'):
             should_respond = state.should_respond
         elif isinstance(state, dict) and 'should_respond' in state:

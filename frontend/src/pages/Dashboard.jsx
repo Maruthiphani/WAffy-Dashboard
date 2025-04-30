@@ -6,6 +6,8 @@ import { useUser } from "@clerk/clerk-react";
 import Loader from "../components/Loader";
 import TableLoader from "../components/TableLoader";
 import CardLoader from "../components/CardLoader";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const Dashboard = () => {
   const [tab, setTab] = useState("orders");
@@ -121,7 +123,23 @@ const Dashboard = () => {
     }
   };
 
+  // const handleFilterSubmit = () => {
+  //   setSelectedCustomer(customerFilter);
+  //   setSelectedDate(dateFilter);
+  // };
+
+  // const handleResetFilters = () => {
+  //   setCustomerFilter("");
+  //   setDateFilter("");
+  //   setSelectedCustomer("");
+  //   setSelectedDate("");
+  // };
+
   const handleFilterSubmit = () => {
+    if (!dateFilter) {
+      alert("Please select a valid date before applying filters.");
+      return;
+    }
     setSelectedCustomer(customerFilter);
     setSelectedDate(dateFilter);
   };
@@ -132,6 +150,7 @@ const Dashboard = () => {
     setSelectedCustomer("");
     setSelectedDate("");
   };
+
 
   const applyFilters = (item, idField = "CustomerId", dateField = "DeliveryDate") => {
     if (!item) return false;
@@ -188,15 +207,15 @@ const Dashboard = () => {
       key: "DeliveryMethod",
       render: (method) => (method ? <Tag color="blue">{method}</Tag> : "-"),
     },
-    { title: "Action", key: "action", render: () => <Button size="small" type="primary">Done</Button> },
+    // { title: "Action", key: "action", render: () => <Button size="small" type="primary">Done</Button> },
   ];
 
   const customerColumns = [
     { title: "Customer ID", dataIndex: "CustomerId", key: "CustomerId" },
     { title: "Customer Name", dataIndex: "CustomerName", key: "CustomerName" },
     { title: "Email", dataIndex: "Email", key: "Email" },
-    { title: "Delivery Date", dataIndex: "DeliveryDate", key: "DeliveryDate" },
-    { title: "Updated Date", dataIndex: "UpdatedDate", key: "UpdatedDate" },
+    { title: "Created Date", dataIndex: "DeliveryDate", key: "DeliveryDate" },
+    // { title: "Updated Date", dataIndex: "UpdatedDate", key: "UpdatedDate" },
   ];
 
   const issueColumns = [
@@ -224,12 +243,12 @@ const Dashboard = () => {
       key: "DeliveryDate",
       render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
     },
-    {
-      title: "Updated Date",
-      dataIndex: "UpdatedDate",
-      key: "UpdatedDate",
-      render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
-    },
+    // {
+    //   title: "Updated Date",
+    //   dataIndex: "UpdatedDate",
+    //   key: "UpdatedDate",
+    //   render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
+    // },
   ];
 
   const enquiryColumns = [
@@ -258,17 +277,17 @@ const Dashboard = () => {
       render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
     },
     {
-      title: "Delivery Date",
+      title: "Enquiry Created Date",
       dataIndex: "DeliveryDate",
       key: "DeliveryDate",
       render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
     },
-    {
-      title: "Updated Date",
-      dataIndex: "UpdatedDate",
-      key: "UpdatedDate",
-      render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
-    },
+    // {
+    //   title: "Updated Date",
+    //   dataIndex: "UpdatedDate",
+    //   key: "UpdatedDate",
+    //   render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
+    // },
   ];
 
   const getCurrentData = () => {
@@ -409,6 +428,20 @@ const Dashboard = () => {
       default:
         return false;
     }
+  };
+
+  const currentData = getCurrentData();
+  const hasData = currentData && currentData.length > 0;
+
+  const handleExport = (fileType) => {
+    const data = getCurrentData();
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: fileType === "excel" ? "xlsx" : "csv", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(blob, `dashboard_data_${tab}.${fileType === "excel" ? "xlsx" : "csv"}`);
   };
 
   return (
@@ -568,8 +601,8 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-6">
+         {/* Tabs */}
+         <div className="flex gap-4 mb-6">
           {["orders", "customers", "enquiries", "issues"].map((tabName) => (
             <button
               key={tabName}
@@ -583,51 +616,61 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4 mb-6 items-end">
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-1">Customer ID:</label>
-            <select
-              className="p-2 border rounded w-48"
-              value={customerFilter}
-              onChange={(e) => setCustomerFilter(e.target.value)}
-            >
-              <option value="">All Customers</option>
-              {getCustomerOptions().map((customerId) => (
-                <option key={customerId} value={customerId}>
-                  {customerId}
-                </option>
-              ))}
-            </select>
+        {/* Filter & Export Row */}
+        <div className="flex flex-wrap gap-4 mb-6 items-end justify-between">
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold mb-1">Customer ID:</label>
+              <select
+                className="p-2 border rounded w-48"
+                value={customerFilter}
+                onChange={(e) => setCustomerFilter(e.target.value)}
+              >
+                <option value="">All Customers</option>
+                {[...new Set([...orders, ...customers, ...enquiries, ...issues].map(item => item.CustomerId || item.customer_id).filter(Boolean))].map((id) => (
+                  <option key={id} value={id}>{id}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold mb-1">Date:</label>
+              <input
+                type="date"
+                className="p-2 border rounded w-48"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleFilterSubmit}
+                className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
+              >
+                Apply Filters
+              </button>
+              <button
+                onClick={handleResetFilters}
+                className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-400 transition duration-300"
+              >
+                Reset
+              </button>
+            </div>
           </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-1">Date:</label>
-            <input
-              type="date"
-              className="p-2 border rounded w-48"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            />
-          </div>
-
           <div className="flex gap-2">
-            <button
-              onClick={handleFilterSubmit}
-              className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
-            >
-              Apply Filters
-            </button>
-            <button
-              onClick={handleResetFilters}
-              className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-400 transition duration-300"
-            >
-              Reset
-            </button>
+            <Button onClick={() => handleExport("excel")}
+              disabled={!hasData}
+              className={`px-6 py-2 rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
+              Export to Excel
+            </Button>
+            <Button onClick={() => handleExport("csv")}
+              disabled={!hasData}
+              className={`px-6 py-2 rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
+              Export to CSV
+            </Button>
           </div>
         </div>
 
-        {/* Table */}
+        {/* Table Rendering */}
         {isTabDataLoading() ? (
           <div className="py-4">
             <div className="mb-4 flex justify-between items-center">
@@ -642,7 +685,7 @@ const Dashboard = () => {
         ) : (
           <Table
             columns={getCurrentColumns()}
-            dataSource={getCurrentData()}
+            dataSource={getCurrentData().map((item, index) => ({ ...item, key: index }))}
             pagination={{ pageSize: 10 }}
             locale={{
               emptyText: (

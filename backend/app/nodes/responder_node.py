@@ -439,9 +439,36 @@ def responder_node(state) -> Dict[str, Any]:
             logger.info(f"Sending issue acknowledgement to {sender} with issue ID: {issue_data['issue_id']}")
             response = responder_agent.send_message(sender, issue_message)
             logger.info(f"Sent issue acknowledgement to {sender}: {response}")
+        elif table_name == "enquiries":
+            # Send a general response for enquiries
+            logger.info("Table name is enquiries, sending general response")
+            
+            # Get customer name if available
+            greeting = "Hello"
+            if hasattr(state, 'customer_name') and state.customer_name:
+                greeting = f"Hello {state.customer_name}"
+            
+            # Simple direct message for enquiries
+            enquiry_message = f"{greeting},\n\nThank you for your enquiry. We've received your message and our team will get back to you as soon as possible.\n\nBest regards,\nThe Team"
+            
+            logger.info(f"Sending general response to {sender}")
+            response = responder_agent.send_message(sender, enquiry_message)
+            logger.info(f"Sent general response to {sender}: {response}")
+            
+        elif table_name == "feedback":
+            # Send a feedback acknowledgment
+            logger.info("Table name is feedback, sending feedback acknowledgment")
+            
+            # Simple direct message for feedback
+            feedback_message = "Thank you for your feedback! We appreciate you taking the time to share your thoughts with us. Your input helps us improve our services and provide a better experience for all our customers.\n\nBest regards,\nThe Team"
+            
+            logger.info(f"Sending feedback acknowledgment to {sender}")
+            response = responder_agent.send_message(sender, feedback_message)
+            logger.info(f"Sent feedback acknowledgment to {sender}: {response}")
+            
         else:
             # For any other table_name, don't send a response
-            logger.info(f"Unhandled table_name: {table_name}, not sending a generic response")
+            logger.info(f"Unhandled table_name: {table_name}, not sending a response")
             response = {"status": "skipped", "reason": f"Unhandled table_name: {table_name}"}
         
         # Calculate response time

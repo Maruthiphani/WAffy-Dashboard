@@ -11,10 +11,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 import requests
 import pandas as pd
+import re
 from dotenv import load_dotenv
 import traceback
 from app.state import MessageState
 from utils.encryption import decrypt_value
+from app.utils.time_utils import convert_relative_time_to_date
 
 # Configure logging
 logging.basicConfig(
@@ -134,6 +136,39 @@ class LoggerAgent:
         except Exception as e:
             logger.error(f"Failed to log error to database: {e}")
     
+    def _process_delivery_time(self, data: Dict[str, Any]) -> str:
+        """Process delivery time from data or extracted_info
+        
+        Args:
+            data: Dictionary containing message data
+            
+        Returns:
+            Formatted delivery time string
+        """
+        # First check if delivery_time is directly in the data
+        if data.get("delivery_time"):
+            delivery_time = data.get("delivery_time")
+            # If it's already a formatted date, return it
+            if re.match(r'\d{4}-\d{2}-\d{2}', delivery_time):
+                return delivery_time
+            # Otherwise, try to convert it from a relative time
+            return convert_relative_time_to_date(delivery_time).split(' ')[0]  # Get just the date part
+            
+        # Check if delivery_time is in extracted_info
+        if data.get("extracted_info") and isinstance(data.get("extracted_info"), dict):
+            extracted_info = data.get("extracted_info")
+            if extracted_info.get("delivery_time"):
+                delivery_time = extracted_info.get("delivery_time")
+                # Try to convert from relative time
+                converted = convert_relative_time_to_date(delivery_time)
+                # If conversion successful and it's a date format, return just the date part
+                if re.match(r'\d{4}-\d{2}-\d{2}', converted):
+                    return converted.split(' ')[0]  # Get just the date part
+                return converted
+                
+        # Default to today's date if no delivery time found
+        return datetime.now().strftime("%Y-%m-%d")
+
     def process_messages(self, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Process incoming messages and route to appropriate handler"""
         if not messages:
@@ -207,11 +242,7 @@ class LoggerAgent:
                 "stored_in_db": self.store_in_db,
                 "sent_to_hubspot": self.hubspot_enabled
             }
-            
-            # Include table-specific data in the result if available
-            if table_data:
-                result.update(table_data)
-                
+
             return result
         except Exception as e:
             error_msg = f"Error processing message: {str(e)}"
@@ -486,14 +517,41 @@ class LoggerAgent:
                     if contact_id:
                         # Extract items from the order data
                         items = []
+                        
+                        # Try to get products from different possible locations
+                        products = None
+                        
+                        # Check if products are in order_data
                         if "products" in order_data and isinstance(order_data["products"], list):
-                            for product in order_data["products"]:
-                                items.append({
-                                    "name": product.get("item", ""),
-                                    "quantity": product.get("quantity", 1),
-                                    "notes": product.get("notes", ""),
-                                    "price": product.get("price", 0)
-                                })
+                            products = order_data["products"]
+                        # Check if products are in extracted_info
+                        elif "products" in extracted_info and isinstance(extracted_info["products"], list):
+                            products = extracted_info["products"]
+                        # Check if item/quantity are directly in extracted_info
+                        elif "item" in extracted_info or "product" in extracted_info:
+                            # Create a single product from the available info
+                            item_name = extracted_info.get("item") or extracted_info.get("product") or "Unspecified item"
+                            quantity = extracted_info.get("quantity", 1)
+                            products = [{
+                                "item": item_name,
+                                "quantity": quantity
+                            }]
+                        # Fallback to creating a generic item
+                        else:
+                            # Create a generic product based on the message category
+                            products = [{
+                                "item": order_data.get("category", "Order item"),
+                                "quantity": 1
+                            }]
+                        
+                        # Process the products to create items
+                        for product in products:
+                            items.append({
+                                "name": product.get("item", ""),
+                                "quantity": product.get("quantity", 1),
+                                "notes": product.get("notes", ""),
+                                "price": product.get("price", 0)
+                            })
                     
                         # Create the order with dynamic properties
                         self._create_hubspot_order(access_token, items, order_data.get("message", ""), contact_id, order_data)
@@ -1650,8 +1708,8 @@ class LoggerAgent:
                         total_amount=data.get("total_amount", "0"),
                         # Add delivery information
                         delivery_address=data.get("delivery_address"),
-                        # Set today's date as default delivery time if none provided
-                        delivery_time=data.get("delivery_time") or datetime.now().strftime("%Y-%m-%d"),
+                        # Process delivery time from data or extracted_info
+                        delivery_time=self._process_delivery_time(data),
                         delivery_method=data.get("delivery_method")
                     )
                     
@@ -1710,8 +1768,8 @@ class LoggerAgent:
                     total_amount=data.get("total_amount", "0"),
                     # Add delivery information
                     delivery_address=data.get("delivery_address"),
-                    # Set today's date as default delivery time if none provided
-                    delivery_time=data.get("delivery_time") or datetime.now().strftime("%Y-%m-%d"),
+                    # Process delivery time from data or extracted_info
+                    delivery_time=self._process_delivery_time(data),
                     delivery_method=data.get("delivery_method")
                 )
                 

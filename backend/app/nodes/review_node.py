@@ -61,6 +61,9 @@ def review_node(state: MessageState, db: Session = Depends(get_db)) -> MessageSt
                 state.order_number = reviewed_data.get("order_number")
                 print(f"REVIEW NODE: Setting is_addition_to_existing_order to True directly on state")
                 print(f"REVIEW NODE: Setting order_number to '{reviewed_data.get('order_number')}' directly on state")
+            except Exception as e:
+                print(f"REVIEW NODE: Error setting attributes on state: {e}")
+                logger.error(f"Error setting attributes on state: {e}")
             
             # Also add to extracted_info to ensure it's passed to the logger agent
             if not hasattr(state, 'extracted_info') or state.extracted_info is None:

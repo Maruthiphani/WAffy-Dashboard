@@ -48,7 +48,7 @@ def get_listener_router(graph):
     
     async def verify_webhook(phone_number_id: str, request: Request):
         #get verify token from database
-        expected_token = fetch_verify_token_by_phone_number(decrypt_value(phone_number_id))
+        expected_token = fetch_verify_token_by_phone_number(phone_number_id)
         VERIFY_TOKEN= expected_token["VERIFY_TOKEN"]
         # Extract query parameters from Facebook's verification request
         params = request.query_params

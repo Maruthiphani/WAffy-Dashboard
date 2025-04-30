@@ -226,7 +226,7 @@ async def update_user_settings(clerk_id: str, settings_data: dict, background_ta
     # Update settings with encrypted sensitive data
     for key, value in settings_data.items():
         try:
-            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key", "whatsapp_phone_number_id"] and value:
+            if key in ["whatsapp_app_id", "whatsapp_app_secret", "whatsapp_verify_token", "whatsapp_api_key"] and value:
                 print(f"Updating {key} with value: {value}")
                 # Encrypt sensitive values
                 encrypted_value = encrypt_value(value)
@@ -244,9 +244,14 @@ async def update_user_settings(clerk_id: str, settings_data: dict, background_ta
                 elif key == "whatsapp_verify_token":
                     verify_token = value
                     whatsapp_credentials_updated = True
-                elif key == "whatsapp_phone_number_id":
-                    phone_number_id = value
-                    phone_number_id_updated = True
+            elif key == "whatsapp_phone_number_id" and value:
+                # Store phone_number_id without encryption
+                print(f"Updating {key} with value: {value} (not encrypted)")
+                setattr(user_settings, key, value)
+                logger.info(f"Stored {key} without encryption")
+                phone_number_id = value
+                phone_number_id_updated = True
+                whatsapp_credentials_updated = True
             elif key == "hubspot_access_token" and value:
                 # Encrypt sensitive values
                 encrypted_value = encrypt_value(value)

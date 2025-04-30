@@ -2350,6 +2350,30 @@ def get_user_id_from_business_phone_id(business_phone_id: str) -> Optional[int]:
     finally:
         db.close()
 
+def get_categories_for_business(business_phone_id: str) -> Optional[List[str]]:
+    """Fetch the user-defined categories for a business based on business_phone_id."""
+    db: Session = SessionLocal()
+    try:
+        user_settings = (
+            db.query(UserSettings)
+            .filter(UserSettings.whatsapp_phone_number_id == business_phone_id)
+            .first()
+        )
+
+        if user_settings and user_settings.categories:
+            logger.info(f"Categories for {business_phone_id}: {user_settings.categories}")
+            return user_settings.categories
+        else:
+            logger.warning(f"No categories found for business_phone_id: {business_phone_id}")
+            return None
+
+    except Exception as e:
+        logger.error(f"Error fetching categories for business_phone_id {business_phone_id}: {str(e)}")
+        return None
+
+    finally:
+        db.close()
+
 # Function to handle incoming messages
 def process_whatsapp_messages(user_id: str, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Process WhatsApp messages for a specific user"""

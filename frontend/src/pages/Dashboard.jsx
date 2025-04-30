@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DashboardHeader from "../components/DashboardHeader";
-import { getOrders, getCustomers, getEnquiries, getIssues, getResponseMetrics } from "../services/userService";
+import { getOrders, getCustomers, getEnquiries, getIssues, getResponseMetrics, getUserSettings } from "../services/userService";
+import SetupBanner from "../components/SetupBanner";
+import ErrorBanner from "../components/ErrorBanner";
 import { Table, Button, Tag, Progress, Spin } from "antd";
 import { useUser } from "@clerk/clerk-react";
 import Loader from "../components/Loader";
@@ -29,6 +31,10 @@ const Dashboard = () => {
   const [dateFilter, setDateFilter] = useState(new Date().toISOString().split("T")[0]);
 
   const [selectedCustomer, setSelectedCustomer] = useState("");
+  
+  // State for the setup banner
+  const [showSetupBanner, setShowSetupBanner] = useState(false);
+  const [settingsChecked, setSettingsChecked] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
 
   // Use Clerk's useUser hook to get the authenticated user
@@ -38,11 +44,37 @@ const Dashboard = () => {
   const handleUpdateProfile = () => alert("Update profile clicked!");
 
   useEffect(() => {
-    // Fetch data when Clerk user is loaded
     if (isClerkLoaded && clerkUser?.id) {
       fetchAllData();
+      checkUserSettings();
     }
-  }, [isClerkLoaded, clerkUser?.id]);
+  }, [isClerkLoaded, clerkUser?.id, tab, customerFilter, dateFilter]);
+  
+  // Check if the user has configured their WhatsApp and CRM settings
+  const checkUserSettings = async () => {
+    if (!settingsChecked && clerkUser) {
+      try {
+        const settings = await getUserSettings(clerkUser.id);
+        
+        // Check if WhatsApp settings are configured
+        const hasWhatsAppSettings = settings && 
+          (settings.whatsapp_api_key && settings.whatsapp_phone_number_id && settings.whatsapp_app_id && settings.whatsapp_app_secret && settings.whatsapp_verify_token);
+        
+        // Check if CRM settings are configured (either HubSpot or Excel export)
+        const hasCrmSettings = settings && 
+          (settings.hubspot_enabled && settings.hubspot_api_key) || settings.consolidated_data;
+        
+        // Show the banner if either WhatsApp or CRM settings are not configured
+        setShowSetupBanner(!hasWhatsAppSettings || !hasCrmSettings);
+        setSettingsChecked(true);
+      } catch (error) {
+        console.error('Error checking user settings:', error);
+        // If there's an error, assume settings are not configured
+        setShowSetupBanner(true);
+        setSettingsChecked(true);
+      }
+    }
+  };
 
   const fetchAllData = async () => {
     if (!isClerkLoaded || !clerkUser) return;
@@ -469,6 +501,14 @@ const Dashboard = () => {
     <>
       <DashboardHeader user={clerkUser} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
       <div className="min-h-screen bg-gray-50 space-y-6 pt-24 px-4 sm:px-6">
+        {/* Setup Banner for new users */}
+        <SetupBanner 
+          visible={showSetupBanner} 
+          onClose={() => setShowSetupBanner(false)} 
+        />
+        
+        {/* Error Banner for configuration issues */}
+        {clerkUser && <ErrorBanner userId={clerkUser.id} />}
         {/* Stats Overview */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Business Overview</h2>

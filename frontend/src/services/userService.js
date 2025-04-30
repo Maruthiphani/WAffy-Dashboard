@@ -31,6 +31,36 @@ export const createUser = async (userData) => {
 };
 
 /**
+ * Get error logs for a specific user, optionally filtered by error types
+ * @param {string} userId - The user's clerk ID
+ * @param {Array<string>} errorTypes - Optional array of error types to filter by (e.g., ['WhatsApp Error', 'HubSpot Error'])
+ * @returns {Promise<Array>} - Promise with the error logs
+ */
+export const getUserErrorLogs = async (userId, errorTypes = []) => {
+  try {
+    let url = `${API_URL}/error-logs?clerk_id=${userId}`;
+    
+    // Add error types to the query if provided
+    if (errorTypes && errorTypes.length > 0) {
+      errorTypes.forEach(type => {
+        url += `&error_types=${encodeURIComponent(type)}`;
+      });
+    }
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching error logs:', error);
+    return []; // Return empty array on error to prevent UI crashes
+  }
+};
+
+/**
  * Get user data by Clerk ID
  * @param {string} clerkId - Clerk user ID
  * @returns {Promise} - Promise with the user data or null if not found

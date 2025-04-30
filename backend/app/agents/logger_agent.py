@@ -48,11 +48,9 @@ class LoggerAgent:
         # Check if HubSpot integration is enabled
         self.hubspot_enabled = False
         self.hubspot_access_token = None
-        print("ABBBBBBBB")
         # Check for HubSpot configuration
-        print("User settings found", self.user_settings)
+        logger.debug(f"User settings found: {self.user_settings}")
         if self.user_settings and self.user_settings.hubspot_access_token:
-            print("User settings found")
             # Enable HubSpot if crm_type is set to hubspot
             if self.user_settings.crm_type == "hubspot":
                 self.hubspot_enabled = True
@@ -174,14 +172,14 @@ class LoggerAgent:
             self.message_state = message_state
             
             # Debug print to see what's in the message_state
-            print(f"LOGGER AGENT: 📝 Processing message state: {json.dumps(message_state.dict() if hasattr(message_state, 'dict') else message_state, default=str)[:200]}...")
+            logger.debug(f"Processing message state: {json.dumps(message_state.dict() if hasattr(message_state, 'dict') else message_state, default=str)[:200]}...")
             
             # Check if order information is directly in the message_state dictionary
             if isinstance(message_state, dict):
                 if message_state.get('is_addition_to_existing_order'):
-                    print(f"LOGGER AGENT: ✅ Found is_addition_to_existing_order in message_state dict")
+                    logger.debug("Found is_addition_to_existing_order in message_state dict")
                 if message_state.get('order_number'):
-                    print(f"LOGGER AGENT: ✅ Found order_number in message_state dict: {message_state.get('order_number')}")
+                    logger.debug(f"Found order_number in message_state dict: {message_state.get('order_number')}")
             
             interaction = None
             

@@ -16,7 +16,7 @@ from typing import Optional, List
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
 from database import get_db
-from app.models import User, UserSettings, Order, Customer, Enquiry, Issue, ResponseMetrics
+from app.models import User, UserSettings, Order, Customer, Enquiry, Issue, ResponseMetrics, ErrorLog
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -486,6 +486,37 @@ class OrderResponse(BaseModel):
   ##  """Fetch all orders"""
     ##orders = db.query(Order).all()
     ##return orders
+
+@app.get("/api/error-logs", response_model=List[dict])
+async def get_error_logs(clerk_id: str, error_types: Optional[List[str]] = None, db: Session = Depends(get_db)):
+    """Fetch error logs for a specific user, optionally filtered by error types"""
+    # Get user by clerk_id
+    user = get_user_by_clerk_id(db, clerk_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Base query - filter by the user's ID (integer), not the clerk_id (string)
+    query = db.query(ErrorLog).filter(ErrorLog.user_id == user.id)
+    
+    # Filter by error types if provided
+    if error_types:
+        query = query.filter(ErrorLog.error_type.in_(error_types))
+    
+    # Order by created_at in descending order to get latest first
+    error_logs = query.order_by(ErrorLog.created_at.desc()).all()
+    
+    # Convert to dict for response
+    result = []
+    for log in error_logs:
+        result.append({
+            "error_id": log.error_id,
+            "error_type": log.error_type,
+            "error_message": log.error_message,
+            "source": log.source,
+            "created_at": log.created_at
+        })
+    
+    return result
 
 @app.get("/api/orders", response_model=List[dict])
 async def get_orders(clerk_id: str = None, db: Session = Depends(get_db)):

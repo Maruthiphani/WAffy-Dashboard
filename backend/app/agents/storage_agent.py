@@ -25,9 +25,9 @@ class StorageAgent:
         try:
             with open(self.filepath, "w") as f:
                 json.dump(existing, f, indent=2)
-            print(f"[StorageAgent] Message saved for sender: {message_data.get('sender')}")
+            logger.info(f"Message saved for sender: {message_data.get('sender')}")
         except Exception as e:
-            print(f"[StorageAgent] Error saving message:", e)
+            logger.error(f"Error saving message: {e}")
 
 # ✅ Singleton for use in node
 storage_agent = StorageAgent()

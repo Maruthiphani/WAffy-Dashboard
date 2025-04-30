@@ -1,6 +1,7 @@
 """
 Business-related API routes for WAffy Dashboard
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -8,6 +9,9 @@ from typing import List, Optional
 from pydantic import BaseModel
 from app.models import Business, BusinessTag, UserSettings, User
 from database import get_db
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["business"])
 
@@ -146,7 +150,7 @@ def get_user_business_tags(clerk_id: str, db: Session = Depends(get_db)):
             return settings.business_tags
         return []
     except Exception as e:
-        print(f"Error parsing business tags: {e}")
+        logger.error(f"Error parsing business tags: {e}")
         return []
 
 @router.put("/users/{clerk_id}/business-tags", response_model=List[int])

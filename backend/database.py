@@ -2,10 +2,14 @@
 Database connection and session management
 """
 import os
+import logging
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -17,7 +21,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL.startswith('postgres://'):
     DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
 
-print(f"Connecting to database: {DATABASE_URL}")
+logger.info(f"Connecting to database: {DATABASE_URL}")
 
 # SQLAlchemy setup
 engine = create_engine(DATABASE_URL)

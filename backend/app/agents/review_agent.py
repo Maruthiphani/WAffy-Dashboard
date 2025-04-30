@@ -37,6 +37,20 @@ class ReviewAgent:
             
             # Get customer ID
             customer_id = data.get("customer_id")
+            print(f"REVIEW AGENT: 🔍 Original customer_id from data: '{customer_id}', Type: {type(customer_id)}")
+            
+            # Try to clean up the customer_id if it's not in the expected format
+            if customer_id and isinstance(customer_id, str):
+                # Remove any non-digit characters if it's a phone number
+                if customer_id.startswith("+") or customer_id.startswith("91"):
+                    cleaned_id = ''.join(c for c in customer_id if c.isdigit())
+                    print(f"REVIEW AGENT: 🔍 Cleaned customer_id: '{cleaned_id}'")
+                    # Add country code if it's missing
+                    if not cleaned_id.startswith("91") and len(cleaned_id) == 10:
+                        cleaned_id = "91" + cleaned_id
+                        print(f"REVIEW AGENT: 🔍 Added country code: '{cleaned_id}'")
+                    customer_id = cleaned_id
+            
             if not customer_id:
                 print("REVIEW AGENT: ❌ No customer_id found in order data")
                 logger.warning("No customer_id found in order data")
@@ -189,16 +203,69 @@ class ReviewAgent:
         """Get pending orders for a customer, ordered by most recent first"""
         try:
             print(f"REVIEW AGENT: 📦 Getting pending orders for customer {customer_id}")
+            print(f"REVIEW AGENT: 🔍 Customer ID type: {type(customer_id)}, value: '{customer_id}'")
             # Get the most recent order for this customer
-            most_recent_order = (
-                self.db.query(Order)
-                .filter(Order.customer_id == customer_id)
-                .order_by(desc(Order.created_at))
-                .first()
-            )
+            # Try different approaches to match the customer_id with the database
+            customer_id_str = str(customer_id)
+            print(f"REVIEW AGENT: 🔍 Using customer_id as string: '{customer_id_str}'")
+            
+            # Try direct comparison with the original customer_id
+            query1 = self.db.query(Order).filter(Order.customer_id == customer_id).order_by(desc(Order.created_at))
+            result1 = query1.first()
+            print(f"REVIEW AGENT: 🔍 Query 1 (original ID): {result1 is not None}")
+            
+            # Try with string casting
+            query2 = self.db.query(Order).filter(Order.customer_id == customer_id_str).order_by(desc(Order.created_at))
+            result2 = query2.first()
+            print(f"REVIEW AGENT: 🔍 Query 2 (string cast): {result2 is not None}")
+            
+            # Try with explicit cast in SQL
+            from sqlalchemy import cast, String
+            query3 = self.db.query(Order).filter(cast(Order.customer_id, String) == customer_id_str).order_by(desc(Order.created_at))
+            result3 = query3.first()
+            print(f"REVIEW AGENT: 🔍 Query 3 (SQL cast): {result3 is not None}")
+            
+            # Use the query that worked
+            query = query2 if result2 is not None else (query1 if result1 is not None else query3)
+            print(f"REVIEW AGENT: 🔍 Using query that worked")
+            
+            # Print the raw SQL query for debugging
+            print(f"REVIEW AGENT: 🔍 Raw SQL query: {query}")
+            
+            # Check if there are ANY orders for this customer, regardless of status
+            all_orders = self.db.query(Order).filter(Order.customer_id == customer_id_str).all()
+            print(f"REVIEW AGENT: 🔍 Found {len(all_orders)} total orders for customer {customer_id_str}")
+            if all_orders:
+                print(f"REVIEW AGENT: 🔍 First order: ID={all_orders[0].order_id}, Number={all_orders[0].order_number}, Status={all_orders[0].order_status}")
+                print(f"REVIEW AGENT: 🔍 Customer ID in DB: '{all_orders[0].customer_id}', Type: {type(all_orders[0].customer_id)}")
+            else:
+                # Try a LIKE query to find similar customer IDs
+                print("REVIEW AGENT: 🔍 Trying LIKE query to find similar customer IDs...")
+                from sqlalchemy import or_
+                similar_orders = self.db.query(Order).filter(
+                    or_(
+                        Order.customer_id.like(f"%{customer_id_str}%"),
+                        Order.customer_id.like(f"%{customer_id_str.lstrip('+')}%")  # Try without leading +
+                    )
+                ).all()
+                if similar_orders:
+                    print(f"REVIEW AGENT: 🔍 Found {len(similar_orders)} orders with similar customer ID")
+                    print(f"REVIEW AGENT: 🔍 Similar customer IDs found: {[order.customer_id for order in similar_orders[:5]]}")
+                else:
+                    print("REVIEW AGENT: 🔍 No similar customer IDs found")
+                    
+                # Get all customer IDs in the database to see what's available
+                all_customers = self.db.query(Order.customer_id).distinct().limit(10).all()
+                print(f"REVIEW AGENT: 🔍 Sample customer IDs in database: {[cid[0] for cid in all_customers]}")
+            
+            most_recent_order = query.first()
 
-            print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_number} - {most_recent_order.created_at}")
-            print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_status}")
+            # Check if most_recent_order exists before trying to access its properties
+            if most_recent_order:
+                print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_number} - {most_recent_order.created_at}")
+                print(f"REVIEW AGENT: 📦 Most recent order status: {most_recent_order.order_status}")
+            else:
+                print(f"REVIEW AGENT: ❌ No orders found for customer {customer_id}")
             
             # If no orders or the most recent order is not pending, return empty list
             if not most_recent_order or most_recent_order.order_status != "pending":

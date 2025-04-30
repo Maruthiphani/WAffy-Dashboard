@@ -321,12 +321,18 @@ def responder_node(state) -> Dict[str, Any]:
                         for product in products:
                             if isinstance(product, dict) and 'item' in product:
                                 item_text = product['item']
+                                # Ensure item_text doesn't contain 'None'
+                                if item_text and 'None' in str(item_text):
+                                    item_text = item_text.replace('None', '').strip()
+                                
                                 quantity = product.get('quantity', 1)
                                 unit = product.get('unit', '')
                                 
                                 # Format the item with quantity and unit
                                 formatted_item = f"{quantity} {unit} {item_text}".strip()
-                                formatted_item = formatted_item.replace('  ', ' ')  # Remove double spaces
+                                # Clean up any double spaces
+                                while '  ' in formatted_item:
+                                    formatted_item = formatted_item.replace('  ', ' ')
                                 items_list.append(formatted_item)
                                 
                                 logger.info(f"Added product to order: {formatted_item}")

@@ -206,7 +206,7 @@ const Dashboard = () => {
     },
     { title: "Notes", dataIndex: "Notes", key: "Notes" },
     { title: "Status", dataIndex: "Status", key: "Status", render: (text) => <Tag color="green">{text}</Tag> },
-    { title: "Amount ($)", dataIndex: "Amount", key: "Amount" },
+    { title: "Amount (₹)", dataIndex: "Amount", key: "Amount" },
     { title: "Delivery Address", dataIndex: "DeliveryAddress", key: "DeliveryAddress", render: (text) => text || "-" },
     { title: "Delivery Time", dataIndex: "DeliveryTime", key: "DeliveryTime", render: (text) => text || "-" },
     {
@@ -344,8 +344,16 @@ const Dashboard = () => {
     const totalEnquiries = enquiries.length;
     const totalIssues = issues.length;
 
-    const totalRevenue = orders.reduce((sum, order) => sum + (parseFloat(order.Amount) || 0), 0);
-    const averageOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : 0;
+    const totalRevenue = orders.reduce((sum, order) => {
+      // Ensure Amount is a valid number
+      const amount = order.Amount ? parseFloat(order.Amount) : 0;
+      return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
+    
+    // Calculate average order value consistently
+    const avgOrderValueRaw = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const avgOrderValueFormatted = isNaN(avgOrderValueRaw) ? "0.00" : avgOrderValueRaw.toFixed(2);
+    const averageOrderValue = avgOrderValueFormatted; // For consistency with the other display
 
     const today = new Date().toISOString().split("T")[0];
     const todayOrders = orders.filter((order) => {
@@ -373,13 +381,18 @@ const Dashboard = () => {
     const completedOrders = filteredOrders.filter((order) => order.Status === "delivered").length;
     const completionRate = totalOrders > 0 ? `${Math.round((completedOrders / totalOrders) * 100)}%` : "0%";
 
-    const totalOrderValue = filteredOrders.reduce((sum, order) => sum + (order.Amount || 0), 0);
-    const avgOrderValue = totalOrders > 0 ? `$${(totalOrderValue / totalOrders).toFixed(2)}` : "$0.00";
+    // Use the same calculation method as above for consistency
+    const avgOrderValue = `₹${avgOrderValueFormatted}`;
 
     const resolvedIssues = filteredIssues.filter((issue) => issue.Status === "resolved").length;
     const resolutionRate = totalIssues > 0 ? `${Math.round((resolvedIssues / totalIssues) * 100)}%` : "0%";
 
+    // Calculate response rate based on total messages and responses
+    const totalMessages = totalOrders + totalEnquiries + totalIssues;
     const totalResponses = responseMetrics.length;
+    const responseRate = totalMessages > 0 ? `${Math.round((totalResponses / totalMessages) * 100)}%` : "0%";
+    
+    // Calculate average response time
     const totalResponseTime = responseMetrics.reduce((sum, metric) => sum + (metric.ResponseTimeSeconds || 0), 0);
     const avgResponseTimeSeconds = totalResponses > 0 ? totalResponseTime / totalResponses : 0;
 
@@ -408,7 +421,7 @@ const Dashboard = () => {
       todayOrders,
       pendingOrders: ordersByStatus["Pending"] || 0,
       retentionRate: `${retentionRate}%`,
-      responseRate: resolutionRate, // Assuming responseRate is same as resolutionRate
+      responseRate, // Calculated based on total messages and responses
       completedOrders,
       completionRate,
       avgOrderValue,
@@ -473,8 +486,8 @@ const Dashboard = () => {
               </div>
               <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500">
                 <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
-                <p className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</p>
-                <div className="mt-2 text-sm text-gray-500">Avg. Order: ${stats.averageOrderValue}</div>
+                <p className="text-2xl font-bold">₹{stats.totalRevenue.toFixed(2)}</p>
+                <div className="mt-2 text-sm text-gray-500">Avg. Order: ₹{stats.averageOrderValue}</div>
               </div>
               <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-purple-500">
                 <h3 className="text-sm font-medium text-gray-500">Total Customers</h3>

@@ -5,6 +5,13 @@ def generate_order_confirmation(order_data: Dict[str, Any]) -> str:
     """Generate a confirmation message for an order"""
     order_number = order_data.get("order_number", "N/A")
     item = order_data.get("item", "your items")
+    # Ensure item doesn't contain 'None' text
+    if item and 'None' in str(item):
+        item = item.replace('None', '').strip()
+        # Clean up any double spaces
+        while '  ' in item:
+            item = item.replace('  ', ' ')
+    
     quantity = order_data.get("quantity", 1)
     unit = order_data.get("unit", "")
     total_amount = order_data.get("total_amount", "N/A")

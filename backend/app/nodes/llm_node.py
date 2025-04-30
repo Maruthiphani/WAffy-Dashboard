@@ -34,8 +34,17 @@ def llm_node(state: MessageState) -> MessageState:
     if not state.message:
         print("[LLMNode] No message to analyze")
         return state
+    
+    # Safety check before calling full LLM analysis
+    if not llm_agent.is_safe(state.message):
+        print("[LLMNode] Message blocked due to harmful content")
+        state.predicted_category = "rejected"
+        state.priority = "null"
+        state.conversation_status = "blocked"
+        state.extracted_info = {}
+        state.table_name = None
+        return state
 
-    print(f"[LLMNode] 🤖 Analyzing message: {state.message}")
     result = llm_agent.analyze(state.message, state.context or [])
 
     state.predicted_category = result.get("category", "unknown")
@@ -49,8 +58,5 @@ def llm_node(state: MessageState) -> MessageState:
     category = state.predicted_category
     table_name = map_category_to_table(state.predicted_category)
     state.table_name = table_name
-
-    print(f"[LLMNode] ✅ Analysis result:\n{json.dumps(result, indent=2)}")
-    print(f"[LLMNode] 🧾 Merged extracted_info:\n{json.dumps(state.extracted_info, indent=2)}")
 
     return state

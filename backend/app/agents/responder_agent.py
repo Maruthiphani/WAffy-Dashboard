@@ -42,15 +42,9 @@ class ResponderAgent:
             self.api_key = os.environ.get('WHATSAPP_API_KEY')
         
         if user_settings and hasattr(user_settings, 'whatsapp_phone_number_id'):
-            if isinstance(user_settings.whatsapp_phone_number_id, str) and not user_settings.whatsapp_phone_number_id.startswith('gAAAAAB'):
-                self.phone_number_id = user_settings.whatsapp_phone_number_id
-            else:
-                try:
-                    self.phone_number_id = user_settings.whatsapp_phone_number_id
-                except Exception as e:
-                    logger.error(f"Error decrypting phone number ID: {str(e)}")
-                    self.phone_number_id = user_settings.whatsapp_phone_number_id
-                    print(f"Using phone number ID directly: {self.phone_number_id}")
+            # whatsapp_phone_number_id is stored as plain text, no need to decrypt
+            self.phone_number_id = user_settings.whatsapp_phone_number_id
+            logger.info(f"Using phone number ID from user settings: {self.phone_number_id}")
         else:
             self.phone_number_id = os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
             print(f"Using environment variable for phone number ID: {self.phone_number_id}")

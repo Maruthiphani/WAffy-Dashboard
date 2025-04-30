@@ -145,16 +145,8 @@ class LoggerAgent:
         Returns:
             Formatted delivery time string
         """
-        # First check if delivery_time is directly in the data
-        if data.get("delivery_time"):
-            delivery_time = data.get("delivery_time")
-            # If it's already a formatted date, return it
-            if re.match(r'\d{4}-\d{2}-\d{2}', delivery_time):
-                return delivery_time
-            # Otherwise, try to convert it from a relative time
-            return convert_relative_time_to_date(delivery_time).split(' ')[0]  # Get just the date part
-            
-        # Check if delivery_time is in extracted_info
+        
+        # First check if delivery_time is in extracted_info
         if data.get("extracted_info") and isinstance(data.get("extracted_info"), dict):
             extracted_info = data.get("extracted_info")
             if extracted_info.get("delivery_time"):
@@ -165,6 +157,15 @@ class LoggerAgent:
                 if re.match(r'\d{4}-\d{2}-\d{2}', converted):
                     return converted.split(' ')[0]  # Get just the date part
                 return converted
+                
+        # Then check if delivery_time is directly in the data
+        if data.get("delivery_time"):
+            delivery_time = data.get("delivery_time")
+            # If it's already a formatted date, return it
+            if re.match(r'\d{4}-\d{2}-\d{2}', delivery_time):
+                return delivery_time
+            # Otherwise, try to convert it from a relative time
+            return convert_relative_time_to_date(delivery_time).split(' ')[0]  # Get just the date part
                 
         # Default to today's date if no delivery time found
         return datetime.now().strftime("%Y-%m-%d")

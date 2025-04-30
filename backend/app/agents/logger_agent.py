@@ -183,19 +183,22 @@ class LoggerAgent:
             
             interaction = None
             
-            # Always store in the database if view_consolidated_data is enabled or if HubSpot is enabled
-            if self.store_in_db:
-                # Log the interaction first
-                interaction = self._store_interaction(message_state)
-                
-                # Store in appropriate table based on table_name if specified
-                table_data = None
-                if message_state.table_name:
-                    table_data = self._store_in_specific_table(message_state)
-                
-            # If HubSpot integration is enabled, send to HubSpot
-            if self.hubspot_enabled:
-                self._send_to_hubspot(message_state)
+            # Skip storing harmful/rejected messages
+            if message_state.predicted_category != "rejected":
+                # Always store in the database if view_consolidated_data is enabled or if HubSpot is enabled
+                if self.store_in_db:
+                    # Log the interaction first
+                    interaction = self._store_interaction(message_state)
+
+                    # Store in appropriate table based on table_name if specified
+                    if message_state.table_name:
+                        self._store_in_specific_table(message_state)
+
+                # If HubSpot integration is enabled, send to HubSpot
+                if self.hubspot_enabled:
+                    self._send_to_hubspot(message_state)
+            else:
+                logger.info("Skipping storage and CRM sync for rejected/harmful message.")
                 
             result = {
                 "status": "success",

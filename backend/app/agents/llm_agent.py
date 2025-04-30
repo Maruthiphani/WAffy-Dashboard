@@ -1,7 +1,3 @@
-# app/agents/llm_agent.py
-
-# app/agents/llm_agent.py
-
 import os
 import json
 import re
@@ -15,8 +11,6 @@ categories_str = ", ".join(DEFAULT_CATEGORIES)
 priority_map_str = "\n".join(f"- {k}: {v}" for k, v in DEFAULT_PRIORITY_MAP.items())
 schema_str = "\n".join(f"- {k}: {v}" for k, v in STANDARD_KEYS.items())
 
-
-
 # === Load credentials and initialize client ===
 load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
@@ -25,7 +19,48 @@ client = genai.Client(api_key=gemini_api_key)
 GEMINI_MODEL = "gemini-2.0-flash-lite"  # update to latest model if available
 
 class GeminiLLMAgent:
-    def analyze(self, message: str, context: list[str] = None, prev_info: dict | None = None) -> dict:
+
+    def is_safe(self, message: str) -> bool:
+        """Lightweight safety pre-check before full processing."""
+        safety_prompt = f"""
+                Is the following message harmful or inappropriate?
+                Examples of harmful content include:
+                - Hate speech
+                - Harassment
+                - Sexually explicit material
+                - Threats or violent language
+
+                Message:
+                "{message}"
+
+                Respond only with "Yes" if it's harmful, or "No" if it's safe.
+        """.strip()
+
+        try:
+            safety_response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=[safety_prompt],
+                config=types.GenerateContentConfig(
+                    temperature=0.2,
+                    top_p=0.9,
+                    max_output_tokens=10,
+                    safety_settings=[
+                        types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE),
+                        types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE),
+                        types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH),
+                        types.SafetySetting(category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=types.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE),
+                    ]
+                )
+            )
+
+            verdict = safety_response.text.strip().lower()
+            return verdict == "no"
+
+        except Exception as e:
+            print("[LLMAgent] Safety check failed, assuming message is safe. Error:", e)
+            return True  # Fail open to avoid false blocking
+
+    def analyze(self, message: str,context: list[str] = None, prev_info: dict | None = None) -> dict:
         prompt = self._build_prompt(message, context)
 
         generation_config = types.GenerateContentConfig(

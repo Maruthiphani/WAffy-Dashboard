@@ -839,6 +839,22 @@ async def get_response_metrics(clerk_id: str = None, days: int = 30, db: Session
     
     return formatted_metrics
 
+##code to update order status in DB
+class OrderStatusUpdate(BaseModel):
+    status: str
+
+@app.put("/api/orders/{order_number}")
+async def update_order_status(order_number: str, update: OrderStatusUpdate, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.order_number == order_number).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    order.order_status = update.status
+    db.commit()
+    db.refresh(order)
+    return {"message": "Order status updated", "order_number": order_number}
+
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,5 +1,6 @@
 from typing import Optional, Dict, List
 from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
 
 class MessageState(BaseModel):
     timestamp: Optional[str] = None
@@ -20,4 +21,14 @@ class MessageState(BaseModel):
 
     business_phone_number: Optional[str] = None
     business_phone_id: Optional[str] = None
-    table_name: Optional[str] = None 
+    table_name: Optional[str] = None
+    
+    # Fields for order consolidation
+    is_addition_to_existing_order: Optional[bool] = False
+    order_number: Optional[str] = None
+    delivery_address: Optional[str] = None
+    delivery_time: Optional[str] = None
+    delivery_method: Optional[str] = None
+    
+    class Config:
+        extra = "allow"

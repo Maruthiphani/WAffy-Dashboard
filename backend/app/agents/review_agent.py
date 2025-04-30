@@ -188,6 +188,7 @@ class ReviewAgent:
     def _get_pending_orders(self, customer_id: str) -> List[Order]:
         """Get pending orders for a customer, ordered by most recent first"""
         try:
+            print(f"REVIEW AGENT: 📦 Getting pending orders for customer {customer_id}")
             # Get the most recent order for this customer
             most_recent_order = (
                 self.db.query(Order)
@@ -195,6 +196,9 @@ class ReviewAgent:
                 .order_by(desc(Order.created_at))
                 .first()
             )
+
+            print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_number} - {most_recent_order.created_at}")
+            print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_status}")
             
             # If no orders or the most recent order is not pending, return empty list
             if not most_recent_order or most_recent_order.order_status != "pending":

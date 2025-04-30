@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from app.models import Order, Customer
+from database import SessionLocal
 
 logger = logging.getLogger(__name__)
 
@@ -18,32 +19,8 @@ class ReviewAgent:
     
     def __init__(self, db: Session):
         # Store the database session
-        self.db = db
-        
-    def _get_db(self) -> Session:
-        """Get the actual database session from the Depends object if needed"""
-        # Check if db is a FastAPI Depends object and try to get the actual session
-        if hasattr(self.db, "__call__") and not hasattr(self.db, "query"):
-            try:
-                # Try to get the actual session
-                print("REVIEW AGENT: 🔍 Detected Depends object, trying to get actual session")
-                from fastapi import Depends
-                # This is a bit of a hack, but might work in some cases
-                actual_db = self.db()
-                print(f"REVIEW AGENT: ✅ Successfully got actual session: {type(actual_db)}")
-                return actual_db
-            except Exception as e:
-                print(f"REVIEW AGENT: ⚠️ Error getting actual session: {str(e)}")
-                # If we can't get the actual session, create a new one
-                try:
-                    print("REVIEW AGENT: 🔍 Creating new database session")
-                    from app.database import SessionLocal
-                    return SessionLocal()
-                except Exception as e:
-                    print(f"REVIEW AGENT: ⚠️ Error creating new session: {str(e)}")
-                    return None
-        return self.db
-    
+        self.db = SessionLocal()
+            
     def review_order(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Review order data and check if it should be consolidated with an existing pending order.
@@ -228,62 +205,30 @@ class ReviewAgent:
         """Get pending orders for a customer, ordered by most recent first"""
         try:
             print(f"REVIEW AGENT: 📦 Getting pending orders for customer {customer_id}")
-            print(f"REVIEW AGENT: 🔍 Customer ID type: {type(customer_id)}, value: '{customer_id}'")
-            
-            # Get the actual database session
-            db = self._get_db()
-            if not db:
-                print("REVIEW AGENT: ❌ Could not get a valid database session")
-                return []
-            # Get the most recent order for this customer
-            # Try different approaches to match the customer_id with the database
-            customer_id_str = str(customer_id)
-            print(f"REVIEW AGENT: 🔍 Using customer_id as string: '{customer_id_str}'")
             
             # Get the most recent order for this customer
-            try:
-                query = db.query(Order).filter(Order.customer_id == customer_id).order_by(desc(Order.created_at))
-                print(f"REVIEW AGENT: 🔍 Query: {query}")
-            except Exception as e:
-                print(f"REVIEW AGENT: ⚠️ Error in query: {str(e)}")
-                return []
-            
-            # Get the most recent order for this customer
-            try:
-                most_recent_order = query.first()
+            most_recent_order = self.db.query(Order).filter(Order.customer_id == customer_id).order_by(desc(Order.created_at)).first()
 
-                # Check if most_recent_order exists before trying to access its properties
-                if most_recent_order:
-                    print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_number} - {most_recent_order.created_at}")
-                    print(f"REVIEW AGENT: 📦 Most recent order status: {most_recent_order.order_status}")
-                else:
-                    print(f"REVIEW AGENT: ❌ No orders found for customer {customer_id}")
+            # Check if most_recent_order exists before trying to access its properties
+            if most_recent_order:
+                print(f"REVIEW AGENT: 📦 Most recent order: {most_recent_order.order_number} - {most_recent_order.created_at}")
+                print(f"REVIEW AGENT: 📦 Most recent order status: {most_recent_order.order_status}")
                 
-                # If no orders or the most recent order is not pending, return empty list
-                if not most_recent_order or most_recent_order.order_status != "pending":
-                    print(f"REVIEW AGENT: ❌ No pending orders found for customer {customer_id}")
+                # If the most recent order is not pending, return empty list
+                if most_recent_order.order_status != "pending":
+                    print(f"REVIEW AGENT: ❌ Most recent order is not pending (status: {most_recent_order.order_status})")
                     return []
-            except Exception as e:
-                print(f"REVIEW AGENT: ⚠️ Error checking most recent order: {str(e)}")
+                    
+                # Return the pending order
+                print(f"REVIEW AGENT: ✅ Found pending order {most_recent_order.order_number}")
+                return [most_recent_order]
+            else:
+                print(f"REVIEW AGENT: ❌ No orders found for customer {customer_id}")
                 return []
-            
-            # Return the most recent order in a list
-            print(f"REVIEW AGENT: ✅ Found pending order {most_recent_order.order_number} for customer {customer_id}")
-            print(f"REVIEW AGENT: 📦 Order details: Created={most_recent_order.created_at}, Item={most_recent_order.item}")
-            return [most_recent_order]
-            
+                
         except Exception as e:
             logger.error(f"Error getting pending orders: {str(e)}")
             return []
-            
-        finally:
-            # Close the session if we created a new one
-            if 'db' in locals() and db is not self.db and hasattr(db, 'close'):
-                try:
-                    db.close()
-                    print("REVIEW AGENT: 🔐 Closed database session")
-                except Exception as e:
-                    print(f"REVIEW AGENT: ⚠️ Error closing session: {str(e)}")
     
     def _is_order_continuation(self, message: str, products: List[Dict[str, Any]], context: List[str]) -> bool:
         """

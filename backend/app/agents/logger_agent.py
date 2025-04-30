@@ -1367,64 +1367,87 @@ class LoggerAgent:
         If multiple products are found, creates separate order entries with the same order number.
         Returns a list of created orders.
         """
+        print("\n" + "=" * 50)
+        print("LOGGER AGENT: Starting _store_order process")
+        print(f"LOGGER AGENT: Input data: {json.dumps(data, default=str)[:200]}...")
+        print("=" * 50)
+        
         created_orders = []
         try:
             # Ensure user_id is set correctly
             user_id = int(self.user_id) if self.user_id else None
             if self.user_settings and self.user_settings.user_id:
                 user_id = self.user_settings.user_id
+            print(f"LOGGER AGENT: 👤 Using user_id: {user_id}")
             
             # Debug log to see what's in the data
             logger.info(f"Order data: {json.dumps(data, default=str)}")
             
             # Check if this is an addition to an existing order
             is_addition = data.get("is_addition_to_existing_order", False)
+            print(f"LOGGER AGENT: 🔄 Initial is_addition flag: {is_addition}")
+            
             if "extracted_info" in data and isinstance(data["extracted_info"], dict):
                 if data["extracted_info"].get("is_addition_to_existing_order", False):
                     is_addition = True
+                    print("LOGGER AGENT: ✅ Found is_addition_to_existing_order flag in extracted_info")
                     logger.info("Found is_addition_to_existing_order flag in extracted_info")
             
             # Get order number from data or extracted_info
             order_number = data.get("order_number", "")
+            print(f"LOGGER AGENT: 🆔 Initial order_number from data: '{order_number}'")
+            
             if not order_number and "extracted_info" in data and isinstance(data["extracted_info"], dict):
                 order_number = data["extracted_info"].get("order_number", "")
                 if order_number:
+                    print(f"LOGGER AGENT: ✅ Found order_number in extracted_info: '{order_number}'")
                     logger.info(f"Using order_number from extracted_info: {order_number}")
             
             # Generate a unique order number if not provided and not adding to existing order
             if not order_number and not is_addition:
+                print("LOGGER AGENT: 🆕 Generating new order number (not an addition)")
                 # Create a timestamp-based order ID with customer prefix
                 customer_prefix = data.get("customer_id", "")[:4]
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
                 order_number = f"ORD-{customer_prefix}-{timestamp}"
+                print(f"LOGGER AGENT: 🆕 Generated new order number: '{order_number}'")
                 logger.info(f"Generated new order number: {order_number}")
             elif not order_number and is_addition:
+                print("LOGGER AGENT: 🔍 This is an addition but no order number provided, searching for existing orders...")
                 # If we're adding to an existing order but don't have the order number,
                 # find the most recent pending order for this customer
                 customer_id = data.get("customer_id")
                 if customer_id:
+                    print(f"LOGGER AGENT: 🔍 Looking for most recent pending order for customer {customer_id}")
                     most_recent_order = self._check_existing_order(customer_id)
                     if most_recent_order:
                         order_number = most_recent_order.order_number
+                        print(f"LOGGER AGENT: ✅ Found existing order '{order_number}' for customer {customer_id}")
                         logger.info(f"Found existing order {order_number} for customer {customer_id}")
                     else:
                         # No existing order found, create a new one
+                        print("LOGGER AGENT: ❌ No existing order found, will create new order instead")
                         is_addition = False
                         customer_prefix = customer_id[:4]
                         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
                         order_number = f"ORD-{customer_prefix}-{timestamp}"
+                        print(f"LOGGER AGENT: 🆕 Generated new order number: '{order_number}'")
                         logger.info(f"No existing order found, generated new order number: {order_number}")
                 
             # Log if this is an addition to an existing order
             if is_addition:
+                print(f"LOGGER AGENT: 🔄 This is an addition to existing order '{order_number}'")
                 logger.info(f"Adding products to existing order {order_number}")
+            else:
+                print(f"LOGGER AGENT: 🆕 This is a new order with order number '{order_number}'")
             
             # Ensure order_status is a valid value (check constraint issue)
             valid_statuses = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]
             order_status = data.get("status", "pending")
             if order_status not in valid_statuses:
                 order_status = "pending"  # Default to pending if invalid status
-                
+            print(f"LOGGER AGENT: 📌 Order status: '{order_status}'")
+            
             # Get interaction_id from the message_state if available
             interaction_id = None
             if hasattr(self, 'message_state') and self.message_state:
@@ -1432,38 +1455,52 @@ class LoggerAgent:
                 interaction = self._get_interaction_by_message_id(self.message_state.message_id)
                 if interaction:
                     interaction_id = interaction.interaction_id
+                    print(f"LOGGER AGENT: 🔗 Linking to interaction_id: {interaction_id}")
                     logger.info(f"Linking order to interaction_id: {interaction_id}")
             
             # Find product information
             products = []
+            print("LOGGER AGENT: 🔍 Looking for product information...")
             
             # Check for products array directly in the data object
             if "products" in data and isinstance(data["products"], list) and len(data["products"]) > 0:
-                logger.info(f"Found products array in data: {json.dumps(data['products'], default=str)}")
+                print(f"LOGGER AGENT: ✅ Found products array in data with {len(data['products'])} products")
                 products = data["products"]
+                for i, product in enumerate(products):
+                    print(f"LOGGER AGENT: 📦 Product {i+1}: {product.get('item', 'Unknown')} (qty: {product.get('quantity', 1)})")
+                logger.info(f"Found products array in data: {json.dumps(data['products'], default=str)}")
             # Check in extracted_info if not found directly
             elif data.get("extracted_info") and isinstance(data.get("extracted_info"), dict):
                 extracted_info = data.get("extracted_info")
+                print(f"LOGGER AGENT: 🔍 Checking extracted_info for products")
                 logger.info(f"Checking extracted info: {json.dumps(extracted_info, default=str)}")
                 
                 if isinstance(extracted_info, dict):
                     # Check for products array in extracted_info
                     if "products" in extracted_info and isinstance(extracted_info["products"], list) and len(extracted_info["products"]) > 0:
-                        logger.info(f"Found products array in extracted_info: {json.dumps(extracted_info['products'], default=str)}")
+                        print(f"LOGGER AGENT: ✅ Found products array in extracted_info with {len(extracted_info['products'])} products")
                         products = extracted_info["products"]
+                        for i, product in enumerate(products):
+                            print(f"LOGGER AGENT: 📦 Product {i+1}: {product.get('item', 'Unknown')} (qty: {product.get('quantity', 1)})")
+                        logger.info(f"Found products array in extracted_info: {json.dumps(extracted_info['products'], default=str)}")
                     else:
                         # Try direct keys in extracted_info
+                        print("LOGGER AGENT: 🔍 No products array found, trying direct keys in extracted_info")
                         logger.info("No products array found in extracted_info, trying direct keys")
                         # Create a single product from direct keys
+                        item = extracted_info.get("product_type", extracted_info.get("item", ""))
+                        quantity = extracted_info.get("quantity", 1)
                         products = [{
-                            "item": extracted_info.get("product_type", extracted_info.get("item", "")),
-                            "quantity": extracted_info.get("quantity", 1),
+                            "item": item,
+                            "quantity": quantity,
                             "notes": extracted_info.get("notes", ""),
                             "unit": extracted_info.get("unit", "")
                         }]
+                        print(f"LOGGER AGENT: 📦 Created product from direct keys: {item} (qty: {quantity})")
             
             # If no products found, create a default one
             if not products:
+                print("LOGGER AGENT: ⚠️ No products found, creating a default empty product")
                 products = [{
                     "item": "",
                     "quantity": 1,
@@ -1472,43 +1509,61 @@ class LoggerAgent:
                 }]
             
             # Get existing order
+            print(f"LOGGER AGENT: 🔍 Checking database for existing order with number '{order_number}'...")
             existing_order = self.db.query(Order).filter(Order.order_number == order_number).first()
             if existing_order and is_addition:
+                print(f"LOGGER AGENT: ✅ FOUND existing order with ID {existing_order.order_id} for order number '{order_number}'")
+                print(f"LOGGER AGENT: 💾 This is an addition (is_addition={is_addition}), will add products to this order")
                 logger.info(f"Found existing order {existing_order.order_id} for order number {order_number}")
                 created_orders = []
                 
                 # Add products to existing order
-                for product in products:
+                print(f"LOGGER AGENT: 💾 Processing {len(products)} products to add to existing order...")
+                for i, product in enumerate(products):
+                    print(f"\nLOGGER AGENT: 📦 Processing product {i+1}/{len(products)}")
                     # Extract values with detailed logging
                     item = product.get("item", "")
+                    print(f"LOGGER AGENT: 💾 Item: '{item}'")
                     logger.info(f"Extracted item: {item}")
                     
                     quantity = product.get("quantity", 1)
+                    print(f"LOGGER AGENT: 💾 Quantity: {quantity}")
                     logger.info(f"Extracted quantity: {quantity}")
                     
                     unit = product.get("unit", "")
+                    print(f"LOGGER AGENT: 💾 Unit: '{unit}'")
                     logger.info(f"Extracted unit: {unit}")
                     
                     # Check for details or notes
                     notes = product.get("details", product.get("notes", ""))
+                    print(f"LOGGER AGENT: 💾 Notes: '{notes}'")
                     logger.info(f"Extracted notes: {notes}")
                     
                     # Skip if this product is already in the order
+                    print(f"LOGGER AGENT: 🔍 Checking if product '{item}' already exists in order '{order_number}'...")
                     existing_product = self.db.query(Order).filter(
                         Order.order_number == order_number,
                         Order.item == item
                     ).first()
                     
                     if existing_product:
+                        print(f"LOGGER AGENT: ✅ FOUND existing product '{item}' in order '{order_number}'")
+                        print(f"LOGGER AGENT: 🔄 Current quantity: {existing_product.quantity}, Adding: {quantity}")
                         logger.info(f"Product {item} already exists in order {order_number}, updating quantity")
                         # Update quantity instead of creating a new entry
+                        old_quantity = existing_product.quantity
                         existing_product.quantity += quantity
+                        print(f"LOGGER AGENT: 🔄 Updated quantity from {old_quantity} to {existing_product.quantity}")
                         self.db.commit()
                         self.db.refresh(existing_product)
                         created_orders.append(existing_product)
+                        print(f"LOGGER AGENT: ✅ Successfully updated existing product in order")
                         continue
+                    else:
+                        print(f"LOGGER AGENT: 🆕 Product '{item}' does not exist in order '{order_number}', creating new entry")
                     
                     # Create new order entry with the same order number
+                    print(f"LOGGER AGENT: 🆕 Creating new order entry for product '{item}' with order number '{order_number}'")
                     order = Order(
                         user_id=user_id,
                         customer_id=data.get("customer_id"),
@@ -1526,36 +1581,48 @@ class LoggerAgent:
                         delivery_method=data.get("delivery_method")
                     )
                     
+                    print(f"LOGGER AGENT: 💾 Adding new product to database...")
                     self.db.add(order)
                     self.db.commit()
                     self.db.refresh(order)
                     created_orders.append(order)
+                    print(f"LOGGER AGENT: ✅ Successfully added product '{item}' to existing order '{order_number}'")
+                    print(f"LOGGER AGENT: 🆔 New order entry ID: {order.order_id}")
                     logger.info(f"Added product {item} to existing order {order_number}")
                 
                 # Return all created/updated orders
                 return created_orders if created_orders else [existing_order]
                 
             # If not adding to an existing order or no existing order found, create a new one
+            print(f"LOGGER AGENT: 🆕 Creating NEW order with order number '{order_number}'")
+            print(f"LOGGER AGENT: 💾 is_addition flag is {is_addition}, existing_order found: {existing_order is not None}")
             logger.info(f"Creating new order with order number {order_number}")
             created_orders = []
             
             # Process each product for the new order
-            for product in products:
+            print(f"LOGGER AGENT: 💾 Processing {len(products)} products for new order...")
+            for i, product in enumerate(products):
+                print(f"\nLOGGER AGENT: 📦 Processing product {i+1}/{len(products)} for NEW order")
                 # Extract values with detailed logging
                 item = product.get("item", "")
+                print(f"LOGGER AGENT: 💾 Item: '{item}'")
                 logger.info(f"New order - extracted item: {item}")
                 
                 quantity = product.get("quantity", 1)
+                print(f"LOGGER AGENT: 💾 Quantity: {quantity}")
                 logger.info(f"New order - extracted quantity: {quantity}")
                 
                 unit = product.get("unit", "")
+                print(f"LOGGER AGENT: 💾 Unit: '{unit}'")
                 logger.info(f"New order - extracted unit: {unit}")
                 
                 # Check for details or notes
                 notes = product.get("details", product.get("notes", ""))
+                print(f"LOGGER AGENT: 💾 Notes: '{notes}'")
                 logger.info(f"New order - extracted notes: {notes}")
                 
                 # Create order with delivery information
+                print(f"LOGGER AGENT: 🆕 Creating new Order entry in database with order_number='{order_number}'")
                 order = Order(
                     user_id=user_id,
                     customer_id=data.get("customer_id"),
@@ -1573,12 +1640,18 @@ class LoggerAgent:
                     delivery_method=data.get("delivery_method")
                 )
                 
+                print(f"LOGGER AGENT: 💾 Adding new order to database...")
                 self.db.add(order)
                 self.db.commit()
                 self.db.refresh(order)
                 created_orders.append(order)
+                print(f"LOGGER AGENT: ✅ Successfully created new order entry with ID {order.order_id}")
+                print(f"LOGGER AGENT: 💾 Product '{item}' added with order number '{order_number}'")
                 logger.info(f"Created new order item {item} with order number {order_number}")
             
+            print(f"LOGGER AGENT: 🔧 Returning {len(created_orders)} order entries")
+            for i, order in enumerate(created_orders):
+                print(f"LOGGER AGENT: 💾 Order {i+1}: ID={order.order_id}, Number='{order.order_number}', Item='{order.item}', Qty={order.quantity}")
             return created_orders
             
         except Exception as e:

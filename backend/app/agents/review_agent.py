@@ -30,15 +30,25 @@ class ReviewAgent:
             Updated data with consolidated order information if applicable
         """
         try:
+            print("\n" + "=" * 50)
+            print("REVIEW AGENT: Starting review_order process")
+            print(f"REVIEW AGENT: Input data: {json.dumps(data, default=str)[:200]}...")
+            print("=" * 50)
+            
             # Get customer ID
             customer_id = data.get("customer_id")
             if not customer_id:
+                print("REVIEW AGENT: ❌ No customer_id found in order data")
                 logger.warning("No customer_id found in order data")
                 return data
                 
             # Get message and context
             message = data.get("message", "")
             context = data.get("context", [])
+            
+            print(f"REVIEW AGENT: 👤 Customer ID: {customer_id}")
+            print(f"REVIEW AGENT: 💬 Message: {message}")
+            print(f"REVIEW AGENT: 📜 Context: {context[-2:] if len(context) > 1 else context}")
             
             # Log the current data for debugging
             logger.info(f"Reviewing order for customer {customer_id}")
@@ -51,59 +61,95 @@ class ReviewAgent:
             for keyword in addition_keywords:
                 if keyword in message.lower():
                     is_direct_addition = True
+                    print(f"REVIEW AGENT: 🔍 Found addition keyword: '{keyword}'")
                     logger.info(f"Found addition keyword: {keyword}")
                     break
+                    
+            print(f"REVIEW AGENT: 🔄 Is direct addition based on keywords: {is_direct_addition}")
             
             # Extract products from the current order
+            print("REVIEW AGENT: 🔍 Extracting products from order data...")
             current_products = self._extract_products(data)
             if not current_products:
+                print("REVIEW AGENT: ❌ No products found in current order")
                 logger.warning("No products found in current order")
                 return data
             
             # Log the products found
             product_names = [p.get("item", "") for p in current_products if p.get("item")]
+            print(f"REVIEW AGENT: 📦 Products found: {', '.join(product_names)}")
             logger.info(f"Products in current order: {', '.join(product_names)}")
             
             # Check if there's a pending order for this customer
+            print(f"REVIEW AGENT: 🔍 Checking for pending orders for customer {customer_id}...")
             pending_orders = self._get_pending_orders(customer_id)
             if not pending_orders:
+                print("REVIEW AGENT: ❌ No pending orders found for this customer")
                 logger.info(f"No pending orders found for customer {customer_id}")
                 return data
             
             # Get the most recent pending order
             most_recent_order = pending_orders[0] if pending_orders else None
             if most_recent_order:
+                print(f"REVIEW AGENT: ✅ Found pending order: {most_recent_order.order_number}")
+                print(f"REVIEW AGENT: 📅 Order created at: {most_recent_order.created_at}")
                 logger.info(f"Found pending order: {most_recent_order.order_number} created at {most_recent_order.created_at}")
                 
                 # Check if the order was created recently (within 30 minutes)
                 now = datetime.now()
                 order_time = most_recent_order.created_at
                 time_diff = now - order_time
+                minutes_diff = time_diff.total_seconds() / 60
+                print(f"REVIEW AGENT: ⏱️ Time since order creation: {minutes_diff:.2f} minutes")
                 
                 # If the order is recent or there's a direct addition keyword, add to existing order
-                if is_direct_addition or (time_diff.total_seconds() < 1800):  # 30 minutes in seconds
-                    logger.info(f"This appears to be an addition to existing order {most_recent_order.order_number}")
+                time_recent = time_diff.total_seconds() < 1800  # 30 minutes in seconds
+                print(f"REVIEW AGENT: ⏱️ Order is recent (< 30 min): {time_recent}")
+                
+                if is_direct_addition or time_recent:
+                    print(f"REVIEW AGENT: ✅ DECISION: Adding to existing order {most_recent_order.order_number}")
+                    print(f"REVIEW AGENT: 📝 Reason: {'Direct addition keyword found' if is_direct_addition else 'Recent order'}")
+                    print(f"REVIEW AGENT: 🔄 is_direct_addition={is_direct_addition}, time_recent={time_recent}")
+                    logger.info(f"Adding to existing order {most_recent_order.order_number} due to {'direct addition keyword' if is_direct_addition else 'recent order'}")
                     
-                    # Add the existing order number to the data
+                    # Update data with existing order number
                     data["order_number"] = most_recent_order.order_number
                     data["is_addition_to_existing_order"] = True
+                    print(f"REVIEW AGENT: 🏷️ Setting order_number to '{most_recent_order.order_number}'")
+                    print(f"REVIEW AGENT: 🏷️ Setting is_addition_to_existing_order to True")
                     
-                    # Log the products being added
-                    logger.info(f"Adding products {', '.join(product_names)} to existing order {most_recent_order.order_number}")
+                    # Log the decision
+                    logger.info(f"Consolidated order with existing order {most_recent_order.order_number}")
+                    print("REVIEW AGENT: 🔄 Returning updated data with consolidated order information")
                     
                     # If there was delivery info in the original order, preserve it
                     if most_recent_order.delivery_address and not data.get("delivery_address"):
                         data["delivery_address"] = most_recent_order.delivery_address
+                        print("REVIEW AGENT: 🏠 Preserving delivery address from existing order")
                         
                     if most_recent_order.delivery_time and not data.get("delivery_time"):
                         data["delivery_time"] = most_recent_order.delivery_time
+                        print("REVIEW AGENT: 🕒 Preserving delivery time from existing order")
                         
                     if most_recent_order.delivery_method and not data.get("delivery_method"):
                         data["delivery_method"] = most_recent_order.delivery_method
+                        print("REVIEW AGENT: 🚚 Preserving delivery method from existing order")
                 else:
+                    print("REVIEW AGENT: ❌ DECISION: Creating new order (existing order is too old)")
+                    print(f"REVIEW AGENT: ⏱️ Time since last order: {minutes_diff:.2f} minutes (threshold: 30 minutes)")
+                    print(f"REVIEW AGENT: 🔄 is_direct_addition={is_direct_addition}, time_recent={time_recent}")
+                    print(f"REVIEW AGENT: 💾 NOT adding to existing order {most_recent_order.order_number}")
                     logger.info(f"Creating a new order for these products (existing order is too old)")
             else:
+                print("REVIEW AGENT: ❌ DECISION: Creating new order (no pending orders found)")
+                print(f"REVIEW AGENT: 💾 No pending orders found for customer {customer_id}")
+                print(f"REVIEW AGENT: 💾 Will create a new order with a new order number")
                 logger.info(f"Creating a new order for these products (no pending orders found)")
+                
+            print("REVIEW AGENT: 🔄 Final decision:")
+            print(f"REVIEW AGENT: - Order number: {data.get('order_number', 'New order (will be generated)')}") 
+            print(f"REVIEW AGENT: - Is addition to existing: {data.get('is_addition_to_existing_order', False)}")
+            print("=" * 50)
             
             return data
             

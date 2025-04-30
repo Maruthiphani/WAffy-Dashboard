@@ -43,6 +43,71 @@ def storage_node(state: MessageState) -> MessageState:
         result = logger_agent.process_messages([state_dict])
         logger.info(f"Logger agent result: {json.dumps(result, default=str)}")
         
+        # Check if the logger agent created new data and set it on the state
+        if result and result.get('status') == 'success':
+            # Process table-specific data directly from the result
+            if 'table' in result:
+                table_name = result.get('table')
+                print(f"STORAGE NODE: Processing data for table: {table_name}")
+                
+                # Handle orders
+                if table_name == 'orders' and 'orders' in result:
+                    orders = result.get('orders', [])
+                    if orders and len(orders) > 0:
+                        # Get the order number from the first order
+                        new_order_number = orders[0].get('order_number')
+                        if new_order_number:
+                            # Set the order number on the state object
+                            state.order_number = new_order_number
+                            print(f"STORAGE NODE: Setting order_number on state: {new_order_number}")
+                            logger.info(f"Setting order_number on state: {new_order_number}")
+                
+                # Handle issues
+                elif table_name == 'issues' and 'issue' in result:
+                    issue = result.get('issue')
+                    if issue and issue.get('issue_id'):
+                        # Set the issue ID on the state object
+                        state.issue_id = issue.get('issue_id')
+                        print(f"STORAGE NODE: Setting issue_id on state: {issue.get('issue_id')}")
+                        logger.info(f"Setting issue_id on state: {issue.get('issue_id')}")
+                
+                # Handle enquiries
+                elif table_name == 'enquiries' and 'enquiry' in result:
+                    enquiry = result.get('enquiry')
+                    if enquiry and enquiry.get('enquiry_id'):
+                        # Set the enquiry ID on the state object
+                        state.enquiry_id = enquiry.get('enquiry_id')
+                        print(f"STORAGE NODE: Setting enquiry_id on state: {enquiry.get('enquiry_id')}")
+                        logger.info(f"Setting enquiry_id on state: {enquiry.get('enquiry_id')}")
+                
+                # Handle feedback
+                elif table_name == 'feedback' and 'feedback' in result:
+                    feedback = result.get('feedback')
+                    if feedback and feedback.get('feedback_id'):
+                        # Set the feedback ID on the state object
+                        state.feedback_id = feedback.get('feedback_id')
+                        print(f"STORAGE NODE: Setting feedback_id on state: {feedback.get('feedback_id')}")
+                        logger.info(f"Setting feedback_id on state: {feedback.get('feedback_id')}")
+            
+            # Also check in the results array for backward compatibility
+            elif result.get('results'):
+                for result_item in result.get('results', []):
+                    if isinstance(result_item, dict) and 'table' in result_item:
+                        table_name = result_item.get('table')
+                        print(f"STORAGE NODE: Processing data for table from results array: {table_name}")
+                        
+                        # Handle orders
+                        if table_name == 'orders' and 'orders' in result_item:
+                            orders = result_item.get('orders', [])
+                            if orders and len(orders) > 0:
+                                # Get the order number from the first order
+                                new_order_number = orders[0].get('order_number')
+                                if new_order_number:
+                                    # Set the order number on the state object
+                                    state.order_number = new_order_number
+                                    print(f"STORAGE NODE: Setting order_number on state from results array: {new_order_number}")
+                                    logger.info(f"Setting order_number on state from results array: {new_order_number}")
+        
         # Get message type and data
         message_type = state.message_type if hasattr(state, 'message_type') else state.get('message_type', '')
         message_data = state.dict() if hasattr(state, 'dict') else state

@@ -235,7 +235,8 @@ def responder_node(state) -> Dict[str, Any]:
             
             # Create a basic order data structure
             simple_order_data = {
-                "order_number": f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                # Get the order number from the state if available, otherwise generate a new one
+                "order_number": None,  # Will be set below
                 "customer_name": "Valued Customer",
                 "item": "your order",
                 "quantity": 1,
@@ -246,6 +247,26 @@ def responder_node(state) -> Dict[str, Any]:
                 "delivery_time": None,
                 "delivery_method": None
             }
+            
+            # Try to get the order number from the state
+            order_number = None
+            
+            # Check if order_number is directly on the state object
+            if hasattr(state, 'order_number') and state.order_number:
+                order_number = state.order_number
+                print(f"RESPONDER NODE: Found order_number directly on state: {order_number}")
+            # Check if order_number is in state.dict()
+            elif hasattr(state, 'dict') and 'order_number' in state.dict() and state.dict()['order_number']:
+                order_number = state.dict()['order_number']
+                print(f"RESPONDER NODE: Found order_number in state.dict(): {order_number}")
+
+            # If no order number found, generate a new one
+            if not order_number:
+                order_number = f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                print(f"RESPONDER NODE: Generated new order_number: {order_number}")
+            
+            # Set the order number in the data structure
+            simple_order_data['order_number'] = order_number
             
             # Try to extract customer name if available
             if hasattr(state, 'customer_name'):
@@ -377,11 +398,20 @@ def responder_node(state) -> Dict[str, Any]:
             
             # Create basic issue data
             issue_data = {
-                "issue_id": f"ISS-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                "issue_id": None,  # Will be set below
                 "customer_name": "Valued Customer",
                 "issue_type": "customer issue",
                 "priority": "normal"
             }
+            
+            # Try to get the issue ID from the state
+            if hasattr(state, 'issue_id') and state.issue_id:
+                issue_data['issue_id'] = state.issue_id
+                print(f"RESPONDER NODE: Found issue_id directly on state: {state.issue_id}")
+            else:
+                # Generate a new issue ID if none is found
+                issue_data['issue_id'] = f"ISS-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                print(f"RESPONDER NODE: Generated new issue_id: {issue_data['issue_id']}")
             
             # Try to extract more details if available
             if hasattr(state, 'extracted_info'):
@@ -393,42 +423,10 @@ def responder_node(state) -> Dict[str, Any]:
                         issue_data['priority'] = extracted_info['priority']
             
             # Generate the issue acknowledgement message
-            from app.utils.message_generator import generate_issue_acknowledgement
-            issue_message = generate_issue_acknowledgement(issue_data)
-            
+            issue_message = f"Thank you for reporting this issue. We have logged it with reference number #{issue_data['issue_id']} and will get back to you shortly."
+            logger.info(f"Sending issue acknowledgement to {sender} with issue ID: {issue_data['issue_id']}")
             response = responder_agent.send_message(sender, issue_message)
             logger.info(f"Sent issue acknowledgement to {sender}: {response}")
-        elif table_name == "enquiries":
-            # Send an enquiry response
-            logger.info("Table name is enquiries, sending enquiry response")
-            
-            # Create basic enquiry data
-            enquiry_data = {
-                "customer_name": "Valued Customer",
-                "category": "general"
-            }
-            
-            # Generate the enquiry response message
-            from app.utils.message_generator import generate_enquiry_response
-            enquiry_message = generate_enquiry_response(enquiry_data)
-            
-            response = responder_agent.send_message(sender, enquiry_message)
-            logger.info(f"Sent enquiry response to {sender}: {response}")
-        elif table_name == "feedback":
-            # Send a feedback acknowledgement
-            logger.info("Table name is feedback, sending feedback acknowledgement")
-            
-            # Create basic feedback acknowledgement message
-            feedback_message = "Thank you for your feedback! We appreciate your input and will use it to improve our services."
-            
-            response = responder_agent.send_message(sender, feedback_message)
-            logger.info(f"Sent feedback acknowledgement to {sender}: {response}")
-        elif table_name is None:
-            # Only send a generic message if table_name is None (not a recognized message type)
-            message = "Thank you for your message! We've received it and will process it shortly."
-            logger.info(f"No specific table_name, sending generic confirmation to {sender}")
-            response = responder_agent.send_message(sender, message)
-            logger.info(f"Sent WhatsApp response to {sender}: {response}")
         else:
             # For any other table_name, don't send a response
             logger.info(f"Unhandled table_name: {table_name}, not sending a generic response")

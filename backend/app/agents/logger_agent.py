@@ -191,20 +191,27 @@ class LoggerAgent:
                 interaction = self._store_interaction(message_state)
                 
                 # Store in appropriate table based on table_name if specified
+                table_data = None
                 if message_state.table_name:
-                    self._store_in_specific_table(message_state)
+                    table_data = self._store_in_specific_table(message_state)
                 
             # If HubSpot integration is enabled, send to HubSpot
             if self.hubspot_enabled:
                 self._send_to_hubspot(message_state)
                 
-            return {
+            result = {
                 "status": "success",
                 "message": f"Message processed successfully",
                 "interaction_id": interaction.interaction_id if interaction else None,
                 "stored_in_db": self.store_in_db,
                 "sent_to_hubspot": self.hubspot_enabled
             }
+            
+            # Include table-specific data in the result if available
+            if table_data:
+                result.update(table_data)
+                
+            return result
         except Exception as e:
             error_msg = f"Error processing message: {str(e)}"
             logger.error(error_msg)
@@ -340,8 +347,8 @@ class LoggerAgent:
             logger.error(f"Error getting interaction by message ID: {str(e)}")
             return None
             
-    def _store_in_specific_table(self, message_state: MessageState) -> None:
-        """Store data in specific table based on table_name"""
+    def _store_in_specific_table(self, message_state: MessageState) -> Dict[str, Any]:
+        """Store data in specific table based on table_name and return the stored data"""
         try:
             # Get table name
             table_name = message_state.table_name
@@ -356,17 +363,37 @@ class LoggerAgent:
                 "context": message_state.context
             }
             
-            # Store in table
+            # Store in table and return the result
+            result = {"table": table_name}
+            
             if table_name == "orders":
-                self._store_order(data)
+                orders = self._store_order(data)
+                # Convert orders to dictionaries for JSON serialization
+                order_dicts = []
+                for order in orders:
+                    order_dict = {
+                        "order_id": order.order_id,
+                        "order_number": order.order_number,
+                        "item": order.item,
+                        "quantity": order.quantity,
+                        "order_status": order.order_status
+                    }
+                    order_dicts.append(order_dict)
+                result["orders"] = order_dicts
             elif table_name == "issues":
-                self._store_issue(data)
+                issue = self._store_issue(data)
+                result["issue"] = {"issue_id": issue.issue_id} if issue else None
             elif table_name == "enquiries":
-                self._store_enquiry(data)
+                enquiry = self._store_enquiry(data)
+                result["enquiry"] = {"enquiry_id": enquiry.enquiry_id} if enquiry else None
             elif table_name == "feedback":
-                self._store_feedback(data)
+                feedback = self._store_feedback(data)
+                result["feedback"] = {"feedback_id": feedback.feedback_id} if feedback else None
             else:
                 logger.error(f"Unsupported table name: {table_name}")
+                result["error"] = f"Unsupported table name: {table_name}"
+                
+            return result
                 
         except Exception as e:
             error_msg = f"Error storing data in specific table: {str(e)}"
@@ -1595,12 +1622,10 @@ class LoggerAgent:
                     
                     if existing_product:
                         print(f"LOGGER AGENT: ✅ FOUND existing product '{item}' in order '{order_number}'")
-                        print(f"LOGGER AGENT: 🔄 Current quantity: {existing_product.quantity}, Adding: {quantity}")
-                        logger.info(f"Product {item} already exists in order {order_number}, updating quantity")
-                        # Update quantity instead of creating a new entry
-                        old_quantity = existing_product.quantity
-                        existing_product.quantity += quantity
-                        print(f"LOGGER AGENT: 🔄 Updated quantity from {old_quantity} to {existing_product.quantity}")
+                        print(f"LOGGER AGENT: 🔄 Current quantity: {existing_product.quantity}, New quantity in message: {quantity}")
+                        logger.info(f"Product {item} already exists in order {order_number}, keeping original quantity")
+                        # Keep the original quantity instead of adding to it
+                        print(f"LOGGER AGENT: ℹ️ Keeping original quantity of {existing_product.quantity} (not increasing)")
                         self.db.commit()
                         self.db.refresh(existing_product)
                         created_orders.append(existing_product)
@@ -1624,7 +1649,8 @@ class LoggerAgent:
                         total_amount=data.get("total_amount", "0"),
                         # Add delivery information
                         delivery_address=data.get("delivery_address"),
-                        delivery_time=data.get("delivery_time"),
+                        # Set today's date as default delivery time if none provided
+                        delivery_time=data.get("delivery_time") or datetime.now().strftime("%Y-%m-%d"),
                         delivery_method=data.get("delivery_method")
                     )
                     
@@ -1683,7 +1709,8 @@ class LoggerAgent:
                     total_amount=data.get("total_amount", "0"),
                     # Add delivery information
                     delivery_address=data.get("delivery_address"),
-                    delivery_time=data.get("delivery_time"),
+                    # Set today's date as default delivery time if none provided
+                    delivery_time=data.get("delivery_time") or datetime.now().strftime("%Y-%m-%d"),
                     delivery_method=data.get("delivery_method")
                 )
                 

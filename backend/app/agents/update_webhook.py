@@ -74,11 +74,7 @@ def update_webhook(callback_url, app_id, app_secret, verify_token):
     print("app_id", app_id)
     print("app_secret", app_secret)
     url = f"https://graph.facebook.com/v19.0/{app_id}/subscriptions"
-    
-    # Use the provided verify_token if available, otherwise fall back to the default
-    token_to_use = verify_token if verify_token else VERIFY_TOKEN
-    print(f"Using verify token: {'Custom token' if verify_token else 'Default token'}")
-    
+        
     params = {
         "access_token": f"{app_id}|{app_secret}",
         "object": "whatsapp_business_account",

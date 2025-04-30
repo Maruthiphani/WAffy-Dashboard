@@ -13,6 +13,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 const Dashboard = () => {
+  const [visibleData, setVisibleData] = useState([]);
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -489,7 +490,8 @@ const Dashboard = () => {
   const hasData = currentData && currentData.length > 0;
 
   const handleExport = (fileType) => {
-    const data = getCurrentData();
+    //const data = getCurrentData();
+    const data = visibleData.length ? visibleData : getCurrentData();
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
@@ -835,6 +837,9 @@ const Dashboard = () => {
               columns={getCurrentColumns()}
               dataSource={getCurrentData().map((item, index) => ({ ...item, key: index }))}
               pagination={{ pageSize: 10 }}
+              onChange={(pagination, filters, sorter, extra) => {
+                setVisibleData(extra.currentDataSource);
+              }}
               scroll={{ x: 'max-content' }}
               size="small"
               className="whitespace-nowrap"

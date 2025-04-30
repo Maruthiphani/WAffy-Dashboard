@@ -1361,7 +1361,8 @@ class LoggerAgent:
             return {"status": "error", "message": error_message}
             
     def _store_order(self, data: Dict[str, Any]) -> List[Optional[Order]]:
-        """Store order data in the orders table
+        """
+        Store order data in the orders table
         
         If multiple products are found, creates separate order entries with the same order number.
         Returns a list of created orders.
@@ -1390,13 +1391,29 @@ class LoggerAgent:
                 if order_number:
                     logger.info(f"Using order_number from extracted_info: {order_number}")
             
-            # Generate a unique order number if not provided
-            if not order_number:
+            # Generate a unique order number if not provided and not adding to existing order
+            if not order_number and not is_addition:
                 # Create a timestamp-based order ID with customer prefix
                 customer_prefix = data.get("customer_id", "")[:4]
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
                 order_number = f"ORD-{customer_prefix}-{timestamp}"
                 logger.info(f"Generated new order number: {order_number}")
+            elif not order_number and is_addition:
+                # If we're adding to an existing order but don't have the order number,
+                # find the most recent pending order for this customer
+                customer_id = data.get("customer_id")
+                if customer_id:
+                    most_recent_order = self._check_existing_order(customer_id)
+                    if most_recent_order:
+                        order_number = most_recent_order.order_number
+                        logger.info(f"Found existing order {order_number} for customer {customer_id}")
+                    else:
+                        # No existing order found, create a new one
+                        is_addition = False
+                        customer_prefix = customer_id[:4]
+                        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                        order_number = f"ORD-{customer_prefix}-{timestamp}"
+                        logger.info(f"No existing order found, generated new order number: {order_number}")
                 
             # Log if this is an addition to an existing order
             if is_addition:
@@ -1563,134 +1580,32 @@ class LoggerAgent:
                 logger.info(f"Created new order item {item} with order number {order_number}")
             
             return created_orders
-            # Find product information
-            products = []
             
-            # Check for products array directly in the data object
-            if "products" in data and isinstance(data["products"], list) and len(data["products"]) > 0:
-                logger.info(f"Found products array in data: {json.dumps(data['products'], default=str)}")
-                products = data["products"]
-            # Check in extracted_info if not found directly
-            elif data.get("extracted_info"):
-                extracted_info = data.get("extracted_info")
-                logger.info(f"Checking extracted info: {json.dumps(extracted_info, default=str)}")
-                
-                if isinstance(extracted_info, dict):
-                    # Check for products array in extracted_info
-                    if "products" in extracted_info and isinstance(extracted_info["products"], list) and len(extracted_info["products"]) > 0:
-                        logger.info(f"Found products array in extracted_info: {json.dumps(extracted_info['products'], default=str)}")
-                        products = extracted_info["products"]
-                    else:
-                        # Try direct keys in extracted_info
-                        logger.info("No products array found in extracted_info, trying direct keys")
-                        # Create a single product from direct keys
-                        products = [{
-                            "item": extracted_info.get("product_type", extracted_info.get("item", "")),
-                            "quantity": extracted_info.get("quantity", 1),
-                            "notes": extracted_info.get("notes", ""),
-                            "unit": extracted_info.get("unit", "")
-                        }]
-            
-            # If no products found, create a default one
-            if not products:
-                products = [{
-                    "item": "",
-                    "quantity": 1,
-                    "notes": "",
-                    "unit": ""
-                }]
-            
-            # Create an order for each product
-            created_orders = []
-            for product in products:
-                # Extract values with detailed logging
-                item = product.get("item", "")
-                logger.info(f"Extracted item: {item}")
-                
-                quantity = product.get("quantity", 1)
-                logger.info(f"Extracted quantity: {quantity}")
-                
-                unit = product.get("unit", "")
-                logger.info(f"Extracted unit: {unit}")
-                
-                # Check for details or notes
-                notes = product.get("details", product.get("notes", ""))
-                logger.info(f"Extracted notes: {notes}")
-                
-                # Extract delivery information from extracted_info if available
-                delivery_address = None
-                delivery_time = None
-                delivery_method = None
-                
-                # Check for delivery info in extracted_info
-                if data.get("extracted_info") and isinstance(data.get("extracted_info"), dict):
-                    extracted_info = data.get("extracted_info")
-                    
-                    # Extract delivery address
-                    if "delivery_address" in extracted_info:
-                        delivery_address = extracted_info["delivery_address"]
-                        logger.info(f"Extracted delivery address: {delivery_address}")
-                    
-                    # Extract delivery time
-                    if "delivery_time" in extracted_info:
-                        delivery_time_str = extracted_info["delivery_time"]
-                        # Convert relative time to actual date if needed
-                        if delivery_time_str == "tomorrow":
-                            tomorrow = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0) + timedelta(days=1)
-                            delivery_time = tomorrow.strftime("%Y-%m-%d %H:%M")
-                        elif delivery_time_str == "today":
-                            today = datetime.now().replace(hour=18, minute=0, second=0, microsecond=0)
-                            delivery_time = today.strftime("%Y-%m-%d %H:%M")
-                        else:
-                            delivery_time = delivery_time_str
-                        logger.info(f"Extracted delivery time: {delivery_time}")
-                    
-                    # Extract delivery method
-                    if "delivery_method" in extracted_info:
-                        delivery_method = extracted_info["delivery_method"]
-                        logger.info(f"Extracted delivery method: {delivery_method}")
-                    elif "delivery_type" in extracted_info:
-                        delivery_method = extracted_info["delivery_type"]
-                        logger.info(f"Extracted delivery method from type: {delivery_method}")
-                    elif delivery_address:  # Default to home delivery if address is provided
-                        delivery_method = "home delivery"
-                        logger.info(f"Set default delivery method to 'home delivery'")
-                
-                # If no delivery time is set, use today's date
-                if not delivery_time:
-                    today = datetime.now().replace(hour=18, minute=0, second=0, microsecond=0)
-                    delivery_time = today.strftime("%Y-%m-%d %H:%M")
-                    logger.info(f"No delivery date provided, using today's date: {delivery_time}")
-                
-                # Create order with delivery information
-                order = Order(
-                    user_id=user_id,
-                    customer_id=data.get("customer_id"),
-                    interaction_id=interaction_id,
-                    order_number=order_number,  # Same order number for all products
-                    item=item,
-                    quantity=quantity,
-                    unit=unit,  # Add the unit field
-                    notes=notes,
-                    order_status=order_status,
-                    total_amount=data.get("total_amount", "0"),
-                    # Add delivery information
-                    delivery_address=delivery_address,
-                    delivery_time=delivery_time,
-                    delivery_method=delivery_method
-                )
-            
-                self.db.add(order)
-                self.db.commit()
-                self.db.refresh(order)
-                logger.info(f"Stored order {order.order_id} for customer {data.get('customer_id')}")
-                created_orders.append(order)
-            
-            logger.info(f"Created {len(created_orders)} orders with order number {order_number}")
-            return created_orders
         except Exception as e:
-            self.db.rollback()
-            error_msg = f"Error storing order: {str(e)}"
+            logger.error(f"Error storing order: {str(e)}")
+            return []
+            
+    def _check_existing_order(self, customer_id: str) -> Optional[Order]:
+        """Check if there's a pending order for this customer"""
+        try:
+            # Get the most recent pending order for this customer
+            most_recent_order = (
+                self.db.query(Order)
+                .filter(Order.customer_id == customer_id)
+                .filter(Order.order_status == "pending")
+                .order_by(desc(Order.created_at))
+                .first()
+            )
+            
+            if most_recent_order:
+                logger.info(f"Found pending order {most_recent_order.order_number} for customer {customer_id}")
+                return most_recent_order
+            else:
+                logger.info(f"No pending orders found for customer {customer_id}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error checking existing order: {str(e)}")
             logger.error(error_msg)
             user_id = None
             if self.user_settings:

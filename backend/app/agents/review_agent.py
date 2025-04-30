@@ -45,6 +45,15 @@ class ReviewAgent:
             logger.info(f"Message: {message}")
             logger.info(f"Context: {context}")
             
+            # Check if this is a direct addition to an existing order based on the message
+            is_direct_addition = False
+            addition_keywords = ["also", "add", "along with", "with this", "as well"]
+            for keyword in addition_keywords:
+                if keyword in message.lower():
+                    is_direct_addition = True
+                    logger.info(f"Found addition keyword: {keyword}")
+                    break
+            
             # Extract products from the current order
             current_products = self._extract_products(data)
             if not current_products:
@@ -65,31 +74,36 @@ class ReviewAgent:
             most_recent_order = pending_orders[0] if pending_orders else None
             if most_recent_order:
                 logger.info(f"Found pending order: {most_recent_order.order_number} created at {most_recent_order.created_at}")
-            
-            # Check if this is a continuation based on context and message
-            is_continuation = self._is_order_continuation(message, current_products, context)
-            
-            if is_continuation and most_recent_order:
-                logger.info(f"This appears to be an addition to existing order {most_recent_order.order_number}")
                 
-                # Add the existing order number to the data
-                data["order_number"] = most_recent_order.order_number
-                data["is_addition_to_existing_order"] = True
+                # Check if the order was created recently (within 30 minutes)
+                now = datetime.now()
+                order_time = most_recent_order.created_at
+                time_diff = now - order_time
                 
-                # Log the products being added
-                logger.info(f"Adding products {', '.join(product_names)} to existing order {most_recent_order.order_number}")
-                
-                # If there was delivery info in the original order, preserve it
-                if most_recent_order.delivery_address and not data.get("delivery_address"):
-                    data["delivery_address"] = most_recent_order.delivery_address
+                # If the order is recent or there's a direct addition keyword, add to existing order
+                if is_direct_addition or (time_diff.total_seconds() < 1800):  # 30 minutes in seconds
+                    logger.info(f"This appears to be an addition to existing order {most_recent_order.order_number}")
                     
-                if most_recent_order.delivery_time and not data.get("delivery_time"):
-                    data["delivery_time"] = most_recent_order.delivery_time
+                    # Add the existing order number to the data
+                    data["order_number"] = most_recent_order.order_number
+                    data["is_addition_to_existing_order"] = True
                     
-                if most_recent_order.delivery_method and not data.get("delivery_method"):
-                    data["delivery_method"] = most_recent_order.delivery_method
+                    # Log the products being added
+                    logger.info(f"Adding products {', '.join(product_names)} to existing order {most_recent_order.order_number}")
+                    
+                    # If there was delivery info in the original order, preserve it
+                    if most_recent_order.delivery_address and not data.get("delivery_address"):
+                        data["delivery_address"] = most_recent_order.delivery_address
+                        
+                    if most_recent_order.delivery_time and not data.get("delivery_time"):
+                        data["delivery_time"] = most_recent_order.delivery_time
+                        
+                    if most_recent_order.delivery_method and not data.get("delivery_method"):
+                        data["delivery_method"] = most_recent_order.delivery_method
+                else:
+                    logger.info(f"Creating a new order for these products (existing order is too old)")
             else:
-                logger.info(f"Creating a new order for these products")
+                logger.info(f"Creating a new order for these products (no pending orders found)")
             
             return data
             

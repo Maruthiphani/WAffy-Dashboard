@@ -208,7 +208,7 @@ const Dashboard = () => {
     { title: "Status", dataIndex: "Status", key: "Status", render: (text) => <Tag color="green">{text}</Tag> },
     { title: "Amount (₹)", dataIndex: "Amount", key: "Amount" },
     { title: "Delivery Address", dataIndex: "DeliveryAddress", key: "DeliveryAddress", render: (text) => text || "-" },
-    { title: "Delivery Time", dataIndex: "DeliveryTime", key: "DeliveryTime", render: (text) => text || "-" },
+    { title: "Delivery Date", dataIndex: "DeliveryTime", key: "DeliveryTime", render: (text) => text || "-" },
     {
       title: "Delivery Method",
       dataIndex: "DeliveryMethod",

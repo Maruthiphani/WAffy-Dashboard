@@ -217,3 +217,49 @@ export const getResponseMetrics = async (clerkId, days = 30) => {
     return [];
   }
 };
+
+/**
+ * Get WhatsApp access token from user settings
+ * @param {string} clerkId - Clerk user ID
+ * @returns {Promise} - Promise with the token or null if not found
+ */
+export const getWhatsAppToken = async (clerkId) => {
+  try {
+    // Get all user settings
+    const settings = await getUserSettings(clerkId);
+    
+    // Check if settings exist and contain the token
+    if (settings && settings.whatsapp_access_token) {
+      return { token: settings.whatsapp_access_token };
+    }
+    
+    // If no token found
+    return { token: null, message: 'No WhatsApp token found in settings' };
+  } catch (error) {
+    console.error('Error fetching WhatsApp token:', error);
+    return { token: null, error: 'Failed to retrieve WhatsApp token' };
+  }
+};
+
+/**
+ * Get WhatsApp verify token from user settings
+ * @param {string} clerkId - Clerk user ID
+ * @returns {Promise} - Promise with the verify token or null if not found
+ */
+export const getWhatsAppVerifyToken = async (clerkId) => {
+  try {
+    // Get all user settings
+    const settings = await getUserSettings(clerkId);
+    
+    // Check if settings exist and contain the verify token
+    if (settings && settings.whatsapp_verify_token) {
+      return { verifyToken: settings.whatsapp_verify_token };
+    }
+    
+    // If no verify token found
+    return { verifyToken: null, message: 'No WhatsApp verify token found in settings' };
+  } catch (error) {
+    console.error('Error fetching WhatsApp verify token:', error);
+    return { verifyToken: null, error: 'Failed to retrieve WhatsApp verify token' };
+  }
+};

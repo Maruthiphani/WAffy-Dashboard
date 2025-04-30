@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useUser, SignedIn } from "@clerk/clerk-react";
-import { updateUserSettings, getUserByClerkId, getUserSettings } from "../services/userService";
+import { updateUserSettings, getUserByClerkId, getUserSettings, getWhatsAppVerifyToken } from "../services/userService";
 import { getBusinessTypes, addBusinessType, getBusinessTags, getBusinessTagsByType, addBusinessTag, getUserBusinessTags, updateUserBusinessTags } from "../services/businessService";
 import DashboardHeader from "../components/DashboardHeader";
 import Loader from "../components/Loader";
@@ -26,6 +26,8 @@ const Settings = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [userEmail, setUserEmail] = useState("");
+  const [saveStatus, setSaveStatus] = useState({ loading: false, success: false, error: null });
+  const [tokenStatus, setTokenStatus] = useState({ loaded: false, loading: false, error: null });
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(null);
   const [customCategory, setCustomCategory] = useState("");
   
@@ -130,10 +132,25 @@ const Settings = () => {
           
           // Then get user settings and business tags
           // Use Promise.allSettled instead of Promise.all to handle partial failures
-          const [userSettingsResult, userTagsResult] = await Promise.allSettled([
+          const [userSettingsResult, userTagsResult, verifyTokenResult] = await Promise.allSettled([
             getUserSettings(user.id),
-            getUserBusinessTags(user.id)
+            getUserBusinessTags(user.id),
+            getWhatsAppVerifyToken(user.id)
           ]);
+          
+          // Process verify token result
+          if (verifyTokenResult.status === 'fulfilled') {
+            const tokenData = verifyTokenResult.value;
+            if (tokenData && tokenData.verifyToken) {
+              setTokenStatus({ loaded: true, loading: false, error: null });
+            } else if (tokenData && tokenData.error) {
+              setTokenStatus({ loaded: false, loading: false, error: tokenData.error });
+            } else {
+              setTokenStatus({ loaded: false, loading: false, error: tokenData?.message || 'No token found' });
+            }
+          } else {
+            setTokenStatus({ loaded: false, loading: false, error: 'Failed to fetch token' });
+          }
           
           // Process user settings if available
           if (userSettingsResult.status === 'fulfilled' && userSettingsResult.value) {
@@ -944,20 +961,46 @@ const Settings = () => {
                   placeholder="Enter your WhatsApp Phone Number ID"
                 />
               </div>
-              {/* Verify Token field removed as webhooks are set up through code */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Verify Token
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    WhatsApp Verify Token
+                  </label>
+                  <span className="text-xs text-amber-600 font-medium flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    Keep this safe
+                  </span>
+                  {tokenStatus.error && (
+                    <span className="text-xs text-amber-600 font-medium flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {tokenStatus.error}
+                    </span>
+                  )}
+                </div>
                 <div className="flex">
-                  <input
-                    type="text"
-                    name="whatsappVerifyToken"
-                    value={formData.whatsappVerifyToken}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded-l"
-                    placeholder="Enter your webhook verify token"
-                  />
+                  <div className="relative w-full">
+                    <input
+                      type="password"
+                      name="whatsappVerifyToken"
+                      value={formData.whatsappVerifyToken}
+                      onChange={handleInputChange}
+                      className="w-full p-2 border border-gray-300 rounded-l"
+                      placeholder="Token is hidden for security"
+                      autoComplete="new-password"
+                    />
+                    {formData.whatsappVerifyToken && (
+                      <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center px-2 pointer-events-none overflow-hidden">
+                        <span className="text-gray-500">
+                          {'•'.repeat(Math.min(formData.whatsappVerifyToken.length, 20))}
+                          {formData.whatsappVerifyToken.length > 20 ? '...' : ''}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
@@ -1077,8 +1120,8 @@ const Settings = () => {
                       <span className="text-green-600 font-bold">5</span>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-800">Generate a Long-Lived Access Token</h4>
-                      <p className="text-sm text-gray-600">Generate a token using the <span className="font-mono bg-gray-100 px-1 rounded">Meta Graph API</span></p>
+                      <h4 className="font-medium text-gray-800">Get a permanent access token from business settings</h4>
+                      <p className="text-sm text-gray-600">Obtain a token from your WhatsApp Business settings</p>
                       <div className="mt-2 bg-blue-50 p-2 rounded border border-blue-200">
                         <div className="flex items-center">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -1087,19 +1130,37 @@ const Settings = () => {
                           <span className="text-xs font-semibold text-blue-800">Token Generation Steps:</span>
                         </div>
                         <ul className="text-xs text-blue-800 list-disc pl-5 mt-1">
-                          <li>Go to <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Graph API Explorer</a></li>
-                          <li>Select your app from the dropdown menu</li>
-                          <li>Click <span className="font-semibold">"Generate Access Token"</span></li>
-                          <li>Request the following permissions:
+                          <li>Go to <a href="https://business.facebook.com/settings" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Meta Business Settings</a></li>
+                          <li>Create a System User, select <span className="font-semibold">Admin</span> as the role</li>
+                          <li>Assign Assets to the System User:
+                            <ul className="list-disc pl-5 mt-1">
+                              <li>Click on "Add Assets"</li>
+                              <li>In the modal, choose Apps from the left panel</li>
+                              <li>Select your app from the list</li>
+                              <li>Toggle "Full Control" to grant complete access</li>
+                            </ul>
+                          </li>
+                          <li>Assign WhatsApp Business Account Access, toggle "Full Control" to grant complete access</li>
+                          <li>In System User's settings, set the token expiration to <span className="font-semibold">"Never"</span></li>
+                          <li>Under Available Permissions, select:
                             <ul className="list-disc pl-5 mt-1">
                               <li><span className="font-mono">whatsapp_business_messaging</span></li>
                               <li><span className="font-mono">whatsapp_business_management</span></li>
                               <li><span className="font-mono">business_management</span></li>
                             </ul>
                           </li>
-                          <li>Once you have a short-lived token, use the <a href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Access Token Debugger</a> to extend it to a long-lived token</li>
-                          <li>Copy the generated long-lived token to the <span className="font-semibold">WhatsApp Access Token</span> field above</li>
+                          <li>Click <span className="font-semibold">"Generate Token"</span></li>
+                          <li>Copy the generated permanent token to the <span className="font-semibold">WhatsApp Access Token</span> field above</li>
                         </ul>
+                        <div className="mt-2 bg-yellow-50 p-2 rounded border border-yellow-200">
+                          <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-yellow-600 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                            <span className="text-xs font-semibold text-yellow-800">Need more help?</span>
+                          </div>
+                          <p className="text-xs text-yellow-800 mt-1">For more detailed instructions, please refer to the <a href="/Permanent_Token_Generation.pdf" target="_blank" rel="noopener noreferrer" className="font-semibold underline">Permanent_Token_Generation.pdf</a> tutorial.</p>
+                        </div>
                       </div>
                     </div>
                   </div>

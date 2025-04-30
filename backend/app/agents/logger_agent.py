@@ -1490,6 +1490,12 @@ class LoggerAgent:
                         delivery_method = "home delivery"
                         logger.info(f"Set default delivery method to 'home delivery'")
                 
+                # If no delivery time is set, use today's date
+                if not delivery_time:
+                    today = datetime.now().replace(hour=18, minute=0, second=0, microsecond=0)
+                    delivery_time = today.strftime("%Y-%m-%d %H:%M")
+                    logger.info(f"No delivery date provided, using today's date: {delivery_time}")
+                
                 # Create order with delivery information
                 order = Order(
                     user_id=user_id,

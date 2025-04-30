@@ -325,6 +325,7 @@ async def get_user_settings(clerk_id: str, db: Session = Depends(get_db)):
         "founded_year": settings.founded_year,
         "categories": json.loads(settings.categories) if settings.categories else [],
         "whatsapp_phone_number_id": settings.whatsapp_phone_number_id,
+        "whatsapp_verify_token": settings.whatsapp_verify_token,
         "crm_type": settings.crm_type,
         "other_crm_details": settings.other_crm_details,
         "view_consolidated_data": settings.view_consolidated_data
@@ -339,7 +340,8 @@ async def get_user_settings(clerk_id: str, db: Session = Depends(get_db)):
         "whatsapp_app_id", 
         "whatsapp_app_secret", 
         "whatsapp_api_key",
-        "hubspot_access_token"
+        "hubspot_access_token",
+        "whatsapp_verify_token"
     ]
     
     for field in sensitive_fields:

@@ -261,9 +261,21 @@ def responder_node(state) -> Dict[str, Any]:
                 print(f"RESPONDER NODE: Found order_number in state.dict(): {order_number}")
 
             # If no order number found, generate a new one
+            # Check if we have orders in the result from logger_agent
+            if not order_number and hasattr(state, 'result') and state.result:
+                result = state.result
+                if isinstance(result, dict) and 'orders' in result and result['orders']:
+                    # Get the order number from the first order in the list
+                    if isinstance(result['orders'], list) and len(result['orders']) > 0:
+                        first_order = result['orders'][0]
+                        if isinstance(first_order, dict) and 'order_number' in first_order:
+                            order_number = first_order['order_number']
+                            logger.info(f"Using order_number from logger_agent result: {order_number}")
+            
+            # Only generate a new order number as a last resort
             if not order_number:
                 order_number = f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                print(f"RESPONDER NODE: Generated new order_number: {order_number}")
+                logger.warning(f"Generated fallback order_number: {order_number} - this may cause inconsistency with database")
             
             # Set the order number in the data structure
             simple_order_data['order_number'] = order_number

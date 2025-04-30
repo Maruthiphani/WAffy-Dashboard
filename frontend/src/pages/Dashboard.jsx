@@ -830,18 +830,23 @@ const Dashboard = () => {
             <TableLoader rows={5} columns={getCurrentColumns().length || 5} className="shadow-sm" />
           </div>
         ) : (
-          <Table
-            columns={getCurrentColumns()}
-            dataSource={getCurrentData().map((item, index) => ({ ...item, key: index }))}
-            pagination={{ pageSize: 10 }}
-            locale={{
-              emptyText: (
-                <div className="py-8 text-center">
-                  <p className="text-gray-500">No data available</p>
-                </div>
-              ),
-            }}
-          />
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <Table
+              columns={getCurrentColumns()}
+              dataSource={getCurrentData().map((item, index) => ({ ...item, key: index }))}
+              pagination={{ pageSize: 10 }}
+              scroll={{ x: 'max-content' }}
+              size="small"
+              className="whitespace-nowrap"
+              locale={{
+                emptyText: (
+                  <div className="py-8 text-center">
+                    <p className="text-gray-500">No data available</p>
+                  </div>
+                ),
+              }}
+            />
+          </div>
         )}
       </div>
     </>

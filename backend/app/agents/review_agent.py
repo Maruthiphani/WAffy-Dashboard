@@ -188,30 +188,23 @@ class ReviewAgent:
     def _get_pending_orders(self, customer_id: str) -> List[Order]:
         """Get pending orders for a customer, ordered by most recent first"""
         try:
-            # Get distinct order numbers for this customer with status 'pending'
-            order_numbers = (
-                self.db.query(Order.order_number)
+            # Get the most recent order for this customer
+            most_recent_order = (
+                self.db.query(Order)
                 .filter(Order.customer_id == customer_id)
-                .filter(Order.order_status == "pending")
-                .distinct()
-                .all()
+                .order_by(desc(Order.created_at))
+                .first()
             )
             
-            # Get the most recent order for each order number
-            recent_orders = []
-            for (order_number,) in order_numbers:
-                most_recent = (
-                    self.db.query(Order)
-                    .filter(Order.order_number == order_number)
-                    .order_by(desc(Order.created_at))
-                    .first()
-                )
-                if most_recent:
-                    recent_orders.append(most_recent)
+            # If no orders or the most recent order is not pending, return empty list
+            if not most_recent_order or most_recent_order.order_status != "pending":
+                print(f"REVIEW AGENT: ❌ No pending orders found for customer {customer_id}")
+                return []
             
-            # Sort by created_at in descending order
-            recent_orders.sort(key=lambda x: x.created_at, reverse=True)
-            return recent_orders
+            # Return the most recent order in a list
+            print(f"REVIEW AGENT: ✅ Found pending order {most_recent_order.order_number} for customer {customer_id}")
+            print(f"REVIEW AGENT: 📦 Order details: Created={most_recent_order.created_at}, Item={most_recent_order.item}")
+            return [most_recent_order]
             
         except Exception as e:
             logger.error(f"Error getting pending orders: {str(e)}")

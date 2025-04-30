@@ -225,9 +225,7 @@ def responder_node(state) -> Dict[str, Any]:
         order_data = None
         response_type = None
         response_message = None
-        table_name = None
-                    
-        # table_name was already extracted above when determining should_respond
+        # Note: table_name was already extracted above when determining should_respond, don't reset it
         
         # Determine the appropriate response based on the response_type, message_type, or table_name
         if table_name == "orders":
@@ -375,12 +373,25 @@ def responder_node(state) -> Dict[str, Any]:
             
             response = responder_agent.send_message(sender, enquiry_message)
             logger.info(f"Sent enquiry response to {sender}: {response}")
-        else:
-            # Send a generic confirmation message
+        elif table_name == "feedback":
+            # Send a feedback acknowledgement
+            logger.info("Table name is feedback, sending feedback acknowledgement")
+            
+            # Create basic feedback acknowledgement message
+            feedback_message = "Thank you for your feedback! We appreciate your input and will use it to improve our services."
+            
+            response = responder_agent.send_message(sender, feedback_message)
+            logger.info(f"Sent feedback acknowledgement to {sender}: {response}")
+        elif table_name is None:
+            # Only send a generic message if table_name is None (not a recognized message type)
             message = "Thank you for your message! We've received it and will process it shortly."
-            logger.info(f"Sending generic confirmation to {sender}")
+            logger.info(f"No specific table_name, sending generic confirmation to {sender}")
             response = responder_agent.send_message(sender, message)
             logger.info(f"Sent WhatsApp response to {sender}: {response}")
+        else:
+            # For any other table_name, don't send a response
+            logger.info(f"Unhandled table_name: {table_name}, not sending a generic response")
+            response = {"status": "skipped", "reason": f"Unhandled table_name: {table_name}"}
         
         # Calculate response time
         response_end_time = time.time()
@@ -388,12 +399,20 @@ def responder_node(state) -> Dict[str, Any]:
         response_sent_at = datetime.now()
         
         # Create a response status dictionary
-        response_status = {
-            "status": "success",
-            "message": "Sent WhatsApp response",
-            "details": response,
-            "response_time_seconds": response_time_seconds
-        }
+        if isinstance(response, dict) and response.get("status") == "skipped":
+            response_status = {
+                "status": "skipped",
+                "message": "Response skipped",
+                "reason": response.get("reason", "Unknown reason"),
+                "response_time_seconds": response_time_seconds
+            }
+        else:
+            response_status = {
+                "status": "success",
+                "message": "Sent WhatsApp response",
+                "details": response,
+                "response_time_seconds": response_time_seconds
+            }
         
         # Try to update the state with the response status
         try:
@@ -414,6 +433,10 @@ def responder_node(state) -> Dict[str, Any]:
                 response_type = "issue_acknowledgement"
             elif table_name == "enquiries":
                 response_type = "enquiry_response"
+            elif table_name == "feedback":
+                response_type = "feedback_acknowledgement"
+            elif isinstance(response, dict) and response.get("status") == "skipped":
+                response_type = "skipped"
             
             # Create a database session
             db = SessionLocal()
@@ -430,10 +453,14 @@ def responder_node(state) -> Dict[str, Any]:
                 response_sent_at=response_sent_at
             )
             
-            # Add and commit the record
-            db.add(metrics)
-            db.commit()
-            logger.info(f"Stored response metrics: response_time={response_time_seconds:.2f}s, type={response_type}")
+            # Only store metrics if we actually sent a response
+            if response_type != "skipped":
+                # Add and commit the record
+                db.add(metrics)
+                db.commit()
+                logger.info(f"Stored response metrics: response_time={response_time_seconds:.2f}s, type={response_type}")
+            else:
+                logger.info(f"Skipped storing metrics for skipped response")
             
             # Close the database session
             db.close()

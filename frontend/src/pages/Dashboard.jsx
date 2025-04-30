@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DashboardHeader from "../components/DashboardHeader";
-import { getOrders, getCustomers, getEnquiries, getIssues, getResponseMetrics } from "../services/userService";
-import { Table, Button, Tag, Progress, Spin } from "antd";
+import { getOrders, getCustomers, getEnquiries, getIssues, getResponseMetrics, updateOrderStatus } from "../services/userService";
+import { Table, Button, Tag, Progress, Spin, Dropdown, Menu } from "antd";
+import { MoreOutlined } from "@ant-design/icons";
 import { useUser } from "@clerk/clerk-react";
 import Loader from "../components/Loader";
 import TableLoader from "../components/TableLoader";
@@ -62,14 +63,7 @@ const Dashboard = () => {
       const fetchOrders = async () => {
         try {
           const data = await getOrders(clerkId);
-          
-          // Add random amounts to orders for demonstration purposes
-          const ordersWithRandomAmounts = data.map(order => ({
-            ...order,
-            Amount: order.Amount || (Math.floor(Math.random() * 500) + 50).toFixed(2) // Random amount between 50 and 550
-          }));
-          
-          setOrders(ordersWithRandomAmounts);
+          setOrders(data);
           setDataLoadingState((prev) => ({ ...prev, orders: false }));
         } catch (error) {
           console.error("Error fetching orders:", error);
@@ -200,15 +194,29 @@ const Dashboard = () => {
       title: "Quantity",
       key: "Quantity",
       render: (_, record) => {
-        if (!record.Quantity) return "-";
         return `${record.Quantity}${record.Unit ? " (" + record.Unit + ")" : ""}`;
       },
     },
     { title: "Notes", dataIndex: "Notes", key: "Notes" },
-    { title: "Status", dataIndex: "Status", key: "Status", render: (text) => <Tag color="green">{text}</Tag> },
-    { title: "Amount (₹)", dataIndex: "Amount", key: "Amount" },
+    // { title: "Status", dataIndex: "Status", key: "Status", render: (text) => <Tag color="green">{text}</Tag> },
+    {
+      title: "Status",
+      dataIndex: "Status",
+      key: "Status",
+      filters: [
+        { text: "Pending", value: "pending" },
+        { text: "Completed", value: "completed" },
+      ],
+      onFilter: (value, record) => record.Status.toLowerCase() === value,
+      render: (text) => (
+        <Tag color={text.toLowerCase() === "completed" ? "green" : "orange"}>
+          {text}
+        </Tag>
+      ),
+    },
+    { title: "Amount ($)", dataIndex: "Amount", key: "Amount" },
     { title: "Delivery Address", dataIndex: "DeliveryAddress", key: "DeliveryAddress", render: (text) => text || "-" },
-    { title: "Delivery Date", dataIndex: "DeliveryTime", key: "DeliveryTime", render: (text) => text || "-" },
+    { title: "Delivery Time", dataIndex: "DeliveryTime", key: "DeliveryTime", render: (text) => text || "-" },
     {
       title: "Delivery Method",
       dataIndex: "DeliveryMethod",
@@ -217,6 +225,13 @@ const Dashboard = () => {
     },
     // { title: "Action", key: "action", render: () => <Button size="small" type="primary">Done</Button> },
   ];
+
+  orderColumns.push({
+    title: "Action",
+    key: "action",
+    render: (_, record) => renderActionMenu(record),
+  });
+  
 
   const customerColumns = [
     { title: "Customer ID", dataIndex: "CustomerId", key: "CustomerId" },
@@ -251,12 +266,12 @@ const Dashboard = () => {
       key: "DeliveryDate",
       render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
     },
-    // {
-    //   title: "Updated Date",
-    //   dataIndex: "UpdatedDate",
-    //   key: "UpdatedDate",
-    //   render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
-    // },
+    {
+      title: "Updated Date",
+      dataIndex: "UpdatedDate",
+      key: "UpdatedDate",
+      render: (date) => (date ? new Date(date).toLocaleDateString() : ""),
+    },
   ];
 
   const enquiryColumns = [
@@ -344,16 +359,8 @@ const Dashboard = () => {
     const totalEnquiries = enquiries.length;
     const totalIssues = issues.length;
 
-    const totalRevenue = orders.reduce((sum, order) => {
-      // Ensure Amount is a valid number
-      const amount = order.Amount ? parseFloat(order.Amount) : 0;
-      return sum + (isNaN(amount) ? 0 : amount);
-    }, 0);
-    
-    // Calculate average order value consistently
-    const avgOrderValueRaw = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const avgOrderValueFormatted = isNaN(avgOrderValueRaw) ? "0.00" : avgOrderValueRaw.toFixed(2);
-    const averageOrderValue = avgOrderValueFormatted; // For consistency with the other display
+    const totalRevenue = orders.reduce((sum, order) => sum + (parseFloat(order.Amount) || 0), 0);
+    const averageOrderValue = totalOrders > 0 ? (totalRevenue / totalOrders).toFixed(2) : 0;
 
     const today = new Date().toISOString().split("T")[0];
     const todayOrders = orders.filter((order) => {
@@ -381,18 +388,13 @@ const Dashboard = () => {
     const completedOrders = filteredOrders.filter((order) => order.Status === "delivered").length;
     const completionRate = totalOrders > 0 ? `${Math.round((completedOrders / totalOrders) * 100)}%` : "0%";
 
-    // Use the same calculation method as above for consistency
-    const avgOrderValue = `₹${avgOrderValueFormatted}`;
+    const totalOrderValue = filteredOrders.reduce((sum, order) => sum + (order.Amount || 0), 0);
+    const avgOrderValue = totalOrders > 0 ? `$${(totalOrderValue / totalOrders).toFixed(2)}` : "$0.00";
 
     const resolvedIssues = filteredIssues.filter((issue) => issue.Status === "resolved").length;
     const resolutionRate = totalIssues > 0 ? `${Math.round((resolvedIssues / totalIssues) * 100)}%` : "0%";
 
-    // Calculate response rate based on total messages and responses
-    const totalMessages = totalOrders + totalEnquiries + totalIssues;
     const totalResponses = responseMetrics.length;
-    const responseRate = totalMessages > 0 ? `${Math.round((totalResponses / totalMessages) * 100)}%` : "0%";
-    
-    // Calculate average response time
     const totalResponseTime = responseMetrics.reduce((sum, metric) => sum + (metric.ResponseTimeSeconds || 0), 0);
     const avgResponseTimeSeconds = totalResponses > 0 ? totalResponseTime / totalResponses : 0;
 
@@ -421,7 +423,7 @@ const Dashboard = () => {
       todayOrders,
       pendingOrders: ordersByStatus["Pending"] || 0,
       retentionRate: `${retentionRate}%`,
-      responseRate, // Calculated based on total messages and responses
+      responseRate: resolutionRate, // Assuming responseRate is same as resolutionRate
       completedOrders,
       completionRate,
       avgOrderValue,
@@ -465,6 +467,90 @@ const Dashboard = () => {
     saveAs(blob, `dashboard_data_${tab}.${fileType === "excel" ? "xlsx" : "csv"}`);
   };
 
+  const handleMarkAsCompleted = async (orderNumber) => {
+    try {
+      await updateOrderStatus(orderNumber, "completed");
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.OrderNumber === orderNumber ? { ...order, Status: "completed" } : order
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update order status:", error);
+    }
+  };
+  
+  
+  const handleRemove = (orderNumber) => {
+    setOrders((prev) => prev.filter((order) => order.OrderNumber !== orderNumber));
+  };
+  
+  
+  const renderActionMenu = (record) => {
+    const items = [
+      {
+        key: "mark-completed",
+        label: "Mark as Completed",
+        onClick: () => handleMarkAsCompleted(record.OrderNumber),
+      },
+      {
+        key: "reply",
+        label: "Reply (Coming Soon)",
+        disabled: true,
+      },
+    ];
+  
+    // if (record.Status === "completed") {
+    //   return (
+    //     <Button size="small" danger onClick={() => handleRemove(record.order_id)}>
+    //       Remove
+    //     </Button>
+    //   );
+    // }
+  
+    if (record.Status === "completed") {
+      return (
+        <div className="flex gap-2">
+          {/* <button
+            onClick={() => handleRemove(record.OrderNumber)}
+            className="px-4 py-1 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400 transition duration-300"
+          >
+            Remove
+          </button> */}
+          <button
+            onClick={() => handleUndo(record.OrderNumber)}
+            className="px-4 py-1 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400 transition duration-300"
+          >
+            Undo
+          </button>
+        </div>
+      );
+    }
+    
+    
+
+
+    return (
+      <Dropdown menu={{ items }}>
+        <MoreOutlined style={{ fontSize: 20, cursor: "pointer" }} />
+      </Dropdown>
+    );
+  };
+  
+  const handleUndo = async (orderNumber) => {
+    try {
+      await updateOrderStatus(orderNumber, "pending");
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.OrderNumber === orderNumber ? { ...order, Status: "pending" } : order
+        )
+      );
+    } catch (error) {
+      console.error("Failed to undo order status:", error);
+    }
+  };
+  
+
   return (
     <>
       <DashboardHeader user={clerkUser} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} />
@@ -486,8 +572,8 @@ const Dashboard = () => {
               </div>
               <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500">
                 <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
-                <p className="text-2xl font-bold">₹{stats.totalRevenue.toFixed(2)}</p>
-                <div className="mt-2 text-sm text-gray-500">Avg. Order: ₹{stats.averageOrderValue}</div>
+                <p className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</p>
+                <div className="mt-2 text-sm text-gray-500">Avg. Order: ${stats.averageOrderValue}</div>
               </div>
               <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-purple-500">
                 <h3 className="text-sm font-medium text-gray-500">Total Customers</h3>
@@ -509,9 +595,9 @@ const Dashboard = () => {
             <CardLoader count={3} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {/* Sales Metrics */}
-            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
+            <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold mb-3">Sales Overview</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="border-r pr-4">
@@ -548,7 +634,7 @@ const Dashboard = () => {
             </div>
 
             {/* Support Metrics */}
-            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
+            <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold mb-3">Support Performance</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="border-r pr-4">
@@ -571,7 +657,7 @@ const Dashboard = () => {
             </div>
 
             {/* Waffy Response Metrics */}
-            <div className="p-4 sm:p-6 bg-white rounded-lg shadow-sm">
+            <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold mb-3">Waffy Response Metrics</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="border-r pr-4">
@@ -622,13 +708,15 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Tab Navigation */}
-        <div className="flex flex-wrap gap-2 sm:gap-4 mb-6">
+         {/* Tabs */}
+         <div className="flex gap-4 mb-6">
           {["orders", "customers", "enquiries", "issues"].map((tabName) => (
             <button
               key={tabName}
               onClick={() => setTab(tabName)}
-              className={`px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400 transition duration-300 transform ${tab === tabName ? "border-2 sm:border-4 border-yellow-300 scale-105" : "border-none"}`}
+              className={`px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400 transition duration-300 ${
+                tab === tabName ? "border-4 border-yellow-300 scale-105" : "border-none"
+              }`}
             >
               {tabName.charAt(0).toUpperCase() + tabName.slice(1)}
             </button>
@@ -636,12 +724,12 @@ const Dashboard = () => {
         </div>
 
         {/* Filter & Export Row */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6 items-start sm:items-end sm:justify-between">
-          <div className="flex flex-col w-full sm:flex-row sm:flex-wrap gap-4 items-start sm:items-end">
-            <div className="flex flex-col w-full sm:w-auto">
-              <label className="text-xs sm:text-sm font-semibold mb-1">Customer ID:</label>
+        <div className="flex flex-wrap gap-4 mb-6 items-end justify-between">
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold mb-1">Customer ID:</label>
               <select
-                className="p-2 border rounded w-full sm:w-40 md:w-48"
+                className="p-2 border rounded w-48"
                 value={customerFilter}
                 onChange={(e) => setCustomerFilter(e.target.value)}
               >
@@ -651,39 +739,39 @@ const Dashboard = () => {
                 ))}
               </select>
             </div>
-            <div className="flex flex-col w-full sm:w-auto">
-              <label className="text-xs sm:text-sm font-semibold mb-1">Date:</label>
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold mb-1">Date:</label>
               <input
                 type="date"
-                className="p-2 border rounded w-full sm:w-40 md:w-48"
+                className="p-2 border rounded w-48"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
               />
             </div>
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex gap-2">
               <button
                 onClick={handleFilterSubmit}
-                className="flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
+                className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 transition duration-300"
               >
                 Apply Filters
               </button>
               <button
                 onClick={handleResetFilters}
-                className="flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-400 transition duration-300"
+                className="px-6 py-2 rounded-full font-semibold shadow-md text-white bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-400 transition duration-300"
               >
                 Reset
               </button>
             </div>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+          <div className="flex gap-2">
             <Button onClick={() => handleExport("excel")}
               disabled={!hasData}
-              className={`flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
+              className={`px-6 py-2 rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
               Export to Excel
             </Button>
             <Button onClick={() => handleExport("csv")}
               disabled={!hasData}
-              className={`flex-1 sm:flex-none px-3 sm:px-6 py-2 text-xs sm:text-sm rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
+              className={`px-6 py-2 rounded-full font-semibold shadow-md text-white ${hasData ? 'bg-gradient-to-r from-pink-400 to-orange-400 hover:from-orange-400 hover:to-pink-400' : 'bg-gray-300 cursor-not-allowed'}`}>
               Export to CSV
             </Button>
           </div>
@@ -702,23 +790,18 @@ const Dashboard = () => {
             <TableLoader rows={5} columns={getCurrentColumns().length || 5} className="shadow-sm" />
           </div>
         ) : (
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
-            <Table
-              columns={getCurrentColumns()}
-              dataSource={getCurrentData().map((item, index) => ({ ...item, key: index }))}
-              pagination={{ pageSize: 10 }}
-              scroll={{ x: 'max-content' }}
-              size="small"
-              className="whitespace-nowrap"
-              locale={{
-                emptyText: (
-                  <div className="py-8 text-center">
-                    <p className="text-gray-500">No data available</p>
-                  </div>
-                ),
-              }}
-            />
-          </div>
+          <Table
+            columns={getCurrentColumns()}
+            dataSource={getCurrentData().map((item, index) => ({ ...item, key: index }))}
+            pagination={{ pageSize: 10 }}
+            locale={{
+              emptyText: (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500">No data available</p>
+                </div>
+              ),
+            }}
+          />
         )}
       </div>
     </>

@@ -263,3 +263,27 @@ export const getWhatsAppVerifyToken = async (clerkId) => {
     return { verifyToken: null, error: 'Failed to retrieve WhatsApp verify token' };
   }
 };
+
+//code to update order status in db 
+export const updateOrderStatus = async (orderNumber, status) => {
+  //const url = `${API_URL}/api/orders/${orderNumber}`;
+  const url = `${API_URL}/orders/${orderNumber}`;
+
+  console.log("PUT request to:", url); // Add this line
+
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error("Failed to update status");
+    return await response.json();
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    throw err;
+  }
+};
+
+
+

@@ -8,6 +8,7 @@ import json
 import time
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
+from app.utils.time_utils import convert_relative_time_to_date
 
 from app.agents.responder_agent import ResponderAgent
 from database import SessionLocal
@@ -197,8 +198,19 @@ def responder_node(state) -> Dict[str, Any]:
         # Start timing the response
         response_start_time = time.time()
         
-        # Check if we should respond
-        should_respond = True
+        # Check for table_name which can also indicate message type
+        table_name = None
+        if hasattr(state, 'table_name'):
+            table_name = state.table_name
+        elif hasattr(state, 'dict') and 'table_name' in state.dict():
+            table_name = state.dict()['table_name']
+        elif isinstance(state, dict) and 'table_name' in state:
+            table_name = state['table_name']
+            
+        # Check if we should respond - only respond when table_name is present
+        should_respond = table_name is not None
+        
+        # Override with explicit should_respond flag if present
         if hasattr(state, 'should_respond'):
             should_respond = state.should_respond
         elif isinstance(state, dict) and 'should_respond' in state:
@@ -215,13 +227,7 @@ def responder_node(state) -> Dict[str, Any]:
         response_message = None
         table_name = None
                     
-        # Check for table_name which can also indicate message type
-        if hasattr(state, 'table_name'):
-            table_name = state.table_name
-        elif hasattr(state, 'dict') and 'table_name' in state.dict():
-            table_name = state.dict()['table_name']
-        elif isinstance(state, dict) and 'table_name' in state:
-            table_name = state['table_name']
+        # table_name was already extracted above when determining should_respond
         
         # Determine the appropriate response based on the response_type, message_type, or table_name
         if table_name == "orders":
@@ -269,15 +275,8 @@ def responder_node(state) -> Dict[str, Any]:
                 # Extract delivery time
                 if 'delivery_time' in extracted_info:
                     delivery_time_str = extracted_info['delivery_time']
-                    # Convert relative time to actual date if needed
-                    if delivery_time_str == "tomorrow":
-                        tomorrow = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0) + timedelta(days=1)
-                        simple_order_data['delivery_time'] = tomorrow.strftime("%Y-%m-%d %H:%M")
-                    elif delivery_time_str == "today":
-                        today = datetime.now().replace(hour=18, minute=0, second=0, microsecond=0)
-                        simple_order_data['delivery_time'] = today.strftime("%Y-%m-%d %H:%M")
-                    else:
-                        simple_order_data['delivery_time'] = delivery_time_str
+                    # Convert relative time to actual date using shared utility function
+                    simple_order_data['delivery_time'] = convert_relative_time_to_date(delivery_time_str)
                     logger.info(f"Added delivery time to order data: {simple_order_data['delivery_time']}")
                 
                 # Extract delivery method

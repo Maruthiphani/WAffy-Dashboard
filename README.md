@@ -217,23 +217,13 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
 
 ---
 
-## Contributing
-
-We welcome contributions! Please follow these steps:
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/your-feature`).
-3. Commit changes (`git commit -m "Add your feature"`).
-4. Push to the branch (`git push origin feature/your-feature`).
-5. Open a pull request.
-
----
-
 **Application Flow:**
 Add the screenshots of the WAffy app navigation
 
 ---
    
 **Project Repository URL:**
+https://github.com/Maruthiphani/WAffy-Dashboard.git
 
 ---
 
@@ -248,6 +238,11 @@ Add the screenshots of the WAffy app navigation
 ---
 
 **Team Members:**
+1)Nagajyothi Prakash : njp-coder
+2)Akanksha Vishwakarma : akanksha-vishwak
+3)Maruthi Phanindra Ayyagari : Maruthiphani
+4)Harsha Naik : Harsha-Ramesh-Naik
+
 
 ---
 
@@ -256,10 +251,9 @@ Add the screenshots of the WAffy app navigation
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+
 ---
 
-## Contact
 
-For questions or support, reach out to us at [support@waffy.app](mailto:support@waffy.app) or join our [community Discord](https://discord.gg/your-discord-link).
 
 

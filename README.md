@@ -227,18 +227,28 @@ We welcome contributions! Please follow these steps:
 5. Open a pull request.
 
 ---
+
 **Application Flow:**
 Add the screenshots of the WAffy app navigation
+
 ---
    
 **Project Repository URL:**
+
 ---
+
 **Deployed Endpoint URL for backend FastAPI:** https://waffy-dashboard.onrender.com
+
 **Deployed Endpoint URL for Frontend:** https://waffy-dashboard.vercel.app/
+
 ---
+
 **Project Video:**
+
 ---
+
 **Team Members:**
+
 ---
 
 

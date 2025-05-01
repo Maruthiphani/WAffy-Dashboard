@@ -243,11 +243,11 @@ Screenshots of the WAffy dashboard
 
 Screenshot of the HubSpot CRM
 
-<img src="https://i.imgur.com/UtjBd9S.png" width="350"/>
-<img src="https://i.imgur.com/4mIkdMN.png" width="350"/>
-<img src="https://i.imgur.com/ANjB1z6.png" width="350"/>
-<img src="https://i.imgur.com/TLkPSUD.png" width="350"/>
-<img src="https://i.imgur.com/WRLKN7u.png" width="350"/>
+<img src="https://i.imgur.com/UtjBd9S.png">
+<img src="https://i.imgur.com/4mIkdMN.png">
+<img src="https://i.imgur.com/ANjB1z6.png">
+<img src="https://i.imgur.com/TLkPSUD.png">
+<img src="https://i.imgur.com/WRLKN7u.png">
 
 ---
    

@@ -273,10 +273,10 @@ https://github.com/Maruthiphani/WAffy-Dashboard.git
 ---
 
 **Team Members:**
-- Nagajyothi Prakash : njp-coder
-- Akanksha Vishwakarma : akanksha-vishwak
-- Maruthi Phanindra Ayyagari : Maruthiphani
-- Harsha Naik : Harsha-Ramesh-Naik
+- Nagajyothi Prakash : njp-coder (nagajyothi1722@gmail.com)
+- Akanksha Vishwakarma : akanksha-vishwak (akanksha.vision@gmail.com)
+- Maruthi Phanindra Ayyagari : Maruthiphani (maruthiphani75@gmail.com)
+- Harsha Naik : Harsha-Ramesh-Naik (naikharsha598@gmail.com)
 
 ---
 

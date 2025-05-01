@@ -125,7 +125,7 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
    - Parses the payload, authenticates the request, and prepares a normalized message object.  
    - Passes the message forward for validation and processing.
 
-<img src=“https://github.com/user-attachments/assets/328cd98f-785f-4081-8ec3-8e485b817d87.png” width=“300" style=“float:left; margin-right:20px”/>
+<img src=“https://i.imgur.com/npIKs0x.png”width=“300" style=“float:left; margin-right:20px”/>
 
 1. **Validator Agent**  
    - Checks whether the message is valid and processable.  
@@ -169,7 +169,7 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
 - Secure, real-time authentication with Clerk for seamless login/logout.
 
 ### Frontend (React + Tailwind CSS + Ant Design)
-- **Dashboard**: Manage Orders, Customers, and Enquiries via a tab-based UI.  
+- **Dashboard**: Manage Orders, Customers, and Inquiries via a tab-based UI.  
 - **Hero Slider**: Display promotions and banners.  
 - **Dynamic Filtering**: Filter by Customer ID or Date with live updates.  
 - **Vibrant UI/UX**: Gradient buttons, active tabs, responsive tables, and real-time data.

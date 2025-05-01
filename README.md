@@ -247,9 +247,9 @@ https://github.com/Maruthiphani/WAffy-Dashboard.git
 
 ---
 
-**Deployed Endpoint URL for backend FastAPI:** https://waffy-dashboard.onrender.com
+**Deployed Endpoint URL for backend FastAPI:** https://waffy-dashboard.onrender.com/
 
-**Deployed Endpoint URL for Frontend:** https://waffy-dashboard.vercel.app/
+**Deployed Endpoint URL for Frontend:** [https://waffy-dashboard.vercel.app/](https://w-affy-dashboard.vercel.app/)
 
 ---
 

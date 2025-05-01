@@ -125,6 +125,9 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
 
 Agent orchestration is managed using LangGraph, enabling structured, stateful workflows between agents based on message type and context. Each agent operates as a node in the   graph, with transitions defined by classification outcomes and processing stages.
 
+<img src="https://i.imgur.com/bpTQmcK.png">
+
+
 1. **Listener Agent**  
    - Receives all incoming messages from the **WhatsApp Cloud API** webhook.  
    - Parses the payload, authenticates the request, and prepares a normalized message object.  

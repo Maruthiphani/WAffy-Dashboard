@@ -124,20 +124,20 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
    - Receives all incoming messages from the **WhatsApp Cloud API** webhook.  
    - Parses the payload, authenticates the request, and prepares a normalized message object.  
    - Passes the message forward for validation and processing.
-  
-   ![image](https://github.com/user-attachments/assets/328cd98f-785f-4081-8ec3-8e485b817d87)
 
-2. **Validator Agent**  
+<img src=“https://github.com/user-attachments/assets/328cd98f-785f-4081-8ec3-8e485b817d87.png” width=“300" style=“float:left; margin-right:20px”/>
+
+1. **Validator Agent**  
    - Checks whether the message is valid and processable.  
    - Filters out duplicate, empty, or unsupported message types.  
    - Only valid messages proceed to the next step.
 
-3. **Context Agent**  
+2. **Context Agent**  
    - Fetches the latest conversation context (e.g., the last few messages from the same user).  
    - Enables continuity in conversations and helps understand follow-up or fragmented messages.  
    - Appends contextual information to the current message before sending it to the LLM Agent.
 
-4. **LLM Agent**  
+3. **LLM Agent**  
    - The core logic layer, powered by a large language model, performs:  
      - Intent classification (e.g., order, enquiry, complaint).  
      - Priority tagging (e.g., high, medium, low).  
@@ -145,18 +145,18 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
      - Language understanding across **40+ languages**.  
    - Returns a structured JSON payload with intent and extracted fields.
 
-5. **Review Agent**  
+4. **Review Agent**  
    - Applicable only for order-related messages.  
    - Checks if an order from the same customer exists within a 30-minute window.  
    - Consolidates new messages with existing orders or treats them as fresh orders.  
    - Ensures multiple short messages from a customer are grouped appropriately.
 
-6. **Logger Agent**  
+5. **Logger Agent**  
    - Stores structured message data in the **PostgreSQL** database.  
    - If CRM sync is enabled, creates/updates contacts and logs tickets in **HubSpot** with relevant tags and details.  
    - Ensures reliable storage of message history and metadata for future reference.
 
-7. **Responder Agent**  
+6. **Responder Agent**  
    - Selects appropriate responses (predefined templates or dynamic) based on the classified message type and extracted data.  
    - Sends replies to users via the **WhatsApp Cloud API** and logs the response status.  
    - Serves as the final communication step in the workflow.

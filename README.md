@@ -124,8 +124,7 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
    - Receives all incoming messages from the **WhatsApp Cloud API** webhook.  
    - Parses the payload, authenticates the request, and prepares a normalized message object.  
    - Passes the message forward for validation and processing.
-
-<img src="https://i.imgur.com/npIKs0x.png" width="300" style="float:left; margin-right:20px"/>
+<img src="https://i.imgur.com/npIKs0x.png" width="400" style="float:left; margin-right:20px"/>
 
 1. **Validator Agent**  
    - Checks whether the message is valid and processable.  

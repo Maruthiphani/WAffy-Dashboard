@@ -112,13 +112,18 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
 | **Authentication**  | Clerk.dev                                                                       |
 | **Database**        | PostgreSQL (hosted on Aiven with SSL)                                           |
 | **Integrations**    | WhatsApp Cloud API (Graph API v18.0), HubSpot API, Excel/Google Sheets via APIs |
-| **Deployment**      | Local: ngrok for HTTPS; Production: FastAPI on Render, React-frontend on Vercel |                         |
+| **Deployment**      | Production: FastAPI on Render, React-frontend on Vercel                         |                         
+| **ORM**             | SQLAlchemy                   |   
 
 ---
 
 ## Architecture
+<img src="https://i.imgur.com/mwUh2Nf.png" width="400" style="float:left; margin-right:20px"/>
 
-### Agent Architecture
+
+### Multi-Agent Architecture
+
+Agent orchestration is managed using LangGraph, enabling structured, stateful workflows between agents based on message type and context. Each agent operates as a node in the   graph, with transitions defined by classification outcomes and processing stages.
 
 1. **Listener Agent**  
    - Receives all incoming messages from the **WhatsApp Cloud API** webhook.  
@@ -126,12 +131,6 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
    - Passes the message forward for validation and processing.
 
 <img src="https://i.imgur.com/jOt1tRI.png" width="400" style="float:left; margin-right:70px"/>
-
-
-1. **Validator Agent**  
-   - Checks whether the message is valid and processable.  
-   - Filters out duplicate, empty, or unsupported message types.  
-   - Only valid messages proceed to the next step.
 
 2. **Context Agent**  
    - Fetches the latest conversation context (e.g., the last few messages from the same user).  
@@ -161,6 +160,8 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
    - Selects appropriate responses (predefined templates or dynamic) based on the classified message type and extracted data.  
    - Sends replies to users via the **WhatsApp Cloud API** and logs the response status.  
    - Serves as the final communication step in the workflow.
+  
+   - 
 
 ---
 

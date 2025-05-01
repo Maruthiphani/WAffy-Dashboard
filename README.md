@@ -237,15 +237,11 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
 
 ---
 
-**Screenshots:**
+## Screenshots
 
 WAffy Homepage
 
 <img src="https://i.imgur.com/iReTiYk.jpeg">
-
-WAffy dashboard
-
-
 
 The HubSpot CRM
 
@@ -268,7 +264,7 @@ https://github.com/Maruthiphani/WAffy-Dashboard.git
 
 ---
 
-**Project Video:**
+**Project Video:** https://res.cloudinary.com/deff4kbgp/video/upload/v1746079938/video2789456939_kxud5n.mp4
 
 ---
 

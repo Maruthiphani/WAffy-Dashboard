@@ -249,7 +249,7 @@ https://github.com/Maruthiphani/WAffy-Dashboard.git
 
 **Deployed Endpoint URL for backend FastAPI:** https://waffy-dashboard.onrender.com/
 
-**Deployed Endpoint URL for Frontend:** [https://waffy-dashboard.vercel.app/](https://w-affy-dashboard.vercel.app/)
+**Deployed Endpoint URL for Frontend:** [https://w-affy-dashboard.vercel.app/](https://w-affy-dashboard.vercel.app/)
 
 ---
 
@@ -258,10 +258,10 @@ https://github.com/Maruthiphani/WAffy-Dashboard.git
 ---
 
 **Team Members:**
-1)Nagajyothi Prakash : njp-coder
-2)Akanksha Vishwakarma : akanksha-vishwak
-3)Maruthi Phanindra Ayyagari : Maruthiphani
-4)Harsha Naik : Harsha-Ramesh-Naik
+- Nagajyothi Prakash : njp-coder
+- Akanksha Vishwakarma : akanksha-vishwak
+- Maruthi Phanindra Ayyagari : Maruthiphani
+- Harsha Naik : Harsha-Ramesh-Naik
 
 
 ---

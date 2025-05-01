@@ -210,21 +210,30 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
    - Frontend: `cd frontend && npm install`
 
 3. **Configure Environment**:
-   - Set up `.env` with WhatsApp API keys, HubSpot tokens, and Aiven PostgreSQL credentials.
-   - ENCRYPTION_KEY=
-   - DATABASE_URL=postgresql://avnadmin:AVNS_8qhqmlqzPGBFt4YTjQA@pg-waffy-waffy.g.aivencloud.com:26140/waffy_db?sslmode=require
-   - FORWARDING_URL=https://https://waffy-dashboard.onrender.com
-   - Configure Clerk.dev for authentication.
+   - Backend
+     ```bash
+     DATABASE_URL=postgresql://username:password@localhost/waffy_db
+     PORT=8000
+     HOST=0.0.0.0
+     ENCRYPTION_KEY=waffy_encryption_key_for_development_only
+     GEMINI_API_KEY=key
+     FORWARDING_URL=https://https://waffy-dashboard.onrender.com //(use ngrok locally)
+     ```
+   - Frontend (Root level)
+     ```bash
+     VITE_CLERK_PUBLISHABLE_KEY=clerk_key
+     REACT_APP_API_URL=http://localhost:8000/api
+     ```
 
 4. **Run Locally**:
    - Backend: `uvicorn main:app --reload`
-   - Frontend: `npm start`
+   - Frontend: `npm run start`
    - Use ngrok for temporary HTTPS webhook URLs.
-   - place the forwarding URL obtained using ngrok, in .env file.
+   - Place the forwarding URL obtained using ngrok, in backend .env file.
 
 5. **Deploy to Production**:
    - Backend: Deploy FastAPI to Render.
-   - Frontend: Build and host on Vercel or Netlify.
+   - Frontend: Host on Vercel.
 
 ---
 

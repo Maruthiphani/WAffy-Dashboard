@@ -197,35 +197,12 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
 
 ---
 
-## Features
-
-### Clerk Authentication
-- Secure, real-time authentication with Clerk for seamless login/logout.
-
-### Frontend (React + Tailwind CSS + Ant Design)
-- **Dashboard**: Manage Orders, Customers, and Inquiries via a tab-based UI.  
-- **Hero Slider**: Display promotions and banners.  
-- **Dynamic Filtering**: Filter by Customer ID or Date with live updates.  
-- **Vibrant UI/UX**: Gradient buttons, active tabs, responsive tables, and real-time data.
-
-### Backend (FastAPI)
-- **APIs**: `/api/orders`, `/api/customers`, `/api/enquiries`.  
-- **Data Fetching**: Pulls data securely from PostgreSQL.  
-- **Automatic Refresh**: Updates dashboard data instantly on filter submission.
-
-### Database (PostgreSQL)
-- Structured tables for orders, customers, and enquiries.  
-- Automatic timestamps for record creation and updates.  
-- Secure SSL connection via Aiven.
-
----
-
 ## Setup Instructions
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-repo/waffy.git
-   cd waffy
+   git clone [https://github.com/your-repo/waffy.git](https://github.com/Maruthiphani/WAffy-Dashboard.git)
+   cd Waffy-Dashboard
    ```
 
 2. **Install Dependencies**:

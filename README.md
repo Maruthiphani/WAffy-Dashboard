@@ -230,6 +230,7 @@ We welcome contributions! Please follow these steps:
 ## Application Flow:
 <Add the screenshots of the WAffy app navigation>
 ---
+   
 ## Project Repository URL:
 ---
 ## Deployed Endpoint URL for backend FastAPI: https://waffy-dashboard.onrender.com

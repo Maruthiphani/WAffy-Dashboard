@@ -55,17 +55,18 @@ WAffy is designed for:
 | Missed follow-ups               | Clear tags and dashboard alerts                   |
 | Slow replies                    | Instant AI-suggested replies                      |
 | Language constraints            | Auto Translate for smoother conversation          |
-| Inbox with Spam or toxic messges| Filters out unwanted messeges keeping only valid  |
+| Spam or toxic messges           | Smart filters + bot detection                     |
 
 
 ## Real-World Example
 
-A homegrown clothing brand receives 50–80 WhatsApp messages daily, including order queries, size complaints, and feedback.
+A  backery shop receives 50–80 WhatsApp messages daily, including order queries, customization information and feedback.
 
 **Before WAffy:**
-- The founder manually read each message.
-- Typed updates into Google Sheets.
-- Missed responses to unhappy customers.
+- The shop owner manually read each message.
+- Wrote down orders in a notebook or spreadsheet
+- Sometimes forgot last-minute changes or urgent complaints
+- Missed responses that leads to unhappy customers.
 
 **After WAffy:**
 - Messages are tagged (e.g., order, complaint, feedback).
@@ -78,7 +79,7 @@ A homegrown clothing brand receives 50–80 WhatsApp messages daily, including o
 ## Current Features (MVP)
 
 - ✅ WhatsApp Cloud API webhook setup.
-- ✅ **Listener Agent** captures incoming messages.
+- ✅ Listener Agent captures incoming messages.
 - ✅ Language translation for 40+ languages using Gemini API.
 - ✅ Message classification with tags (e.g., order, complaint).
 - ✅ Excel logging with download option.
@@ -124,7 +125,7 @@ A homegrown clothing brand receives 50–80 WhatsApp messages daily, including o
    - Parses the payload, authenticates the request, and prepares a normalized message object.  
    - Passes the message forward for validation and processing.
   
-   ![image](https://github.com/user-attachments/assets/404af301-46e2-4fda-9c86-eca5c8f766b3)
+   ![image](https://github.com/user-attachments/assets/328cd98f-785f-4081-8ec3-8e485b817d87)
 
 2. **Validator Agent**  
    - Checks whether the message is valid and processable.  

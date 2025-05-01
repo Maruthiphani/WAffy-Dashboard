@@ -201,15 +201,16 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
 
 3. **Configure Environment**:
    - Set up `.env` with WhatsApp API keys, HubSpot tokens, and Aiven PostgreSQL credentials.
-     ENCRYPTION_KEY=
-     DATABASE_URL=postgresql://avnadmin:AVNS_8qhqmlqzPGBFt4YTjQA@pg-waffy-waffy.g.aivencloud.com:26140/waffy_db?sslmode=require
-     FORWARDING_URL=https://https://waffy-dashboard.onrender.com
+   - ENCRYPTION_KEY=
+   - DATABASE_URL=postgresql://avnadmin:AVNS_8qhqmlqzPGBFt4YTjQA@pg-waffy-waffy.g.aivencloud.com:26140/waffy_db?sslmode=require
+   - FORWARDING_URL=https://https://waffy-dashboard.onrender.com
    - Configure Clerk.dev for authentication.
 
 4. **Run Locally**:
    - Backend: `uvicorn main:app --reload`
    - Frontend: `npm start`
    - Use ngrok for temporary HTTPS webhook URLs.
+   - place the forwarding URL obtained using ngrok, in .env file.
 
 5. **Deploy to Production**:
    - Backend: Deploy FastAPI to Render.

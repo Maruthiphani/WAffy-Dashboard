@@ -201,12 +201,12 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
 
 1. **Clone the Repository**:
    ```bash
-   git clone [https://github.com/your-repo/waffy.git](https://github.com/Maruthiphani/WAffy-Dashboard.git)
-   cd Waffy-Dashboard
+   git clone https://github.com/Maruthiphani/WAffy-Dashboard.git
+   cd WAffy-Dashboard
    ```
 
 2. **Install Dependencies**:
-   - Backend: `pip install -r requirements.txt`
+   - Backend: `cd backend && pip install -r requirements.txt`
    - Frontend: `cd frontend && npm install`
 
 3. **Configure Environment**:

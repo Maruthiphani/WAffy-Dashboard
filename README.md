@@ -129,8 +129,10 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
    - Receives all incoming messages from the **WhatsApp Cloud API** webhook.  
    - Parses the payload, authenticates the request, and prepares a normalized message object.  
    - Passes the message forward for validation and processing.
-
+     
+<p align="center">
 <img src="https://i.imgur.com/jOt1tRI.png" width="400" style="float:left; margin-right:70px"/>
+</p>
 
 2. **Context Agent**  
    - Fetches the latest conversation context (e.g., the last few messages from the same user).  

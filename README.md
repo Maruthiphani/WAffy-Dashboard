@@ -161,7 +161,7 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
    - If CRM sync is enabled, creates/updates contacts and logs tickets in **HubSpot** with relevant tags and details.  
    - Ensures reliable storage of message history and metadata for future reference.
   
-     <img src="https://i.imgur.com/z0bPfXF.png">
+     <img src="https://i.imgur.com/z0bPfXF.png" width="350"/>
      
 
 6. **Responder Agent**  

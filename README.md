@@ -134,7 +134,7 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
    - Passes the message forward for validation and processing.
      
 <p align="center">
-<img src="https://i.imgur.com/jOt1tRI.png" width="400" style="float:left; margin-right:70px"/>
+<img src="https://i.imgur.com/jOt1tRI.png" width="350" style="float:left; margin-right:70px"/>
 </p>
 
 2. **Context Agent**  

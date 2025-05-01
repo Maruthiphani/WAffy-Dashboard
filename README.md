@@ -243,6 +243,10 @@ WAffy Homepage
 
 <img src="https://i.imgur.com/iReTiYk.jpeg">
 
+WAffy Dashboard
+
+<img src="https://i.imgur.com/rOQWrWL.png">
+
 The HubSpot CRM
 
 <img src="https://i.imgur.com/UtjBd9S.png">

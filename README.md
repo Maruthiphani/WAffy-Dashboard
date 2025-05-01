@@ -120,6 +120,28 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
 ## Architecture
 <img src="https://i.imgur.com/mwUh2Nf.png">
 
+---
+
+### Clerk Authentication
+- Secure, real-time authentication with Clerk for seamless login/logout.
+
+### Frontend (React + Tailwind CSS + Ant Design)
+- **Dashboard**: Manage Orders, Customers, and Inquiries.
+- **Dynamic Filtering**: Filter by Customer ID or Date with live updates.  
+- **Vibrant UI/UX**: Gradient buttons, active tabs, responsive tables, and real-time data.
+
+### Backend (FastAPI)
+- **Data Fetching**: Pulls data securely from PostgreSQL.  
+- **Automatic Refresh**: Updates dashboard data instantly on filter submission.
+
+### Database (PostgreSQL)
+- Structured tables for orders, customers, and enquiries.  
+- Automatic timestamps for record creation and updates.  
+- Secure SSL connection via Aiven.
+- Encryption enabled for sensitive data. 
+
+---
+
 
 ### Multi-Agent Architecture
 
@@ -147,7 +169,8 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
      - Intent classification (e.g., order, enquiry, complaint).  
      - Priority tagging (e.g., high, medium, low).  
      - Entity extraction (e.g., product, quantity, name).  
-     - Language understanding across **40+ languages**.  
+     - Language understanding across **40+ languages**.
+     - Filters toxic or abusive messages to ensure safe and respectful interactions.
    - Returns a structured JSON payload with intent and extracted fields.
 
 4. **Review Agent**  
@@ -170,7 +193,7 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
    - Sends replies to users via the **WhatsApp Cloud API** and logs the response status.  
    - Serves as the final communication step in the workflow.
   
-   - 
+   
 
 ---
 

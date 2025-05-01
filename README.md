@@ -118,7 +118,7 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
 ---
 
 ## Architecture
-<img src="https://i.imgur.com/mwUh2Nf.png" width="400" style="float:left; margin-right:20px"/>
+<img src="https://i.imgur.com/mwUh2Nf.png">
 
 
 ### Multi-Agent Architecture

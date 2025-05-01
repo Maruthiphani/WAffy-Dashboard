@@ -79,6 +79,7 @@ A homegrown clothing brand receives 50–80 WhatsApp messages daily, including o
 
 - ✅ WhatsApp Cloud API webhook setup.
 - ✅ **Listener Agent** captures incoming messages.
+- ✅ Language translation for 40+ languages using Gemini API.
 - ✅ Message classification with tags (e.g., order, complaint).
 - ✅ Excel logging with download option.
 - ✅ HubSpot ticket creation via API.
@@ -110,7 +111,7 @@ A homegrown clothing brand receives 50–80 WhatsApp messages daily, including o
 | **Authentication**  | Clerk.dev                                                                       |
 | **Database**        | PostgreSQL (hosted on Aiven with SSL)                                           |
 | **Integrations**    | WhatsApp Cloud API (Graph API v18.0), HubSpot API, Excel/Google Sheets via APIs |
-| **Deployment**      | Local: ngrok for HTTPS; Production: FastAPI on Render                            |
+| **Deployment**      | Local: ngrok for HTTPS; Production: FastAPI on Render, React-frontend on Vercel |                         |
 
 ---
 
@@ -122,6 +123,8 @@ A homegrown clothing brand receives 50–80 WhatsApp messages daily, including o
    - Receives all incoming messages from the **WhatsApp Cloud API** webhook.  
    - Parses the payload, authenticates the request, and prepares a normalized message object.  
    - Passes the message forward for validation and processing.
+  
+   ![image](https://github.com/user-attachments/assets/404af301-46e2-4fda-9c86-eca5c8f766b3)
 
 2. **Validator Agent**  
    - Checks whether the message is valid and processable.  

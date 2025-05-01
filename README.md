@@ -16,16 +16,16 @@ SMBs rely heavily on **WhatsApp** for customer interactions, including orders, q
 
 ---
 
-## Solution
+## Solution - **WAffy**
 
 **WAffy** automates and organizes WhatsApp communication with the following features:
 - **Listens** to incoming messages via the WhatsApp Cloud API.
-- **Classifies** messages by category (e.g., order, complaint) and urgency in real time.
+- **Classifies** messages by category (e.g., order, complaint, inquiry) and urgency in real time.
 - **Logs** messages automatically into Excel or HubSpot CRM.
 - **Generates AI-driven responses** for common queries.
 - **Visualizes** data in a clean, interactive React dashboard.
 
-WAffy eliminates manual effort, turning WhatsApp chaos into clarity for business owners.
+WAffy turns WhatsApp chaos into clarity with zero manual effort, making life easier for business.
 
 ---
 
@@ -33,29 +33,30 @@ WAffy eliminates manual effort, turning WhatsApp chaos into clarity for business
 
 WAffy supports **40+ languages**, including English, Hindi, Tamil, Spanish, Arabic, and more. It classifies, tags, and responds to messages in any supported language, ensuring seamless communication with diverse customers.
 
-> WAffy speaks your customers’ language — literally.
+> WAffy speaks your customers’ language — literally!
 
 ---
 
 ## Target Audience
 
 WAffy is designed for:
-- Small and medium-sized online brands (e.g., clothing, decor, handmade goods).
-- Service-based businesses (e.g., fitness trainers, tutors, coaches).
+- Small and medium sized independent brands (clothing, decor, handmade goods).
+- Service-based businesses (fitness trainers, tutors, coaches).
 - Local sellers using WhatsApp as their primary customer channel.
 
 ---
 
-## Impact
+## Impact on buisnesses
 
-| **Before WAffy**                | **After WAffy**                              |
-|---------------------------------|----------------------------------------------|
-| Hundreds of mixed chats         | Categorized and prioritized messages         |
-| Manual CRM entry                | Auto-logged to HubSpot/Excel                |
-| Missed follow-ups               | Clear tags and dashboard alerts             |
-| Slow replies                    | Instant AI-suggested replies                |
+| **Before WAffy**                | **After WAffy**                                   |
+|---------------------------------|---------------------------------------------------|
+| Hundreds of mixed chats         | Categorized and prioritized messages              |
+| Manual CRM entry                | Auto-logged to HubSpot/Excel                      |
+| Missed follow-ups               | Clear tags and dashboard alerts                   |
+| Slow replies                    | Instant AI-suggested replies                      |
+| Language constraints            | Auto Translate for smoother conversation          |
+| Inbox with Spam or toxic messges| Filters out unwanted messeges keeping only valid  |
 
----
 
 ## Real-World Example
 

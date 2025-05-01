@@ -268,7 +268,13 @@ https://github.com/Maruthiphani/WAffy-Dashboard.git
 
 ---
 
-**Project Video:** https://res.cloudinary.com/deff4kbgp/video/upload/v1746079938/video2789456939_kxud5n.mp4
+**Project Video:** 
+
+https://res.cloudinary.com/deff4kbgp/video/upload/v1746079938/video2789456939_kxud5n.mp4
+https://youtu.be/X2LVnRnaEmM
+
+**Promotional Video**
+https://res.cloudinary.com/deff4kbgp/video/upload/v1746080299/WAffy_Explainer_iau2w2.mp4
 
 ---
 

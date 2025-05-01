@@ -125,7 +125,7 @@ A  backery shop receives 50–80 WhatsApp messages daily, including order querie
    - Parses the payload, authenticates the request, and prepares a normalized message object.  
    - Passes the message forward for validation and processing.
 <p align="center">
-<img src="https://i.imgur.com/jOt1tRI.png" width="400" style="float:left; margin-right:30px"/>
+<img src="https://i.imgur.com/jOt1tRI.png" width="400" style="float:left; margin-right:70px"/>
 </p>
 
 1. **Validator Agent**  

@@ -238,7 +238,16 @@ Agent orchestration is managed using LangGraph, enabling structured, stateful wo
 ---
 
 **Application Flow:**
-Add the screenshots of the WAffy app navigation
+
+Screenshots of the WAffy dashboard
+
+Screenshot of the HubSpot CRM
+
+<img src="https://i.imgur.com/UtjBd9S.png" width="350"/>
+<img src="https://i.imgur.com/4mIkdMN.png" width="350"/>
+<img src="https://i.imgur.com/ANjB1z6.png" width="350"/>
+<img src="https://i.imgur.com/TLkPSUD.png" width="350"/>
+<img src="https://i.imgur.com/WRLKN7u.png" width="350"/>
 
 ---
    
@@ -262,7 +271,6 @@ https://github.com/Maruthiphani/WAffy-Dashboard.git
 - Akanksha Vishwakarma : akanksha-vishwak
 - Maruthi Phanindra Ayyagari : Maruthiphani
 - Harsha Naik : Harsha-Ramesh-Naik
-
 
 ---
 
